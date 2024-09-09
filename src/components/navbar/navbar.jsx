@@ -27,7 +27,7 @@ const Navbar = () => {
                <Link to="/"> <img src={logo} alt="logo img" className="logoImg" /></Link>
             </div>
             <div className="nav-links">
-                <Link to="https://online.bni-india.in/bni-delhi-west-membership-application/?entry=%7B%22Chapter%22:%22BNI%20Beyond%22,%22Region%22:%22BNI%20Delhi%20West%22%7D" target="_blank">Member Application Form</Link>
+                <Link to="/member-application">Member Application Form</Link>
                 <a href="src\assets\Interview Sheet- Template.pdf" target="_blank" rel="noopener noreferrer">Interview Sheet</a>
                 <a href="src\assets\Commitment Sheet- Template.pdf" target="_blank" rel="noopener noreferrer">Commitment Sheet</a>
                 <Link to="/eoi-form">EOI Form</Link>
@@ -44,7 +44,7 @@ const Navbar = () => {
                         Basic Services {isDropdownOpen ? <FaChevronUp /> : <FaChevronDown />}
                     </button>
                     <div className={`dropdown-content ${isDropdownOpen ? 'open' : ''}`}>
-                        <Link to="https://online.bni-india.in/bni-delhi-west-membership-application/?entry=%7B%22Chapter%22:%22BNI%20Beyond%22,%22Region%22:%22BNI%20Delhi%20West%22%7D" target="_blank" onClick={toggleMenu}>Member Application Form</Link>
+                        <Link to={"member-application"}>Member Application Form</Link>
                         <a href="src\assets\Interview Sheet- Template.pdf" onClick={toggleMenu} target="_blank" rel="noopener noreferrer">Interview Sheet</a>
                         <a href="src\assets\Commitment Sheet- Template.pdf" onClick={toggleMenu} target="_blank" rel="noopener noreferrer">Commitment Sheet</a>
                         <Link to="/eoi-form" onClick={toggleMenu}>EOI Form</Link>

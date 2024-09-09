@@ -4,7 +4,7 @@ import axios from 'axios';
 import border from "../../assets/images/form icons/border.png"
 import qrCode from "../../assets/images/form icons/qr.png"
 
-const BNIPaymentForm = () => {
+const MemberApplicationForm = () => {
   const [formData, setFormData] = useState({
     region: '',
     chapter: '',
@@ -58,7 +58,7 @@ const BNIPaymentForm = () => {
         ...formData,
         chapter: selectedChapter.chapterName
       });
-      setEoiLink(selectedChapter.eoiLink);
+      setEoiLink(selectedChapter.memberAppLink);
     }
   };
 
@@ -150,7 +150,7 @@ const BNIPaymentForm = () => {
               {eoiLink}
             </a>
           ) : (
-            <p>Your EOI form link will display here on selecting Region and Chapter</p>
+            <p>Your Member Application Form  link will display here on selecting Region and Chapter</p>
           )}
         </p>
       </div>}
@@ -164,4 +164,4 @@ const BNIPaymentForm = () => {
   );
 };
 
-export default BNIPaymentForm;
+export default MemberApplicationForm;

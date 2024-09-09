@@ -91,6 +91,28 @@ height: max-content;
 padding: 30px 10px;
 }
 
+.member-list {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .member-item {
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .member-item:hover{
+    background-color: #ccc;
+   cursor: pointer;
+  }
+  .member-item:last-child {
+    border-bottom: none;
+  }
+  
 .summary {
     display: flex;
     flex-direction: column;

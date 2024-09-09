@@ -13,7 +13,6 @@ import Memberapplication from './pages/memberapplication';
 import RenewalPayment from './pages/renewalPayment';
 import RenewalPaymentWithLateFee from './pages/renewalPaymentWithLateFee';
 import NewMemberPayment from './pages/newMemberPayment';
-
 function App() {
   return (
     <Router>
