@@ -1,0 +1,118 @@
+.banner-container {
+    display: flex;
+    margin-top: -60px ;
+    height: 86vh;
+    background-image: url("../../../../assets/images/banners/homepage-banner.jpg");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    align-items: center;
+}
+
+.text-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  
+
+
+}
+
+.text-container h1 {
+    font-weight: 700;
+    padding: 5px 0px;
+    font-size: xx-large;
+    color: #d12031;
+    
+}
+
+.text-container h3 {
+    font-weight: 600;
+    font-size: x-large;
+    padding: 5px 0px;
+
+}
+
+.link-buttons {
+    display: flex;
+    flex-direction: row;
+ 
+    justify-content: flex-start;
+}
+
+.link-buttons button {
+    background-color: #d12031;
+    color: white;
+    border: none;
+    padding: 5px 5px;
+    /* Added padding for better button appearance */
+    font-size: 16px;
+    border-radius: 5px;
+    box-shadow: 2px 5px 5px  rgb(36, 34, 34);    ;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+    /* Added transition for smooth animation */
+    font-weight: 700;
+    margin: 20px 10px;
+}
+
+.link-buttons button:hover {
+    background-color: #66676b;
+    color: white;
+    transform: scale(1.05);
+    /* Slightly enlarges the button on hover */
+}
+
+@media (min-width: 1024px){
+   .text-container h1{
+        font-size: 3rem;
+    }
+    .text-container h3{
+        font-size: 2rem;
+    }
+    .link-buttons button{
+        padding:10px 30px;
+        font-size: 1rem;
+    }
+}
+@media (max-width: 768px) {
+    
+    .banner-container {
+        background-size: cover;
+        border-radius: 5px;
+        margin-top: -8px;
+        padding: 0px 10px;
+ 
+        height: 350px
+    }
+    .text-container h1{
+        font-size: 1.5rem;
+    }
+    .text-container{
+        width: 80%;
+        padding: 10px;
+        display: block;
+    }
+}
+
+@media (max-width: 425px) {
+    .banner-container {
+        background-size: contain;
+      padding-bottom: 0px;
+        height: 200px
+    }
+    .text-container{
+        width: 80%;
+        padding: 5px 0px;
+    }
+    .text-container h1{
+        font-size: 1rem;
+    }
+    .text-container h3{
+        font-size: 1rem;
+    }
+    .link-buttons button{
+        padding: 5px;
+        font-size: 10px;
+    }
+}

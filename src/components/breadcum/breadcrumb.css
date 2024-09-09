@@ -1,0 +1,18 @@
+.breadcrumb-container{
+    display: flex;
+    flex-direction: row;
+    padding:15px 70px;
+    height: 30px;
+
+}
+.breadcrumb-container p{
+    padding: 0px 5px;
+}
+
+
+@media (max-width: 880px) {
+    .breadcrumb-container{
+        padding:15px 20px;
+    }
+
+}

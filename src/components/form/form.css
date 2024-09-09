@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+.box-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin-top: 40px;
+    
+    
+}
+.form-container {
+    max-width: 100%;
+    margin: 20px auto;
+    background-color: white;
+    padding: 20px;
+    background-color: white;  
+    
+  
+    /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 20px;
+    
+}
+
+.form-header h1 {
+    margin: 0;
+    font-size: 36px;
+    color: #333;
+    font-family: "Poppins", sans-serif;
+    font-weight: 300;
+}
+
+.form-header p {
+    font-size: 14px;
+    color: gray;
+}
+
+.form-content {
+    display: flex;
+    width: 65%;
+    /* flex-wrap: wrap; */
+    justify-content: space-between;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+border-radius: 20px;
+    margin-bottom: 20px;
+}
+
+.form-left, .form-right {
+    width: 100%;
+    padding:20px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+ font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.error {
+    border-color: red;
+}
+
+.error-text {
+    color: red;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.summary-container {
+    width: 28%;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+border-radius: 20px;
+height: max-content;
+padding: 30px 10px;
+}
+
+.summary {
+    display: flex;
+    flex-direction: column;
+   
+    margin-top: -15px;
+    margin-bottom: 20px;
+}
+.summary-heading{
+font-size: 1.5rem;
+padding:2px;
+align-self: flex-start;
+color: rgb(2, 2, 2);
+float: left;
+}
+.summary-content{
+padding: 5px;
+border-bottom: 2px solid rgb(204, 204, 204) ;
+margin-bottom: 15px;
+}
+.summary p {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: 16px;
+  font-weight: bold;
+    color: #333;
+}
+
+.summary .total {
+    font-size: 16px;
+    font-weight: bold;
+   
+}
+
+.pay-now-button {
+    width: 80%;
+    background-color: #d32f2f;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.pay-now-button:hover {
+    background-color: #333;
+}
+
+.form-note {
+    font-size: 14px;
+    text-align: center;
+    margin-top: 20px;
+    color: gray;
+}
+
+.form-footer {
+    text-align: center;
+    font-size: 14px;
+    color: gray;
+    margin-top: 20px;
+}
+
+@media (max-width: 880px) {
+    .box-container{
+        flex-direction: column;
+    }
+    .form-content{
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    .summary-container{
+        width: 100%;
+    }
+}

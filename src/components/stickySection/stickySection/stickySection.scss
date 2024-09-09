@@ -1,0 +1,130 @@
+body {
+  font-family: "Montserrat", sans-serif;
+  }
+  
+  a {
+    text-decoration: none;
+  }
+  
+  //
+  // Header 
+  //
+  
+  .et-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 0 2em;
+    height: 75px;
+    z-index: 2;
+    transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+    &--scrolled {
+      background: #fff;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    }
+    &--move-up {
+      transform: translateY(-75px);
+      transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    &__logo {
+      color: #000;
+    }
+    &__link {
+      margin-left: 1em;
+      color: #000;
+    }
+  }
+  
+  //
+  // Hero 
+  //
+  
+  .et-hero-tabs,
+  .et-slide {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      position: relative;
+      background: #eee;
+      text-align: center;
+      padding: 0 2em;
+      h1 {
+          font-size: 2rem;
+          margin: 0;
+          letter-spacing: 1rem;
+      }
+      h3 {
+          font-size: 1rem;
+          letter-spacing: 0.3rem;
+          opacity: 0.6;
+      }
+  }
+  
+  .et-hero-tabs-container {
+      display: flex;
+      flex-direction: row;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 75px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      background: #fff;
+      z-index: 1;
+      transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+      &--top-first {
+        position: fixed;
+        top: 75px;
+        transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+      }
+      &--top-second {
+        position: fixed;
+        top: 0;
+      }
+  }
+  
+  .et-hero-tab {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+      color: #000;
+      letter-spacing: 0.1rem;
+      transition: all 0.5s ease;
+      font-size: 0.8rem;
+      &:hover {
+        color:white;
+        background: rgba(102,177,241,0.8);
+        transition: all 0.5s ease;
+      }
+  }
+  
+  .et-hero-tab-slider {
+      position: absolute;
+      bottom: 0;
+      width: 0;
+      height: 6px;
+      background: #66B1F1;
+      transition: left 0.3s ease;
+  }
+  
+  @media (min-width: 800px) {
+    .et-hero-tabs,
+    .et-slide {
+      h1 {
+          font-size: 3rem;
+      }
+      h3 {
+          font-size: 1rem;
+      }
+    }
+    .et-hero-tab {
+      font-size: 1rem;
+    }
+  }
