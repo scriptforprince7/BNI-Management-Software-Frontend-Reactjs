@@ -3,7 +3,7 @@ import './form.css';
 import axios from 'axios';
 import border from "../../assets/images/form icons/border.png"
 import qrCode from "../../assets/images/form icons/qr.png"
-
+import baseUrl from '../../utils/baseurl';
 const BNIPaymentForm = () => {
   const [formData, setFormData] = useState({
     region: '',
@@ -41,7 +41,7 @@ const BNIPaymentForm = () => {
       });
 
       // Fetch chapters for selected region
-      const res = await axios.get("http://localhost:5000/api/getChapters");
+      const res = await axios.get(`${baseUrl}/api/getChapters`);
       const result = res.data.data.filter(item => item.region.regionName === value);
 
       setChapterData(result);
@@ -88,7 +88,7 @@ const BNIPaymentForm = () => {
   useEffect(() => {
     const fetchRegions = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/getregions");
+        const res = await axios.get(`${baseUrl}/api/getregions`);
         setRegionData(res.data.data);
       } catch (error) {
         console.error("Error fetching regions:", error);

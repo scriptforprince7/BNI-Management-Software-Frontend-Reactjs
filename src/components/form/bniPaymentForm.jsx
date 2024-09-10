@@ -3,13 +3,14 @@ import './form.css';
 import border from "../../assets/images/form icons/border.png"
 import axios from 'axios';
 import ErrorBoundary from '../error/ErrorBoundary';
+import baseUrl from '../../utils/baseurl';
 const BNIPaymentForm = () => {
   const [formData, setFormData] = useState({
     region: '',
     chapter: '',
     memberName: '',
     email: '',
-    renewalYear: '',
+    renewalYear: '1Year',
     category: '',
     mobileNumber: '',
     address: '',
@@ -21,7 +22,11 @@ const BNIPaymentForm = () => {
   const [errors, setErrors] = useState({});
   const [regionData, setRegionData] = useState();
   const [chapterData, setChapterData] = useState();
+  const[selectedChapter,setselectedChapter]=useState('');
+  const[selectedRegion,setSelectedRegion]=useState('')
   const [memberData, setmemberData] = useState();
+  const [particularChapterData,setParticularChapterData]=useState();
+
   const[selectedMember,setSelectedMember]=useState(false)
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,6 +38,24 @@ const BNIPaymentForm = () => {
 
   };
 
+  const handleChapterChange = (e) => {
+    const selectedChapter = e.target.value;
+  setselectedChapter(e.target.value)
+    // Update formData with the selected chapter
+    setFormData({ ...formData, chapter: selectedChapter });
+  
+    // Find the index of the selected chapter
+    const selectedIndex = chapterData.findIndex(chapter => chapter.chapterName === selectedChapter);
+  
+    // Call the function to handle the selected chapter data
+    if (selectedIndex !== -1) {
+      handleSelectedChapterData(selectedIndex);
+    }
+  };
+  
+  
+  
+
   const handleRegionChange = async (e) => {
     try {
       const { name, value } = e.target;
@@ -40,16 +63,16 @@ const BNIPaymentForm = () => {
         ...formData,
         [name]: value
       });
+      setSelectedRegion(e.target.value)
 
-
-      const res = await axios.get("http://localhost:5000/api/getChapters");
-      console.log("hello")
+      const res = await axios.get(`${baseUrl}/api/getChapters`);
+      console.log("hello555")
       console.log(res.data.data)
-      console.log(e.target.value)
+   
       const result = res.data.data.filter(item => item.region.regionName === e.target.value);
 
       setChapterData(result);
-      console.log(chapterData)
+      console.log("chpaterdata",result)
     } catch (error) {
       console.error("Error fetching regions:", error);
     }
@@ -64,9 +87,14 @@ const BNIPaymentForm = () => {
     })
 
     try {
-      const member = await axios.get('http://localhost:5000/api/getmembers');
-      setmemberData(member.data.data)
-      console.log(member.data.data)
+      const member = await axios.get(`${baseUrl}/api/getmembers`);
+      const result = member.data.data.filter(item => 
+        item.firstname.toLowerCase().startsWith(e.target.value.toLowerCase())|| item.firstname.toLowerCase().includes(e.target.value.toLowerCase())
+      );
+    
+      console.log(selectedChapter,selectedRegion)
+            setmemberData(result)
+      // console.log(result)
     }
     catch {
       console.log("something went wrong ")
@@ -83,12 +111,19 @@ formData.mobileNumber=particularMember.phone,
 formData.category=particularMember.companyCategory;
 formData.company=particularMember.companyCategory;
 formData.gstin=particularMember.gstNumber;
+formData.renewalYear="1Year"
+  }
+
+
+  const handleSelectedChapterData=async(index)=>{
+setParticularChapterData(chapterData[index]);
+console.log(particularChapterData)
   }
 
   useEffect(() => {
     const fetchRegions = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/getregions");
+        const res = await axios.get(`${baseUrl}/api/getregions`);
 
         setRegionData(res.data.data);
       } catch (error) {
@@ -97,7 +132,7 @@ formData.gstin=particularMember.gstNumber;
     };
 
     fetchRegions();
-  }, [])
+  }, [selectedChapter,selectedRegion])
 
 
   const validate = () => {
@@ -153,23 +188,24 @@ formData.gstin=particularMember.gstNumber;
             </div>
 
             <div className="form-group">
-              <label htmlFor="chapter" style={{ textAlign: 'center' }}>BNI Chapter :</label>
-              <select
-                id="chapter"
-                name="chapter"
-                value={formData.chapter}
-                onChange={handleChange}
-                className={errors.chapter ? 'error' : ''}
-              >
-                <option value="">Select Chapter</option>
-                {chapterData && chapterData.map((chapter, index) => (
-                  <option value={chapter.chapterName} key={index}>
-                    {chapter.chapterName}
-                  </option>
-                ))}
-              </select>
-              {errors.chapter && <small className="error-text">{errors.chapter}</small>}
-            </div>
+  <label htmlFor="chapter" style={{ textAlign: 'center' }}>BNI Chapter :</label>
+  <select
+    id="chapter"
+    name="chapter"
+    value={formData.chapter}
+    onChange={handleChapterChange} // This is where the chapter change is detected
+    className={errors.chapter ? 'error' : ''}
+  >
+    <option value="">Select Chapter</option>
+    {chapterData && chapterData.map((chapter, index) => (
+      <option value={chapter.chapterName} key={index}>
+        {chapter.chapterName}
+      </option>
+    ))}
+  </select>
+  {errors.chapter && <small className="error-text">{errors.chapter}</small>}
+</div>
+
 
           </form>
         </div>
@@ -181,8 +217,7 @@ formData.gstin=particularMember.gstNumber;
             <select
               id="region"
               name="region"
-              value={formData.region}
-              onChange={handleChange}
+              value={formData.region}  
               className={errors.region ? 'error' : ''}
             >
              <option value="">Select Region</option>
@@ -200,6 +235,7 @@ formData.gstin=particularMember.gstNumber;
                   type="text"
                   id="memberName"
                   name="memberName"
+                  // onBlur={() => setSelectedMember(true)}
                   value={formData.memberName}
                   onChange={handleMemberNameChange}
                   placeholder="Enter Member Name"
@@ -207,15 +243,28 @@ formData.gstin=particularMember.gstNumber;
                 />
 
                 {/* Automatically display member names once data is fetched */}
-                {memberData && !selectedMember && (
-                  <ul className="member-list" style={{ border: "1px solid red" }}>
-                    {memberData && memberData.map((member, index) => (
-                      <li key={index} className="member-item" onClick={()=>memberDataHandler(index)}>
-                        {member.firstname + " " + member.lastname} 
-                      </li>
-                    ))}
-                  </ul>
-                )}
+{memberData && !selectedMember && (
+  <ul className="member-list" style={{ border: "1px solid red" }}>
+    {selectedRegion && selectedChapter ? (
+      memberData.length > 0 ? (
+        memberData.map((member, index) => (
+          <li key={index} className="member-item" onClick={() => memberDataHandler(index)}>
+            {member.firstname + " " + member.lastname}
+          </li>
+        ))
+      ) : (
+        // If no member data is found
+        <p>No data found</p>
+      )
+    ) : (
+      // If regionData or chapterData is missing
+      <p>Please select Chapter and Region</p>
+    )}
+  </ul>
+)}
+
+
+
 
                 {errors.memberName && <small className="error-text">{errors.memberName}</small>}
               </div>
@@ -248,8 +297,8 @@ formData.gstin=particularMember.gstNumber;
                 >
                   <option value="">Select Membership </option>
                   <option value="1Year">1 Year</option>
-                  <option value="2Year">2 Year</option>
-                  <option value="3 Year">5 Year</option>
+                  <option value="2Year">2 Years</option>
+                  <option value="5Year">5 Years</option>
                 </select>
                 {errors.renewalYear && <small className="error-text">{errors.renewalYear}</small>}
               </div>
@@ -362,8 +411,7 @@ formData.gstin=particularMember.gstNumber;
               </div>
             </div>
           </form>
-
-          <div className="summary-container">
+{formData.renewalYear==="1Year" && <div className="summary-container">
             <div className="summary">
               <h5 className="summary-heading">Summary</h5>
               <hr
@@ -374,37 +422,123 @@ formData.gstin=particularMember.gstNumber;
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>
                     One Time Registration Fee:
                   </span>{" "}
-                  <span>₹5,999/-</span>
+                  <span>₹{particularChapterData && particularChapterData.oneTimeReg ||"5999"}</span>
                 </p>
                 <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>Membership Fee:</span>{" "}
-                  <span>₹35,309/-</span>
+                  <span>₹{particularChapterData && particularChapterData.oneYearMembership ||"35,309"}</span>
                 </p>
                 <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>Subtotal:</span>{" "}
-                  <span>₹41,308/-</span>
+                  <span>₹{particularChapterData && particularChapterData.oneYearSubtotal||"41,308"}</span>
                 </p>
                 <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>GST (18%):</span>{" "}
-                  <span>₹7,435/-</span>
+                  <span>₹{ particularChapterData && particularChapterData.newMemberGstOneYear||"7,435"}</span>
                 </p>
                 <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>Gateway Charges (1.25%):</span>{" "}
-                  <span>₹609.28/-</span>
-                </p>
+                  <span>₹{( particularChapterData && particularChapterData.totalNewMembershipOneYear * 0.0125)?.toFixed(2) || "609"}</span>
+                  </p>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <div style={{ display: "flex", flexDirection: "column" }}>
                   <span className="total">Total Amount</span>
                   <span>(Including GST:)</span>
                 </div>
-                <p>₹49,352/-</p>
-              </div>
+                <p>₹{((particularChapterData && particularChapterData.totalNewMembershipOneYear + (particularChapterData.totalNewMembershipOneYear * 0.0125)) || 49352).toFixed(2)}</p>
+                </div>
             </div>
             <button className="pay-now-button" onClick={handleSubmit}>
               PAY NOW
             </button>
-          </div>
+          </div>}
+
+          {formData.renewalYear==="2Year" &&  <div className="summary-container">
+            <div className="summary">
+              <h5 className="summary-heading">Summary</h5>
+              <hr
+                style={{ borderBottom: "1px solid rgb(204, 204, 204)", marginTop: "-5px" }}
+              />
+              <div className="summary-content">
+                <p>
+                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>
+                    One Time Registration Fee:
+                  </span>{" "}
+                  <span>₹{particularChapterData && particularChapterData.oneTimeReg ||"5999"}</span>
+                </p>
+                <p>
+                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>Membership Fee:</span>{" "}
+                  <span>₹{particularChapterData && particularChapterData.twoYearMembership ||"56,499"}</span>
+                </p>
+                <p>
+                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>Subtotal:</span>{" "}
+                  <span>₹{particularChapterData && particularChapterData.twoYearSubtotal||"62,498"}</span>
+                </p>
+                <p>
+                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>GST (18%):</span>{" "}
+                  <span>₹{particularChapterData && particularChapterData.newMemberGstTwoYear||"11,250"}</span>
+                </p>
+                <p>
+                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>Gateway Charges (1.25%):</span>{" "}
+                  <span>₹{(particularChapterData && particularChapterData.totalNewMembershipTwoYear * 0.0125)?.toFixed(2) || "921"}</span>
+                  </p>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <span className="total">Total Amount</span>
+                  <span>(Including GST:)</span>
+                </div>
+                <p>₹{((particularChapterData && particularChapterData.totalNewMembershipTwoYear + (particularChapterData && particularChapterData.totalNewMembershipTwoYear * 0.0125)) || 49352).toFixed(2)}</p>
+                </div>
+            </div>
+            <button className="pay-now-button" onClick={handleSubmit}>
+              PAY NOW
+            </button>
+          </div>}
+          {formData.renewalYear==="5Year"&& <div className="summary-container">
+            <div className="summary">
+              <h5 className="summary-heading">Summary</h5>
+              <hr
+                style={{ borderBottom: "1px solid rgb(204, 204, 204)", marginTop: "-5px" }}
+              />
+              <div className="summary-content">
+                <p>
+                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>
+                    One Time Registration Fee:
+                  </span>{" "}
+                  <span>₹{particularChapterData && particularChapterData.oneTimeReg ||"5999"}</span>
+                </p> 
+                <p>
+                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>Membership Fee:</span>{" "}
+                  <span>₹{particularChapterData && particularChapterData.fiveYearMembership ||"1,23,581"}</span>
+                </p>
+                <p>
+                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>Subtotal:</span>{" "}
+                  <span>₹{particularChapterData && particularChapterData.fiveYearSubtotal||"1,29,580"}</span>
+                </p>
+                <p>
+                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>GST (18%):</span>{" "}
+                  <span>₹{particularChapterData && particularChapterData.newMemberGstFiveYear||"23,324"}</span>
+                </p>
+                <p>
+                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>Gateway Charges (1.25%):</span>{" "}
+                  <span>₹{(particularChapterData && particularChapterData.totalNewMembershipFiveYear * 0.0125)?.toFixed(2) || "1,911"}</span>
+                  </p>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <span className="total">Total Amount</span>
+                  <span>(Including GST:)</span>
+                </div>
+                <p>₹{((particularChapterData && particularChapterData.totalNewMembershipFiveYear + (particularChapterData && particularChapterData.totalNewMembershipFiveYear * 0.0125)) || 49352).toFixed(2)}</p>
+                </div>
+            </div>
+            <button className="pay-now-button" onClick={handleSubmit}>
+              PAY NOW
+            </button>
+          </div>}
+          
         </div>
 
         <div className="form-note">

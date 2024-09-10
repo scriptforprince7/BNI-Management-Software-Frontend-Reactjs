@@ -4,6 +4,7 @@ import logo from '../../assets/images/logo/logo.jpeg';
 import { FaBars, FaTimes, FaChevronDown, FaChevronUp } from 'react-icons/fa'; // Import icons
 import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 
+
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -28,8 +29,8 @@ const Navbar = () => {
             </div>
             <div className="nav-links">
                 <Link to="/member-application">Member Application Form</Link>
-                <a href="src\assets\Interview Sheet- Template.pdf" target="_blank" rel="noopener noreferrer">Interview Sheet</a>
-                <a href="src\assets\Commitment Sheet- Template.pdf" target="_blank" rel="noopener noreferrer">Commitment Sheet</a>
+                <a href="public/Interview Sheet- Template.pdf" rel="noopener noreferrer">Interview Sheet</a>
+                <a href="public/Commitment Sheet- Template.pdf" rel="noopener noreferrer">Commitment Sheet</a>
                 <Link to="/eoi-form">EOI Form</Link>
             </div>
             <div className="hamburger" onClick={toggleMenu}>
