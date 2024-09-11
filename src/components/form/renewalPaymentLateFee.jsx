@@ -4,7 +4,9 @@ import border from "../../assets/images/form icons/border.png"
 import axios from 'axios';
 import ErrorBoundary from '../error/ErrorBoundary';
 import baseUrl from '../../utils/baseurl';
-
+import LoaderImg from '../loading/loading';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const RenewalPaymentLateFee = () => {
   const [formData, setFormData] = useState({
     region: '',
@@ -27,7 +29,7 @@ const RenewalPaymentLateFee = () => {
   const[selectedRegion,setSelectedRegion]=useState('')
   const [memberData, setmemberData] = useState();
   const [particularChapterData,setParticularChapterData]=useState();
-
+const[loading,setLoading]=useState(false);
   const[selectedMember,setSelectedMember]=useState(false)
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -124,16 +126,20 @@ console.log(particularChapterData)
   useEffect(() => {
     const fetchRegions = async () => {
       try {
+        setLoading(true)
         const res = await axios.get(`${baseUrl}/api/getregions`);
 
         setRegionData(res.data.data);
+         setLoading(false)
       } catch (error) {
         console.error("Error fetching regions:", error);
+        setLoading(false)
+        toast.error(error.message);
       }
     };
 
     fetchRegions();
-  }, [selectedChapter,selectedRegion])
+  }, [])
 
 
   const validate = () => {
@@ -160,16 +166,17 @@ console.log(particularChapterData)
   };
 
   return (
-
+<>
+<ToastContainer />
     <ErrorBoundary>
-      <div className="form-container">
+    {loading? <LoaderImg/>: <div className="form-container">
         <div className="form-header">
           <h1> RENEW MEMBER WITH LATE FEE  PAYMENT</h1>
           <img src={border} alt="" style={{ width: "250px" }} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <form action="" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', margin: "" }}>
-            <div className="form-group" style={{ margin: "0px 50px" }}>
+          <form action="" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', }}>
+            <div className="form-group" style={{ padding: "0px 20px" }}>
               <label htmlFor="region" style={{ textAlign: 'center' }}>BNI Region :</label>
               <select
                 id="region"
@@ -561,9 +568,9 @@ console.log(particularChapterData)
           </p>
         </div>
 
-      </div>
+      </div>}
     </ErrorBoundary>
-
+</>
   );
 };
 

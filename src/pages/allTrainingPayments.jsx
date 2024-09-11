@@ -5,6 +5,7 @@ import Footer from '../components/footer/footer'
 import AllPaymentsForm from '../components/form/AllpaymentsForm'
 import Copyright from '../components/footer/copyright'
 import Breadcrumb from '../components/breadcum/breadcrumb'
+import { ToastContainer } from 'react-toastify'
 
 
 const AllTrainingPayments = () => {
@@ -15,6 +16,7 @@ const link="all-training-payments"
     
     
     <div >
+  
       <Navbar />
     <Breadcrumb link={link}/>
     <AllPaymentsForm/>

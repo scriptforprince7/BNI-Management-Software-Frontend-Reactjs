@@ -29,8 +29,8 @@ const Navbar = () => {
             </div>
             <div className="nav-links">
                 <Link to="/member-application">Member Application Form</Link>
-                <a href="public/Interview Sheet- Template.pdf" rel="noopener noreferrer">Interview Sheet</a>
-                <a href="public/Commitment Sheet- Template.pdf" rel="noopener noreferrer">Commitment Sheet</a>
+                <a href="/Interview Sheet- Template.pdf" rel="noopener noreferrer">Interview Sheet</a>
+                <a href="/Commitment Sheet- Template.pdf" rel="noopener noreferrer">Commitment Sheet</a>
                 <Link to="/eoi-form">EOI Form</Link>
             </div>
             <div className="hamburger" onClick={toggleMenu}>
