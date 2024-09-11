@@ -7,6 +7,9 @@ import baseUrl from '../../utils/baseurl';
 import LoaderImg from '../loading/loading';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import paymentHandler from '../../utils/paymentHandler';
+import { useNavigate } from 'react-router-dom';
+
 const AllPaymentsForm = () => {
   const [formData, setFormData] = useState({
     region: '',
@@ -19,9 +22,14 @@ const AllPaymentsForm = () => {
     address: '',
     company: '',
     gstin: '',
-    paymentType: ''
+    location:"The Lalit Hotel",
+    date:"2024-09-16",
+    time:"16:00",
+    gstin: '',
+    paymentType: '',
+    eventType:''
   });
-
+const navigate=useNavigate();
   const [errors, setErrors] = useState({});
   const [regionData, setRegionData] = useState();
   const [chapterData, setChapterData] = useState();
@@ -69,13 +77,12 @@ const[loading,setLoading]=useState(false);
       setSelectedRegion(e.target.value)
 
       const res = await axios.get(`${baseUrl}/api/getChapters`);
-      console.log("hello555")
-      console.log(res.data.data)
+     
    
       const result = res.data.data.filter(item => item.region.regionName === e.target.value);
 
       setChapterData(result);
-      console.log("chpaterdata",result)
+
     } catch (error) {
       console.error("Error fetching regions:", error);
     }
@@ -95,9 +102,9 @@ const[loading,setLoading]=useState(false);
         item.firstname.toLowerCase().startsWith(e.target.value.toLowerCase())|| item.firstname.toLowerCase().includes(e.target.value.toLowerCase())
       );
     
-      console.log(selectedChapter,selectedRegion)
+
             setmemberData(result)
-      // console.log(result)
+    
     }
     catch {
       console.log("something went wrong ")
@@ -107,7 +114,7 @@ const[loading,setLoading]=useState(false);
   const memberDataHandler=async(index)=>{
     setSelectedMember(true)
 const particularMember=memberData[index]
-console.log(particularMember)
+
 formData.memberName=particularMember.firstname+" "+particularMember.lastname;
 formData.email=particularMember.alternateEmailAddress;
 formData.mobileNumber=particularMember.phone,
@@ -120,7 +127,7 @@ formData.renewalYear="1Year"
 
   const handleSelectedChapterData=async(index)=>{
 setParticularChapterData(chapterData[index]);
-console.log(particularChapterData)
+
   }
 
   useEffect(() => {
@@ -154,16 +161,27 @@ console.log(particularChapterData)
     if (!formData.address) errors.address = 'Address is required';
     if (!formData.company) errors.company = 'Company is required';
     if (!formData.paymentType) errors.paymentType = 'Payment Type is required';
+    if (!formData.location) errors.location = 'Location is required';
+    if (!formData.date) errors.date = 'Date is required';
+    if (!formData.time) errors.time = 'Time is required';
+    if (!formData.paymentType) errors.paymentType = 'Payment Type is required';
+    if(!formData.eventType) errors.eventType="Training Program is required"
+    
     setErrors(errors);
-    return Object.keys(errors).length === 0;
+    return { isValid: errors.length === 0, errors };
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent form from submitting the default way
+  
     if (validate()) {
-      alert('Form submitted successfully!');
+      // alert('Form submitted successfully!');
+      // navigate('/')
+      
+    } else {
+      alert(`Form validation failed:\n${validationResult.errors.join('\n')}`);
     }
-  };
+  }
 
   return (
 <>
@@ -172,7 +190,7 @@ console.log(particularChapterData)
         
      {loading? <LoaderImg/>: <div className="form-container">
         <div className="form-header">
-          <h1> All TRAINING/MEETING PAYMENTS</h1>
+          <h1> All TRAINING PAYMENTS</h1>
           <img src={border} alt="" style={{ width: "250px" }} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent:'space-between',alignItems:'center', }}>
@@ -296,23 +314,38 @@ console.log(particularChapterData)
               </div>
 
               <div className="form-group">
-                <label htmlFor="renewalYear">Select Membership </label>
+                <label htmlFor="eventType">Select Event/Training</label>
                 <select
-                  id="renewalYear"
-                  name="renewalYear"
-                  value={formData.renewalYear}
+                  id="eventType"
+                  name="eventType"
+                  value={formData.eventType}
                   onChange={handleChange}
-                  className={errors.renewalYear ? 'error' : ''}
+                  className={errors.eventType ? 'error' : ''}
                 >
-                  <option value="">Select Membership </option>
-                  <option value="1Year">1 Year</option>
-                  <option value="2Year">2 Years</option>
-                  <option value="5Year">5 Years</option>
+                 <option value="">Select Event/Training</option>
+              <option value="1Year">Event 1</option>
+              <option value="2Year">Event 2</option>
+              <option value="3Year">Event 3</option>
                 </select>
-                {errors.renewalYear && <small className="error-text">{errors.renewalYear}</small>}
+                {errors.eventType && <small className="error-text">{errors.eventType}</small>}
               </div>
 
-
+              {formData.eventType &&   <div className="form-group">
+                <label htmlFor="date">Event Date :</label>
+                <input
+                  id="date"
+                  name="date"
+                  value={formData.date}
+                  type='Date'
+                  contentEditable="false"
+                  onChange={handleChange}
+                  placeholder='Event date fetch atomatically on selecting event'
+                  className={errors.date ? 'error' : ''}
+                  readOnly
+               />
+                
+                {errors.date && <small className="error-text">{errors.date}</small>}
+              </div>}
               <div className="form-group">
                 <label htmlFor="paymentType">Payment Type :</label>
                 <select
@@ -321,6 +354,7 @@ console.log(particularChapterData)
                   value={formData.paymentType}
                   onChange={handleChange}
                   className={errors.paymentType ? 'error' : ''}
+              
                 >
                   <option value="">CREDIT / DEBIT / NET BANKING</option>
                   <option value="credit">Credit (1.25%)</option>
@@ -376,6 +410,22 @@ console.log(particularChapterData)
                 />
                 {errors.category && <small className="error-text">{errors.category}</small>}
               </div>
+
+              {formData .eventType  && 
+      <div className="form-group">
+                <label htmlFor="location">Location :</label>
+                <input
+                  type="text"
+                  id="location"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  placeholder=" Enter location  "
+                  className={errors.location ? 'error' : ''}
+                  readOnly
+                />
+                {errors.location && <small className="error-text">{errors.location}</small>}
+              </div>}
               {/*       
           <div className="form-group">
             <label htmlFor="address">Address :</label>
@@ -391,19 +441,21 @@ console.log(particularChapterData)
             {errors.address && <small className="error-text">{errors.address}</small>}
           </div> */}
 
-              <div className="form-group">
-                <label htmlFor="company">Company :</label>
+{formData .eventType  && 
+      <div className="form-group">
+                <label htmlFor="company">Event Time :</label>
                 <input
-                  type="text"
-                  id="company"
-                  name="company"
-                  value={formData.company}
+                  type="time"
+                  id="time"
+                  name="time"
+                  value={formData.time}
                   onChange={handleChange}
-                  placeholder="Enter Company Name"
-                  className={errors.company ? 'error' : ''}
+                  placeholder=" Enter time  "
+                  className={errors.time ? 'error' : ''}
+                  readOnly
                 />
-                {errors.company && <small className="error-text">{errors.company}</small>}
-              </div>
+                {errors.time && <small className="error-text">{errors.time}</small>}
+              </div>}
               <div className="form-group">
                 <label htmlFor="gstin">GSTIN No. :</label>
                 <input
@@ -427,27 +479,33 @@ console.log(particularChapterData)
                 style={{ borderBottom: "1px solid rgb(204, 204, 204)", marginTop: "-5px" }}
               />
               <div className="summary-content">
-                <p>
+                {/* <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>
                     One Time Registration Fee:
                   </span>{" "}
                   <span>₹{particularChapterData && particularChapterData.oneTimeReg ||"5999"}</span>
+                </p> */}
+                 <p>
+                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>
+                   Event/Training Fee:
+                  </span>{" "}
+                  <span>₹1200</span>
                 </p>
-                <p>
+                {/* <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>Membership Fee:</span>{" "}
                   <span>₹{particularChapterData && particularChapterData.oneYearMembership ||"35,309"}</span>
-                </p>
-                <p>
+                </p> */}
+                {/* <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>Subtotal:</span>{" "}
                   <span>₹{particularChapterData && particularChapterData.oneYearSubtotal||"41,308"}</span>
-                </p>
+                </p> */}
                 <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>GST (18%):</span>{" "}
-                  <span>₹{ particularChapterData && particularChapterData.newMemberGstOneYear||"7,435"}</span>
+                  <span>₹{1200*0.18}</span>
                 </p>
                 <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>Gateway Charges (1.25%):</span>{" "}
-                  <span>₹{( particularChapterData && particularChapterData.totalNewMembershipOneYear * 0.0125)?.toFixed(2) || "609"}</span>
+                  <span>₹{((1200+(1200*0.18))*0.0125).toFixed(2)}</span>
                   </p>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -455,7 +513,7 @@ console.log(particularChapterData)
                   <span className="total">Total Amount</span>
                   <span>(Including GST:)</span>
                 </div>
-                <p>₹{((particularChapterData && particularChapterData.totalNewMembershipOneYear + (particularChapterData.totalNewMembershipOneYear * 0.0125)) || 49352).toFixed(2)}</p>
+                <p>₹{(1200+(1200*0.18)+(1200+(1200*0.18))*0.0125).toFixed(2)}</p>
                 </div>
             </div>
             <button className="pay-now-button" onClick={handleSubmit}>
@@ -463,7 +521,7 @@ console.log(particularChapterData)
             </button>
           </div>}
 
-          {formData.renewalYear==="2Year" &&  <div className="summary-container">
+          {/* {formData.renewalYear==="2Year" &&  <div className="summary-container">
             <div className="summary">
               <h5 className="summary-heading">Summary</h5>
               <hr
@@ -546,7 +604,7 @@ console.log(particularChapterData)
             <button className="pay-now-button" onClick={handleSubmit}>
               PAY NOW
             </button>
-          </div>}
+          </div>} */}
           
         </div>
 

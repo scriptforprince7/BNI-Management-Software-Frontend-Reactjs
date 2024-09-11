@@ -69,13 +69,12 @@ const[loading,setLoading]=useState(false);
       setSelectedRegion(e.target.value)
 
       const res = await axios.get(`${baseUrl}/api/getChapters`);
-      console.log("hello555")
-      console.log(res.data.data)
+    
    
       const result = res.data.data.filter(item => item.region.regionName === e.target.value);
 
       setChapterData(result);
-      console.log("chpaterdata",result)
+   
     } catch (error) {
       console.error("Error fetching regions:", error);
     }
@@ -95,9 +94,8 @@ const[loading,setLoading]=useState(false);
         item.firstname.toLowerCase().startsWith(e.target.value.toLowerCase())|| item.firstname.toLowerCase().includes(e.target.value.toLowerCase())
       );
     
-      console.log(selectedChapter,selectedRegion)
             setmemberData(result)
-      // console.log(result)
+      
     }
     catch {
       console.log("something went wrong ")
@@ -107,7 +105,7 @@ const[loading,setLoading]=useState(false);
   const memberDataHandler=async(index)=>{
     setSelectedMember(true)
 const particularMember=memberData[index]
-console.log(particularMember)
+
 formData.memberName=particularMember.firstname+" "+particularMember.lastname;
 formData.email=particularMember.alternateEmailAddress;
 formData.mobileNumber=particularMember.phone,
@@ -120,7 +118,7 @@ formData.renewalYear="1Year"
 
   const handleSelectedChapterData=async(index)=>{
 setParticularChapterData(chapterData[index]);
-console.log(particularChapterData)
+
   }
 
   useEffect(() => {

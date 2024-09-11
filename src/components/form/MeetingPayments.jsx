@@ -13,7 +13,7 @@ const MeetingPaymentsForm = () => {
     chapter: '',
     memberName: '',
     email: '',
-    renewalYear: '1Year',
+    quarter: 'Jan-March',
     category: '',
     mobileNumber: '',
     address: '',
@@ -69,13 +69,11 @@ const[loading,setLoading]=useState(false);
       setSelectedRegion(e.target.value)
 
       const res = await axios.get(`${baseUrl}/api/getChapters`);
-      console.log("hello555")
-      console.log(res.data.data)
    
       const result = res.data.data.filter(item => item.region.regionName === e.target.value);
 
       setChapterData(result);
-      console.log("chpaterdata",result)
+      
     } catch (error) {
       console.error("Error fetching regions:", error);
     }
@@ -95,9 +93,9 @@ const[loading,setLoading]=useState(false);
         item.firstname.toLowerCase().startsWith(e.target.value.toLowerCase())|| item.firstname.toLowerCase().includes(e.target.value.toLowerCase())
       );
     
-      console.log(selectedChapter,selectedRegion)
+  
             setmemberData(result)
-      // console.log(result)
+  
     }
     catch {
       console.log("something went wrong ")
@@ -107,20 +105,20 @@ const[loading,setLoading]=useState(false);
   const memberDataHandler=async(index)=>{
     setSelectedMember(true)
 const particularMember=memberData[index]
-console.log(particularMember)
+
 formData.memberName=particularMember.firstname+" "+particularMember.lastname;
 formData.email=particularMember.alternateEmailAddress;
 formData.mobileNumber=particularMember.phone,
 formData.category=particularMember.companyCategory;
 formData.company=particularMember.companyCategory;
 formData.gstin=particularMember.gstNumber;
-formData.renewalYear="1Year"
+formData.quarter="Jan-March"
   }
 
 
   const handleSelectedChapterData=async(index)=>{
 setParticularChapterData(chapterData[index]);
-console.log(particularChapterData)
+
   }
 
   useEffect(() => {
@@ -148,7 +146,7 @@ console.log(particularChapterData)
     if (!formData.chapter) errors.chapter = 'BNI Chapter is required';
     if (!formData.memberName) errors.memberName = 'Member Name is required';
     if (!formData.email) errors.email = 'Email is required';
-    if (!formData.renewalYear) errors.renewalYear = 'Renewal Year is required';
+    if (!formData.quarter) errors.quarter = 'Renewal Year is required';
     if (!formData.category) errors.category = 'Category is required';
     if (!formData.mobileNumber) errors.mobileNumber = 'Mobile Number is required';
     if (!formData.address) errors.address = 'Address is required';
@@ -295,20 +293,21 @@ console.log(particularChapterData)
               </div>
 
               <div className="form-group">
-                <label htmlFor="renewalYear">Select Membership </label>
+                <label htmlFor="quarter">Select Quarter </label>
                 <select
-                  id="renewalYear"
-                  name="renewalYear"
-                  value={formData.renewalYear}
+                  id="quarter"
+                  name="quarter"
+                  value={formData.quarter}
                   onChange={handleChange}
-                  className={errors.renewalYear ? 'error' : ''}
+                  className={errors.quarter ? 'error' : ''}
                 >
-                  <option value="">Select Membership </option>
-                  <option value="1Year">1 Year</option>
-                  <option value="2Year">2 Years</option>
-                  <option value="5Year">5 Years</option>
+                  <option value="">Select Quarter </option>
+                  <option value="Jan-March">Jan-March(2024)</option>
+                  <option value="Apr-June">Apr-June(2024)</option>
+                  <option value="July-Sep">July-Sep(2024)</option>
+                  <option value="Oct-Dec">Oct-Dec(2024)</option>
                 </select>
-                {errors.renewalYear && <small className="error-text">{errors.renewalYear}</small>}
+                {errors.quarter && <small className="error-text">{errors.quarter}</small>}
               </div>
 
 
@@ -419,34 +418,40 @@ console.log(particularChapterData)
               </div>
             </div>
           </form>
-{formData.renewalYear==="1Year" && <div className="summary-container">
-            <div className="summary">
+{["Jan-March", "Apr-June", "July-Sep", "Oct-Dec"].includes(formData.quarter) &&<div className="summary-container">
+  <div className="summary">
               <h5 className="summary-heading">Summary</h5>
               <hr
                 style={{ borderBottom: "1px solid rgb(204, 204, 204)", marginTop: "-5px" }}
               />
               <div className="summary-content">
-                <p>
+                {/* <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>
                     One Time Registration Fee:
                   </span>{" "}
                   <span>₹{particularChapterData && particularChapterData.oneTimeReg ||"5999"}</span>
+                </p> */}
+                 <p>
+                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>
+                   Event/Training Fee:
+                  </span>{" "}
+                  <span>₹1200</span>
                 </p>
-                <p>
+                {/* <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>Membership Fee:</span>{" "}
                   <span>₹{particularChapterData && particularChapterData.oneYearMembership ||"35,309"}</span>
-                </p>
-                <p>
+                </p> */}
+                {/* <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>Subtotal:</span>{" "}
                   <span>₹{particularChapterData && particularChapterData.oneYearSubtotal||"41,308"}</span>
-                </p>
+                </p> */}
                 <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>GST (18%):</span>{" "}
-                  <span>₹{ particularChapterData && particularChapterData.newMemberGstOneYear||"7,435"}</span>
+                  <span>₹{1200*0.18}</span>
                 </p>
                 <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>Gateway Charges (1.25%):</span>{" "}
-                  <span>₹{( particularChapterData && particularChapterData.totalNewMembershipOneYear * 0.0125)?.toFixed(2) || "609"}</span>
+                  <span>₹{((1200+(1200*0.18))*0.0125).toFixed(2)}</span>
                   </p>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -454,15 +459,16 @@ console.log(particularChapterData)
                   <span className="total">Total Amount</span>
                   <span>(Including GST:)</span>
                 </div>
-                <p>₹{((particularChapterData && particularChapterData.totalNewMembershipOneYear + (particularChapterData.totalNewMembershipOneYear * 0.0125)) || 49352).toFixed(2)}</p>
+                <p>₹{(1200+(1200*0.18)+(1200+(1200*0.18))*0.0125).toFixed(2)}</p>
                 </div>
             </div>
             <button className="pay-now-button" onClick={handleSubmit}>
               PAY NOW
             </button>
           </div>}
+          
 
-          {formData.renewalYear==="2Year" &&  <div className="summary-container">
+          {/* {formData.quarter==="2Year" &&  <div className="summary-container">
             <div className="summary">
               <h5 className="summary-heading">Summary</h5>
               <hr
@@ -503,8 +509,8 @@ console.log(particularChapterData)
             <button className="pay-now-button" onClick={handleSubmit}>
               PAY NOW
             </button>
-          </div>}
-          {formData.renewalYear==="5Year"&& <div className="summary-container">
+          </div>} */}
+          {/* {formData.quarter==="5Year"&& <div className="summary-container">
             <div className="summary">
               <h5 className="summary-heading">Summary</h5>
               <hr
@@ -545,7 +551,7 @@ console.log(particularChapterData)
             <button className="pay-now-button" onClick={handleSubmit}>
               PAY NOW
             </button>
-          </div>}
+          </div>} */}
           
         </div>
 
