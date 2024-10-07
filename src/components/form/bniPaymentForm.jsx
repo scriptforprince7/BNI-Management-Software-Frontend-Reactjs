@@ -1,158 +1,217 @@
-import React, { useState, useEffect } from 'react';
-import './form.css';
-import border from "../../assets/images/form icons/border.png"
-import axios from 'axios';
-import ErrorBoundary from '../error/ErrorBoundary';
-import baseUrl from '../../utils/baseurl';
-import LoaderImg from '../loading/loading';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState, useEffect } from "react";
+import "./form.css";
+import border from "../../assets/images/form icons/border.png";
+import axios from "axios";
+import ErrorBoundary from "../error/ErrorBoundary";
+import baseUrl from "../../utils/baseurl";
+import LoaderImg from "../loading/loading";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import ModalBox from "../modal/modal";
 const BNIPaymentForm = () => {
   const [formData, setFormData] = useState({
-    region: '',
-    chapter: '',
-    memberName: '',
-    email: '',
-    renewalYear: '1Year',
-    category: '',
-    mobileNumber: '',
-    address: '',
-    company: '',
-    gstin: '',
-    paymentType: ''
+    region: "",
+    chapter: "",
+    memberName: "",
+    email: "",
+    renewalYear: "1Year",
+    category: "",
+    mobileNumber: "",
+    address: "",
+    company: "",
+    gstin: "",
+    paymentType: "",
   });
 
   const [errors, setErrors] = useState({});
   const [regionData, setRegionData] = useState();
+  const [allChapterData, setallChapterData] = useState();
   const [chapterData, setChapterData] = useState();
-  const[selectedChapter,setselectedChapter]=useState('');
-  const[selectedRegion,setSelectedRegion]=useState('')
+  const [selectedChapter, setselectedChapter] = useState("");
+  const [selectedRegion, setSelectedRegion] = useState("");
   const [memberData, setmemberData] = useState();
-  const [particularChapterData,setParticularChapterData]=useState();
-const[loading,setLoading]=useState(false);
-  const[selectedMember,setSelectedMember]=useState(false)
+  const [particularChapterData, setParticularChapterData] = useState();
+  const [particularRegionData, setParticularRegionData] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(false);
+  const [memberloading, setMemberLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
-
-
   };
 
   const handleChapterChange = (e) => {
     const selectedChapter = e.target.value;
-  setselectedChapter(e.target.value)
+    setselectedChapter(e.target.value);
     // Update formData with the selected chapter
     setFormData({ ...formData, chapter: selectedChapter });
-  
+    const selectedChapterData = allChapterData.find(
+      (chapter) => chapter.chapter_name == selectedChapter
+    );
+
+    setParticularChapterData(selectedChapterData);
+
     // Find the index of the selected chapter
-    const selectedIndex = chapterData.findIndex(chapter => chapter.chapterName === selectedChapter);
-  
+    const selectedIndex = chapterData.findIndex(
+      (chapter) => chapter.chapter_name === selectedChapter
+    );
+    setselectedChapter(allChapterData[selectedIndex]);
     // Call the function to handle the selected chapter data
     if (selectedIndex !== -1) {
       handleSelectedChapterData(selectedIndex);
     }
   };
-  
-  
-  
 
   const handleRegionChange = async (e) => {
-    try {
-      const { name, value } = e.target;
-      setFormData({
-        ...formData,
-        [name]: value
-      });
-      setSelectedRegion(e.target.value)
+    const selectedIndex = e.target.value; // Index of the selected region
+    const selectedRegionData = regionData[selectedIndex]; // Get the full region data
 
-      const res = await axios.get(`${baseUrl}/api/getChapters`);
-    
-   
-      const result = res.data.data.filter(item => item.region.regionName === e.target.value);
+    // Update formData and selectedRegion with the correct region information
+    setFormData({
+      ...formData,
+      region: selectedRegionData.region_name, // Update the form data with the region name
+    });
+
+    setSelectedRegion(e.target.value); // Set the selected region object in state
+
+    // Log the complete selected region data to the console
+
+    setParticularRegionData(selectedRegionData);
+    console.log("Selected Region:", particularRegionData);
+    try {
+      setLoading(true);
+      const res = await axios.get(`${baseUrl}/api/chapters`);
+      setallChapterData(res.data);
+      // Filter chapters based on the selected region's region_id
+      const result = res.data.filter(
+        (item) => item.region_id === selectedRegionData.region_id
+      );
+
+      // Log the filtered chapters based on the selected region
+      // console.log("Filtered Chapters:", result);
 
       setChapterData(result);
-    
+      setLoading(false); // Update chapter data with filtered chapters
     } catch (error) {
-      console.error("Error fetching regions:", error);
+      console.error("Error fetching chapters:", error);
     }
   };
 
   const handleMemberNameChange = async (e) => {
-    setSelectedMember(false)
+    setSelectedMember(false);
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
-    })
+      [name]: value,
+    });
 
     try {
-      const member = await axios.get(`${baseUrl}/api/getmembers`);
-      const result = member.data.data.filter(item => 
-        item.firstname.toLowerCase().startsWith(e.target.value.toLowerCase())|| item.firstname.toLowerCase().includes(e.target.value.toLowerCase())
-      );
-    
-      
-            setmemberData(result)
+      setMemberLoading(true);
+      const member = await axios.get(`${baseUrl}/api/members`);
 
+      // Convert chapter_id and region_id to numbers if necessary (assuming backend returns them as numbers)
+
+      // Filter the members based on the selected chapter_id, region_id, and name criteria
+      const result = member.data.filter((item) => {
+        // Log the item to inspect its values
+
+        // Filter logic for matching chapter_id, region_id, and member's first name
+        return (
+          item.chapter_id === particularChapterData.chapter_id && // Check for chapter match
+          item.region_id === particularRegionData.region_id && // Check for region match
+          (item.member_first_name
+            .toLowerCase()
+            .startsWith(e.target.value.toLowerCase()) || // Name starts with filter
+            item.member_first_name
+              .toLowerCase()
+              .includes(e.target.value.toLowerCase())) // Name includes filter
+        );
+      });
+
+      setMemberLoading(false);
+      // Debugging: log the filtered result
+      console.log("Filtered Members:", result);
+
+      // Set the filtered members in the state
+      setmemberData(result);
+    } catch (error) {
+      setMemberLoading(false);
+      console.log("Something went wrong:", error);
     }
-    catch {
-      console.log("something went wrong ")
+  };
+
+  const memberDataHandler = async (index) => {
+    setSelectedMember(true);
+    const particularMember = memberData[index];
+
+    formData.memberName =
+      particularMember.member_first_name +
+      " " +
+      particularMember.member_last_name;
+    formData.email = particularMember.member_email_address;
+    (formData.mobileNumber = particularMember.member_phone_number),
+      (formData.category = particularMember.member_category);
+    formData.company = particularMember.member_company_name;
+    formData.gstin = particularMember.member_gst_number;
+    formData.renewalYear = "1Year";
+  };
+
+  const handleSelectedChapterData = async (index) => {
+    setParticularChapterData(chapterData[index]);
+  };
+
+  const handleRenewalYearChange = (e) => {
+    const { value } = e.target;
+    setFormData({ ...formData, renewalYear: value });
+
+    // Show the modal if the selected year is "5Years"
+    if (value === "5Year") {
+      setShowModal(true);
+    } else {
+      setShowModal(false);
     }
-  }
+  };
 
-  const memberDataHandler=async(index)=>{
-    setSelectedMember(true)
-const particularMember=memberData[index]
-
-formData.memberName=particularMember.firstname+" "+particularMember.lastname;
-formData.email=particularMember.alternateEmailAddress;
-formData.mobileNumber=particularMember.phone,
-formData.category=particularMember.companyCategory;
-formData.company=particularMember.companyCategory;
-formData.gstin=particularMember.gstNumber;
-formData.renewalYear="1Year"
-  }
-
-
-  const handleSelectedChapterData=async(index)=>{
-setParticularChapterData(chapterData[index]);
-
-  }
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
 
   useEffect(() => {
     const fetchRegions = async () => {
       try {
-        setLoading(true)
-        const res = await axios.get(`${baseUrl}/api/getregions`);
-
-        setRegionData(res.data.data);
-         setLoading(false)
+        setLoading(true);
+        const res = await axios.get(`${baseUrl}/api/regions`);
+        console.log(res.data);
+        setRegionData(res.data);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching regions:", error);
-        setLoading(false)
+        setLoading(false);
         toast.error(error.message);
       }
     };
 
     fetchRegions();
-  }, [])
-
+  }, []);
 
   const validate = () => {
     const errors = {};
-    if (!formData.region) errors.region = 'BNI Region is required';
-    if (!formData.chapter) errors.chapter = 'BNI Chapter is required';
-    if (!formData.memberName) errors.memberName = 'Member Name is required';
-    if (!formData.email) errors.email = 'Email is required';
-    if (!formData.renewalYear) errors.renewalYear = 'Renewal Year is required';
-    if (!formData.category) errors.category = 'Category is required';
-    if (!formData.mobileNumber) errors.mobileNumber = 'Mobile Number is required';
-    if (!formData.address) errors.address = 'Address is required';
-    if (!formData.company) errors.company = 'Company is required';
-    if (!formData.paymentType) errors.paymentType = 'Payment Type is required';
+    if (!formData.region) errors.region = "BNI Region is required";
+    if (!formData.chapter) errors.chapter = "BNI Chapter is required";
+    if (!formData.memberName) errors.memberName = "Member Name is required";
+    if (!formData.email) errors.email = "Email is required";
+    if (!formData.renewalYear) errors.renewalYear = "Renewal Year is required";
+    if (!formData.category) errors.category = "Category is required";
+    if (!formData.mobileNumber)
+      errors.mobileNumber = "Mobile Number is required";
+    if (!formData.address) errors.address = "Address is required";
+    if (!formData.company) errors.company = "Company is required";
+    if (!formData.paymentType) errors.paymentType = "Payment Type is required";
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -160,406 +219,636 @@ setParticularChapterData(chapterData[index]);
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validate()) {
-      alert('Form submitted successfully!');
+      alert("Form submitted successfully!");
     }
   };
 
   return (
-<>
-<ToastContainer />
-    <ErrorBoundary>
-        
-    {loading? <LoaderImg/>:  <div className="form-container">
-        <div className="form-header">
-          <h1> NEW MEMBER  PAYMENT</h1>
-          <img src={border} alt="" style={{ width: "250px" }} />
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <form action="" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', margin: "" }}>
-            <div className="form-group" style={{ padding: "0px 20px" }}>
-              <label htmlFor="region" style={{ textAlign: 'center' }}>BNI Region :</label>
-              <select
-                id="region"
-                name="region"
-                value={formData.region}
-                onChange={handleRegionChange}
-                className={errors.region ? 'error' : ''}
+    <>
+      <ToastContainer />
+
+      <ErrorBoundary>
+        {loading ? (
+          <LoaderImg />
+        ) : (
+          <div className="form-container">
+            <div className="form-header">
+              <h1> NEW MEMBER PAYMENT</h1>
+              <img src={border} alt="" style={{ width: "250px" }} />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+              }}
+            >
+              <form
+                action=""
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  margin: "",
+                }}
               >
-                <option value="">Select Region</option>
-                {regionData && regionData.map((region, index) => (
-                  <option value={region.regionName} key={index}>
-                    {region.regionName}
-                  </option>
-                ))}
-              </select>
-              {errors.region && <small className="error-text">{errors.region}</small>}
+                <div className="form-group" style={{ padding: "0px 20px" }}>
+                  <label htmlFor="region" style={{ textAlign: "center" }}>
+                    BNI Region :
+                  </label>
+                  <select
+                    id="region"
+                    name="region"
+                    value={
+                      formData.region
+                        ? regionData?.findIndex(
+                            (region) => region.region_name === formData.region
+                          )
+                        : regionData?.findIndex(
+                            (region) => region.region_name === "new delhi"
+                          )
+                    } // Use index as the value
+                    onChange={handleRegionChange}
+                    className={errors.region ? "error" : ""}
+                  >
+                    <option value="new Delhi" default>
+                      N E W Delhi
+                    </option>
+                    {regionData &&
+                      regionData.map((region, index) => (
+                        <option value={index} key={index}>
+                          {region.region_name}
+                        </option>
+                      ))}
+                  </select>
+                  {errors.region && (
+                    <small className="error-text">{errors.region}</small>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="chapter" style={{ textAlign: "center" }}>
+                    BNI Chapter :
+                  </label>
+                  <select
+                    id="chapter"
+                    name="chapter"
+                    value={formData.chapter}
+                    onChange={handleChapterChange} // This is where the chapter change is detected
+                    className={errors.chapter ? "error" : ""}
+                  >
+                    <option value="">Select Chapter</option>
+                    {chapterData &&
+                      chapterData.map((chapter, index) => (
+                        <option value={chapter.chapter_name} key={index}>
+                          {chapter.chapter_name}
+                        </option>
+                      ))}
+                  </select>
+                  {errors.chapter && (
+                    <small className="error-text">{errors.chapter}</small>
+                  )}
+                </div>
+              </form>
+            </div>
+            <div className="box-container">
+              <form className="form-content" onSubmit={handleSubmit}>
+                <div className="form-left">
+                  <div className="form-group">
+                    <label htmlFor="memberName">Member Name :</label>
+                    <input
+                      type="text"
+                      id="memberName"
+                      name="memberName"
+                      // onBlur={() => setSelectedMember(true)}
+                      value={formData.memberName}
+                      onChange={handleMemberNameChange}
+                      placeholder="Enter Member Name"
+                      className={errors.memberName ? "error" : ""}
+                    />
+
+                    {/* Automatically display member names once data is fetched */}
+                    {memberData && !selectedMember && (
+                      <ul
+                        className="member-list"
+                        style={{ border: "1px solid red" }}
+                      >
+                        {selectedRegion && selectedChapter ? (
+                          memberloading ? (
+                            // Display loading message when loading is true
+                            <p>Loading...</p>
+                          ) : memberData.length > 0 ? (
+                            // Display member data once loaded
+                            memberData.map((member, index) => (
+                              <li
+                                key={index}
+                                className="member-item"
+                                onClick={() => memberDataHandler(index)}
+                              >
+                                {member.member_first_name +
+                                  " " +
+                                  member.member_last_name}
+                              </li>
+                            ))
+                          ) : (
+                            // If no member data is found
+                            <p>No data found</p>
+                          )
+                        ) : (
+                          // If regionData or chapterData is missing
+                          <p>Please select Chapter and Region</p>
+                        )}
+                      </ul>
+                    )}
+
+                    {errors.memberName && (
+                      <small className="error-text">{errors.memberName}</small>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="mobileNumber">Mobile Number :</label>
+                    <input
+                      type="text"
+                      id="mobileNumber"
+                      name="mobileNumber"
+                      value={formData.mobileNumber}
+                      onChange={handleChange}
+                      placeholder="Enter Mobile Number"
+                      className={errors.mobileNumber ? "error" : ""}
+                      readOnly
+                    />
+                    {errors.mobileNumber && (
+                      <small className="error-text">
+                        {errors.mobileNumber}
+                      </small>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="renewalYear">Select Membership </label>
+                    <select
+                      id="renewalYear"
+                      name="renewalYear"
+                      value={formData.renewalYear}
+                      onChange={handleRenewalYearChange}
+                      className={errors.renewalYear ? "error" : ""}
+                    >
+                      <option value="">Select Membership </option>
+                      <option value="1Year">1 Year</option>
+                      <option value="2Year">2 Years</option>
+                      <option value="5Year">5 Years</option>
+                    </select>
+                    {formData.renewalYear === "5Year" && (
+                      <ModalBox
+                        title="Note !"
+                        message="Please contact your regional office for assistance."
+                        show={showModal}
+                        handleClose={handleCloseModal}
+                      />
+                    )}
+                    {errors.renewalYear && (
+                      <small className="error-text">{errors.renewalYear}</small>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="paymentType">Payment Type :</label>
+                    <select
+                      id="paymentType"
+                      name="paymentType"
+                      value={formData.paymentType}
+                      onChange={handleChange}
+                      className={errors.paymentType ? "error" : ""}
+                    >
+                      <option value="">CREDIT / DEBIT / NET BANKING</option>
+                      <option value="credit">Credit (1.25%)</option>
+                      <option value="debit">Debit (1.25%)</option>
+                      <option value="netBanking">Net Banking (1.25%)</option>
+                    </select>
+                    {errors.paymentType && (
+                      <small className="error-text">{errors.paymentType}</small>
+                    )}
+                  </div>
+                </div>
+
+                <div className="form-right">
+                  <div className="form-group">
+                    <label htmlFor="email">Email :</label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="Enter Email Address"
+                      readOnly
+                      className={errors.email ? "error" : ""}
+                    />
+                    {errors.email && (
+                      <small className="error-text">{errors.email}</small>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="category">Category :</label>
+                    <input
+                      type="text"
+                      id="category"
+                      name="category"
+                      value={formData.category}
+                      onChange={handleChange}
+                      placeholder="Enter Category"
+                      className={errors.category ? "error" : ""}
+                      readOnly
+                    />
+                    {errors.category && (
+                      <small className="error-text">{errors.category}</small>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="company">Company :</label>
+                    <input
+                      type="text"
+                      id="company"
+                      name="company"
+                      value={formData.company}
+                      onChange={handleChange}
+                      placeholder="Enter Company Name"
+                      className={errors.company ? "error" : ""}
+                    />
+                    {errors.company && (
+                      <small className="error-text">{errors.company}</small>
+                    )}
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="gstin">GSTIN No. :</label>
+                    <input
+                      type="text"
+                      id="gstin"
+                      name="gstin"
+                      value={formData.gstin}
+                      onChange={handleChange}
+                      placeholder="Enter GSTIN Number (or enter 'null' if not available)"
+                    />
+                    <p style={{ fontSize: "12px", color: "red" }}>
+                      *Please fill null if you don't have GST Number
+                    </p>
+                  </div>
+                </div>
+              </form>
+              {particularChapterData && formData.renewalYear === "1Year" && (
+                <div className="summary-container">
+                  <div className="summary">
+                    <h5 className="summary-heading">Summary</h5>
+                    <hr
+                      style={{
+                        borderBottom: "1px solid rgb(204, 204, 204)",
+                        marginTop: "-5px",
+                      }}
+                    />
+                    <div className="summary-content">
+                      <p>
+                        <span style={{ fontWeight: "bold", fontSize: "14px" }}>
+                          One Time Registration Fee:
+                        </span>{" "}
+                        <span>
+                          ₹
+                          {particularChapterData &&
+                          particularChapterData.one_time_registration_fee
+                            ? Number(
+                                particularChapterData.one_time_registration_fee
+                              ).toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }) // Indian format
+                            : ""}
+                        </span>
+                      </p>
+                      <p>
+                        <span style={{ fontWeight: "bold", fontSize: "14px" }}>
+                          Membership Fee:
+                        </span>{" "}
+                        <span>
+                          ₹
+                          {particularChapterData &&
+                          particularChapterData.chapter_membership_fee
+                            ? Number(
+                                particularChapterData.chapter_membership_fee
+                              ).toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }) // Indian format
+                            : ""}{" "}
+                        </span>
+                      </p>
+                      <p>
+                        <span style={{ fontWeight: "bold", fontSize: "14px" }}>
+                          Subtotal:
+                        </span>{" "}
+                        <span>
+                          ₹
+                          {particularChapterData
+                            ? (
+                                Number(
+                                  particularChapterData.one_time_registration_fee ||
+                                    0
+                                ) +
+                                Number(
+                                  particularChapterData.chapter_membership_fee ||
+                                    0
+                                )
+                              ).toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }) // Indian format
+                            : ""}
+                        </span>
+                      </p>
+                      <p>
+                        <span style={{ fontWeight: "bold", fontSize: "14px" }}>
+                          GST (18%):
+                        </span>{" "}
+                        <span>
+                          ₹
+                          {particularChapterData
+                            ? (
+                                (Number(
+                                  particularChapterData.one_time_registration_fee
+                                ) +
+                                  Number(
+                                    particularChapterData.chapter_membership_fee
+                                  )) *
+                                0.18
+                              ).toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }) // Indian format
+                            : ""}
+                        </span>
+                      </p>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          flexDirection: "column",
+                        }}
+                      >
+                        <span className="total">Total Amount</span>
+                        <span>(Including GST:)</span>
+                        <p>
+                          <span
+                            style={{
+                              color: "red",
+                              fontSize: "12px",
+                              fontWeight: "400",
+                            }}
+                          >
+                            Note:
+                          </span>
+                          <span
+                            style={{
+                              color: "black",
+                              fontSize: "12px",
+                              fontWeight: "400",
+                            }}
+                          >
+                            Gateway charges will be applicable
+                          </span>
+                        </p>
+                      </div>
+                      <p>
+                        ₹
+                        {particularChapterData
+                          ? (
+                              Number(
+                                particularChapterData.chapter_membership_fee ||
+                                  0
+                              ) +
+                              Number(
+                                particularChapterData.one_time_registration_fee ||
+                                  0
+                              ) +
+                              (Number(
+                                particularChapterData.one_time_registration_fee ||
+                                  0
+                              ) +
+                                Number(
+                                  particularChapterData.chapter_membership_fee ||
+                                    0
+                                )) *
+                                0.18
+                            ).toLocaleString("en-IN", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }) // Indian format
+                          : "0.00"}
+                      </p>
+                    </div>
+                  </div>
+                  <button className="pay-now-button" onClick={handleSubmit}>
+                    PAY NOW
+                  </button>
+                </div>
+              )}
+
+              {particularChapterData && formData.renewalYear === "2Year" && (
+                <div className="summary-container">
+                  <div className="summary">
+                    <h5 className="summary-heading">Summary</h5>
+                    <hr
+                      style={{
+                        borderBottom: "1px solid rgb(204, 204, 204)",
+                        marginTop: "-5px",
+                      }}
+                    />
+                    <div className="summary-content">
+                      <p>
+                        <span style={{ fontWeight: "bold", fontSize: "14px" }}>
+                          One Time Registration Fee:
+                        </span>{" "}
+                        <span>
+                          ₹
+                          {particularChapterData &&
+                          particularChapterData.one_time_registration_fee
+                            ? Number(
+                                particularChapterData.one_time_registration_fee
+                              ).toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }) // Indian format
+                            : ""}
+                        </span>
+                      </p>
+                      <p>
+                        <span style={{ fontWeight: "bold", fontSize: "14px" }}>
+                          Membership Fee:
+                        </span>{" "}
+                        <span>
+                          ₹
+                          {particularChapterData &&
+                          particularChapterData.chapter_membership_fee_two_year
+                            ? Number(
+                                particularChapterData.chapter_membership_fee_two_year
+                              ).toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }) // Indian format
+                            : ""}{" "}
+                        </span>
+                      </p>
+                      <p>
+                        <span style={{ fontWeight: "bold", fontSize: "14px" }}>
+                          Subtotal:
+                        </span>{" "}
+                        <span>
+                          ₹
+                          {particularChapterData
+                            ? (
+                                Number(
+                                  particularChapterData.one_time_registration_fee ||
+                                    0
+                                ) +
+                                Number(
+                                  particularChapterData.chapter_membership_fee_two_year ||
+                                    0
+                                )
+                              ).toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }) // Indian format
+                            : ""}
+                        </span>
+                      </p>
+                      <p>
+                        <span style={{ fontWeight: "bold", fontSize: "14px" }}>
+                          GST (18%):
+                        </span>{" "}
+                        <span>
+                          ₹
+                          {particularChapterData
+                            ? (
+                                (Number(
+                                  particularChapterData.one_time_registration_fee
+                                ) +
+                                  Number(
+                                    particularChapterData.chapter_membership_fee_two_year
+                                  )) *
+                                0.18
+                              ).toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }) // Indian format
+                            : ""}
+                        </span>
+                      </p>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          flexDirection: "column",
+                        }}
+                      >
+                        <span className="total">Total Amount</span>
+                        <span>(Including GST:)</span>
+                        <p>
+                          <span
+                            style={{
+                              color: "red",
+                              fontSize: "12px",
+                              fontWeight: "400",
+                            }}
+                          >
+                            Note:
+                          </span>
+                          <span
+                            style={{
+                              color: "black",
+                              fontSize: "12px",
+                              fontWeight: "400",
+                            }}
+                          >
+                            Gateway charges will be applicable
+                          </span>
+                        </p>
+                      </div>
+                      <p>
+                        ₹
+                        {particularChapterData
+                          ? (
+                              Number(
+                                particularChapterData.chapter_membership_fee_two_year ||
+                                  0
+                              ) +
+                              Number(
+                                particularChapterData.one_time_registration_fee ||
+                                  0
+                              ) +
+                              (Number(
+                                particularChapterData.one_time_registration_fee ||
+                                  0
+                              ) +
+                                Number(
+                                  particularChapterData.chapter_membership_fee_two_year ||
+                                    0
+                                )) *
+                                0.18
+                            ).toLocaleString("en-IN", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }) // Indian format
+                          : "0.00"}
+                      </p>
+                    </div>
+                  </div>
+                  <button className="pay-now-button" onClick={handleSubmit}>
+                    PAY NOW
+                  </button>
+                </div>
+              )}
+
+              {formData.renewalYear === "5Year" && (
+                <div className="summary-container">
+                  <div className="summary">
+                    <hr
+                      style={{
+                        borderBottom: "1px solid rgb(204, 204, 204)",
+                        marginTop: "-5px",
+                      }}
+                    />
+                  </div>
+                  <button
+                    className="pay-now-button"
+                    onClick={() => setShowModal(true)}
+                  >
+                    For Membership Of 5 Years Please Contact Regional Office
+                  </button>
+                </div>
+              )}
             </div>
 
-            <div className="form-group">
-  <label htmlFor="chapter" style={{ textAlign: 'center' }}>BNI Chapter :</label>
-  <select
-    id="chapter"
-    name="chapter"
-    value={formData.chapter}
-    onChange={handleChapterChange} // This is where the chapter change is detected
-    className={errors.chapter ? 'error' : ''}
-  >
-    <option value="">Select Chapter</option>
-    {chapterData && chapterData.map((chapter, index) => (
-      <option value={chapter.chapterName} key={index}>
-        {chapter.chapterName}
-      </option>
-    ))}
-  </select>
-  {errors.chapter && <small className="error-text">{errors.chapter}</small>}
-</div>
-
-
-          </form>
-        </div>
-        <div className="box-container" >
-          <form className="form-content" onSubmit={handleSubmit} >
-            <div className="form-left">
-              {/* <div className="form-group">
-            <label htmlFor="region">BNI Region :</label>
-            <select
-              id="region"
-              name="region"
-              value={formData.region}  
-              className={errors.region ? 'error' : ''}
-            >
-             <option value="">Select Region</option>
-              <option value="Region 1">North Delhi</option>
-              <option value="Region 2">East Delhi</option>
-              <option value="Region 1">West Delhi</option>
-              <option value="Region 1">All Region</option>
-            </select>
-            {errors.region && <small className="error-text">{errors.region}</small>}
-          </div> */}
-
-              <div className="form-group">
-                <label htmlFor="memberName">Member Name :</label>
-                <input
-                  type="text"
-                  id="memberName"
-                  name="memberName"
-                  // onBlur={() => setSelectedMember(true)}
-                  value={formData.memberName}
-                  onChange={handleMemberNameChange}
-                  placeholder="Enter Member Name"
-                  className={errors.memberName ? 'error' : ''}
-                />
-
-                {/* Automatically display member names once data is fetched */}
-{memberData && !selectedMember && (
-  <ul className="member-list" style={{ border: "1px solid red" }}>
-    {selectedRegion && selectedChapter ? (
-      memberData.length > 0 ? (
-        memberData.map((member, index) => (
-          <li key={index} className="member-item" onClick={() => memberDataHandler(index)}>
-            {member.firstname + " " + member.lastname}
-          </li>
-        ))
-      ) : (
-        // If no member data is found
-        <p>No data found</p>
-      )
-    ) : (
-      // If regionData or chapterData is missing
-      <p>Please select Chapter and Region</p>
-    )}
-  </ul>
-)}
-
-
-
-
-                {errors.memberName && <small className="error-text">{errors.memberName}</small>}
-              </div>
-
-
-
-
-              <div className="form-group">
-                <label htmlFor="mobileNumber">Mobile Number :</label>
-                <input
-                  type="text"
-                  id="mobileNumber"
-                  name="mobileNumber"
-                  value={formData.mobileNumber}
-                  onChange={handleChange}
-                  placeholder="Enter Mobile Number"
-                  className={errors.mobileNumber ? 'error' : ''}
-                />
-                {errors.mobileNumber && <small className="error-text">{errors.mobileNumber}</small>}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="renewalYear">Select Membership </label>
-                <select
-                  id="renewalYear"
-                  name="renewalYear"
-                  value={formData.renewalYear}
-                  onChange={handleChange}
-                  className={errors.renewalYear ? 'error' : ''}
-                >
-                  <option value="">Select Membership </option>
-                  <option value="1Year">1 Year</option>
-                  <option value="2Year">2 Years</option>
-                  <option value="5Year">5 Years</option>
-                </select>
-                {errors.renewalYear && <small className="error-text">{errors.renewalYear}</small>}
-              </div>
-
-
-              <div className="form-group">
-                <label htmlFor="paymentType">Payment Type :</label>
-                <select
-                  id="paymentType"
-                  name="paymentType"
-                  value={formData.paymentType}
-                  onChange={handleChange}
-                  className={errors.paymentType ? 'error' : ''}
-                >
-                  <option value="">CREDIT / DEBIT / NET BANKING</option>
-                  <option value="credit">Credit (1.25%)</option>
-                  <option value="debit">Debit (1.25%)</option>
-                  <option value="netBanking">UPI (free)</option>
-                  <option value="netBanking">Net Banking (1.25%)</option>
-                </select>
-                {errors.paymentType && <small className="error-text">{errors.paymentType}</small>}
-              </div>
+            <div className="form-note">
+              <p>{/* <span style={{ color: "red" }}>NOTE:</span>  */}</p>
             </div>
-
-            <div className="form-right">
-              {/* <div className="form-group">
-            <label htmlFor="chapter">BNI Chapter :</label>
-            <select
-              id="chapter"
-              name="chapter"
-              value={formData.chapter}
-              onChange={handleChange}
-              className={errors.chapter ? 'error' : ''}
-            >
-              <option value="">Select Chapter</option>
-              <option value="Chapter 1">Chapter 1</option>
-              <option value="Chapter 2">Chapter 2</option>
-            </select>
-            {errors.chapter && <small className="error-text">{errors.chapter}</small>}
-          </div> */}
-
-              <div className="form-group">
-                <label htmlFor="email">Email :</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Enter Email Address"
-                  className={errors.email ? 'error' : ''}
-                />
-                {errors.email && <small className="error-text">{errors.email}</small>}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="category">Category :</label>
-                <input
-                  type="text"
-                  id="category"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  placeholder="Enter Category"
-                  className={errors.category ? 'error' : ''}
-                />
-                {errors.category && <small className="error-text">{errors.category}</small>}
-              </div>
-              {/*       
-          <div className="form-group">
-            <label htmlFor="address">Address :</label>
-            <input
-              type="text"
-              id="address"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              placeholder="Enter Address"
-              className={errors.address ? 'error' : ''}
-            />
-            {errors.address && <small className="error-text">{errors.address}</small>}
-          </div> */}
-
-              <div className="form-group">
-                <label htmlFor="company">Company :</label>
-                <input
-                  type="text"
-                  id="company"
-                  name="company"
-                  value={formData.company}
-                  onChange={handleChange}
-                  placeholder="Enter Company Name"
-                  className={errors.company ? 'error' : ''}
-                />
-                {errors.company && <small className="error-text">{errors.company}</small>}
-              </div>
-              <div className="form-group">
-                <label htmlFor="gstin">GSTIN No. :</label>
-                <input
-                  type="text"
-                  id="gstin"
-                  name="gstin"
-                  value={formData.gstin}
-                  onChange={handleChange}
-                  placeholder="Enter GSTIN Number (or enter 'null' if not available)"
-                />
-                <p style={{ fontSize: "12px", color: 'red' }}>
-                  *Please fill null if you don't have GST Number
-                </p>
-              </div>
-            </div>
-          </form>
-{formData.renewalYear==="1Year" && <div className="summary-container">
-            <div className="summary">
-              <h5 className="summary-heading">Summary</h5>
-              <hr
-                style={{ borderBottom: "1px solid rgb(204, 204, 204)", marginTop: "-5px" }}
-              />
-              <div className="summary-content">
-                <p>
-                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>
-                    One Time Registration Fee:
-                  </span>{" "}
-                  <span>₹{particularChapterData && particularChapterData.oneTimeReg ||"5999"}</span>
-                </p>
-                <p>
-                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>Membership Fee:</span>{" "}
-                  <span>₹{particularChapterData && particularChapterData.oneYearMembership ||"35,309"}</span>
-                </p>
-                <p>
-                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>Subtotal:</span>{" "}
-                  <span>₹{particularChapterData && particularChapterData.oneYearSubtotal||"41,308"}</span>
-                </p>
-                <p>
-                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>GST (18%):</span>{" "}
-                  <span>₹{ particularChapterData && particularChapterData.newMemberGstOneYear||"7,435"}</span>
-                </p>
-                <p>
-                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>Gateway Charges (1.25%):</span>{" "}
-                  <span>₹{( particularChapterData && particularChapterData.totalNewMembershipOneYear * 0.0125)?.toFixed(2) || "609"}</span>
-                  </p>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <span className="total">Total Amount</span>
-                  <span>(Including GST:)</span>
-                </div>
-                <p>₹{((particularChapterData && particularChapterData.totalNewMembershipOneYear + (particularChapterData.totalNewMembershipOneYear * 0.0125)) || 49352).toFixed(2)}</p>
-                </div>
-            </div>
-            <button className="pay-now-button" onClick={handleSubmit}>
-              PAY NOW
-            </button>
-          </div>}
-
-          {formData.renewalYear==="2Year" &&  <div className="summary-container">
-            <div className="summary">
-              <h5 className="summary-heading">Summary</h5>
-              <hr
-                style={{ borderBottom: "1px solid rgb(204, 204, 204)", marginTop: "-5px" }}
-              />
-              <div className="summary-content">
-                <p>
-                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>
-                    One Time Registration Fee:
-                  </span>{" "}
-                  <span>₹{particularChapterData && particularChapterData.oneTimeReg ||"5999"}</span>
-                </p>
-                <p>
-                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>Membership Fee:</span>{" "}
-                  <span>₹{particularChapterData && particularChapterData.twoYearMembership ||"56,499"}</span>
-                </p>
-                <p>
-                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>Subtotal:</span>{" "}
-                  <span>₹{particularChapterData && particularChapterData.twoYearSubtotal||"62,498"}</span>
-                </p>
-                <p>
-                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>GST (18%):</span>{" "}
-                  <span>₹{particularChapterData && particularChapterData.newMemberGstTwoYear||"11,250"}</span>
-                </p>
-                <p>
-                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>Gateway Charges (1.25%):</span>{" "}
-                  <span>₹{(particularChapterData && particularChapterData.totalNewMembershipTwoYear * 0.0125)?.toFixed(2) || "921"}</span>
-                  </p>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <span className="total">Total Amount</span>
-                  <span>(Including GST:)</span>
-                </div>
-                <p>₹{((particularChapterData && particularChapterData.totalNewMembershipTwoYear + (particularChapterData && particularChapterData.totalNewMembershipTwoYear * 0.0125)) || 49352).toFixed(2)}</p>
-                </div>
-            </div>
-            <button className="pay-now-button" onClick={handleSubmit}>
-              PAY NOW
-            </button>
-          </div>}
-          {formData.renewalYear==="5Year"&& <div className="summary-container">
-            <div className="summary">
-              <h5 className="summary-heading">Summary</h5>
-              <hr
-                style={{ borderBottom: "1px solid rgb(204, 204, 204)", marginTop: "-5px" }}
-              />
-              <div className="summary-content">
-                <p>
-                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>
-                    One Time Registration Fee:
-                  </span>{" "}
-                  <span>₹{particularChapterData && particularChapterData.oneTimeReg ||"5999"}</span>
-                </p> 
-                <p>
-                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>Membership Fee:</span>{" "}
-                  <span>₹{particularChapterData && particularChapterData.fiveYearMembership ||"1,23,581"}</span>
-                </p>
-                <p>
-                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>Subtotal:</span>{" "}
-                  <span>₹{particularChapterData && particularChapterData.fiveYearSubtotal||"1,29,580"}</span>
-                </p>
-                <p>
-                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>GST (18%):</span>{" "}
-                  <span>₹{particularChapterData && particularChapterData.newMemberGstFiveYear||"23,324"}</span>
-                </p>
-                <p>
-                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>Gateway Charges (1.25%):</span>{" "}
-                  <span>₹{(particularChapterData && particularChapterData.totalNewMembershipFiveYear * 0.0125)?.toFixed(2) || "1,911"}</span>
-                  </p>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <span className="total">Total Amount</span>
-                  <span>(Including GST:)</span>
-                </div>
-                <p>₹{((particularChapterData && particularChapterData.totalNewMembershipFiveYear + (particularChapterData && particularChapterData.totalNewMembershipFiveYear * 0.0125)) || 49352).toFixed(2)}</p>
-                </div>
-            </div>
-            <button className="pay-now-button" onClick={handleSubmit}>
-              PAY NOW
-            </button>
-          </div>}
-          
-        </div>
-
-        <div className="form-note">
-          <p>
-            <span style={{ color: "red" }}>NOTE:</span> All the payment done on this
-            page will directly go through the HDFC payment gateway.
-          </p>
-        </div>
-
-      </div>
-}
-    </ErrorBoundary>
-</>
+          </div>
+        )}
+      </ErrorBoundary>
+    </>
   );
 };
 

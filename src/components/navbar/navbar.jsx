@@ -41,8 +41,8 @@ const Navbar = () => {
             <div className="nav-links">
             <Link to="/eoi-form">EOI Form</Link>
                 <Link to="/member-application">Member Application Form</Link>
-                <a href="#" onClick={() => openModal("https://bnipayments.nidmm.org/Interview%20Sheet-%20Template.pdf")}>Interview Sheet</a>
-                <a href="#" onClick={() => openModal("https://bnipayments.nidmm.org/Commitment%20Sheet-%20Template.pdf")}>Commitment Sheet</a>
+                <a href="#" onClick={() => openModal("https://bnipayments.nidmm.org/commitment.pdf")}>Interview Sheet</a>
+                <a href="#" onClick={() => openModal("https://bnipayments.nidmm.org/interview.pdf")}>Commitment Sheet</a>
                
             </div>
             <div className="hamburger" onClick={toggleMenu}>

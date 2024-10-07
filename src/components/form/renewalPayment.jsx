@@ -68,7 +68,7 @@ const[loading,setLoading]=useState(false);
       });
       setSelectedRegion(e.target.value)
 
-      const res = await axios.get(`${baseUrl}/api/getChapters`);
+      const res = await axios.get(`${baseUrl}/api/chapters`);
   
    
       const result = res.data.data.filter(item => item.region.regionName === e.target.value);
@@ -89,7 +89,7 @@ const[loading,setLoading]=useState(false);
     })
 
     try {
-      const member = await axios.get(`${baseUrl}/api/getmembers`);
+      const member = await axios.get(`${baseUrl}/api/members`);
       const result = member.data.data.filter(item => 
         item.firstname.toLowerCase().startsWith(e.target.value.toLowerCase())|| item.firstname.toLowerCase().includes(e.target.value.toLowerCase())
       );
@@ -126,7 +126,7 @@ setParticularChapterData(chapterData[index]);
     const fetchRegions = async () => {
       try {
         setLoading(true)
-        const res = await axios.get(`${baseUrl}/api/getregions`);
+        const res = await axios.get(`${baseUrl}/api/regions`);
 
         setRegionData(res.data.data);
          setLoading(false)

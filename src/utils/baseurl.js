@@ -1,3 +1,3 @@
-const baseUrl = "http://103.169.86.3:5003";
+const baseUrl = "https://bni-data-backend.onrender.com";
 
 export default baseUrl;

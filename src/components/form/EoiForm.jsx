@@ -45,7 +45,7 @@ const BNIPaymentForm = () => {
       });
 
       // Fetch chapters for selected region
-      const res = await axios.get(`${baseUrl}/api/getChapters`);
+      const res = await axios.get(`${baseUrl}/api/chapters`);
       const result = res.data.data.filter(item => item.region.regionName === value);
 
       setChapterData(result);
@@ -92,7 +92,7 @@ const BNIPaymentForm = () => {
     const fetchRegions = async () => {
       try {
         setLoading(true)
-        const res = await axios.get(`${baseUrl}/api/getregions`);
+        const res = await axios.get(`${baseUrl}/api/regions`);
 
         setRegionData(res.data.data);
          setLoading(false)
