@@ -10,7 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import ModalBox from "../modal/modal";
 const BNIPaymentForm = () => {
   const [formData, setFormData] = useState({
-    region: "",
+    region: "new-delhi",
     chapter: "",
     memberName: "",
     email: "",
@@ -48,16 +48,31 @@ const BNIPaymentForm = () => {
   const handleChapterChange = (e) => {
     const selectedChapter = e.target.value;
     setselectedChapter(e.target.value);
-    // Update formData with the selected chapter
-    setFormData({ ...formData, chapter: selectedChapter });
-    const selectedChapterData = allChapterData.find(
-      (chapter) => chapter.chapter_name == selectedChapter
-    );
+    console.log(allChapterData);
 
+    // Update formData with the selected chapter
+    setFormData({
+      ...formData,
+      chapter: selectedChapter,
+      memberName: "",
+      email: "",
+      renewalYear: "1Year",
+      category: "",
+      mobileNumber: "",
+      address: "",
+      company: "",
+      gstin: "",
+      paymentType: "",
+    });
+    setmemberData("")
+    const selectedChapterData = allChapterData?.find(
+      (chapter) => chapter?.chapter_name === selectedChapter
+    );
     setParticularChapterData(selectedChapterData);
 
+    console.log(allChapterData);
     // Find the index of the selected chapter
-    const selectedIndex = chapterData.findIndex(
+    const selectedIndex = allChapterData?.findIndex(
       (chapter) => chapter.chapter_name === selectedChapter
     );
     setselectedChapter(allChapterData[selectedIndex]);
@@ -68,43 +83,58 @@ const BNIPaymentForm = () => {
   };
 
   const handleRegionChange = async (e) => {
-    const selectedIndex = e.target.value; // Index of the selected region
-    const selectedRegionData = regionData[selectedIndex]; // Get the full region data
+    const selectedIndex = e.target.value;
+    const selectedRegionData = regionData[selectedIndex];
 
-    // Update formData and selectedRegion with the correct region information
+    // Update formData with the selected region name
+    const updatedRegion = selectedRegionData?.region_name || e.target.value;
     setFormData({
       ...formData,
-      region: selectedRegionData.region_name, // Update the form data with the region name
+      region: updatedRegion, // Ensure formData includes selected region
+      memberName: "",
+      email: "",
+      renewalYear: "1Year",
+      category: "",
+      mobileNumber: "",
+      address: "",
+      company: "",
+      gstin: "",
+      paymentType: "",
     });
-
-    setSelectedRegion(e.target.value); // Set the selected region object in state
-
-    // Log the complete selected region data to the console
-
+    setmemberData("")
+    setSelectedRegion(selectedRegionData);
     setParticularRegionData(selectedRegionData);
-    console.log("Selected Region:", particularRegionData);
+
     try {
       setLoading(true);
-      const res = await axios.get(`${baseUrl}/api/chapters`);
-      setallChapterData(res.data);
-      // Filter chapters based on the selected region's region_id
-      const result = res.data.filter(
-        (item) => item.region_id === selectedRegionData.region_id
-      );
 
-      // Log the filtered chapters based on the selected region
-      // console.log("Filtered Chapters:", result);
+      // If "New Delhi" is selected, fetch all chapters
+      if (updatedRegion.toLowerCase() === "new-delhi") {
+        const res = await axios.get(`${baseUrl}/api/chapters`);
+        setChapterData(res.data); // Display all chapters
+        setallChapterData(res.data);
+      } else {
+        // Filter chapters based on selected region's region_id
+        const res = await axios.get(`${baseUrl}/api/chapters`);
+        const filteredChapters = res.data.filter(
+          (item) => item.region_id === selectedRegionData?.region_id
+        );
+        setChapterData(filteredChapters);
+        setallChapterData(res.data);
+      }
 
-      setChapterData(result);
-      setLoading(false); // Update chapter data with filtered chapters
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching chapters:", error);
+      setLoading(false);
     }
   };
 
   const handleMemberNameChange = async (e) => {
     setSelectedMember(false);
     const { name, value } = e.target;
+
+    // Update formData with the member's name
     setFormData({
       ...formData,
       [name]: value,
@@ -112,36 +142,57 @@ const BNIPaymentForm = () => {
 
     try {
       setMemberLoading(true);
-      const member = await axios.get(`${baseUrl}/api/members`);
 
-      // Convert chapter_id and region_id to numbers if necessary (assuming backend returns them as numbers)
+      // Fetch the list of members
+      const memberRes = await axios.get(`${baseUrl}/api/members`);
 
-      // Filter the members based on the selected chapter_id, region_id, and name criteria
-      const result = member.data.filter((item) => {
-        // Log the item to inspect its values
+      let filteredMembers;
 
-        // Filter logic for matching chapter_id, region_id, and member's first name
-        return (
-          item.chapter_id === particularChapterData.chapter_id && // Check for chapter match
-          item.region_id === particularRegionData.region_id && // Check for region match
-          (item.member_first_name
-            .toLowerCase()
-            .startsWith(e.target.value.toLowerCase()) || // Name starts with filter
-            item.member_first_name
+      // If the selected region is "new-delhi", show all members
+      if (formData.region.toLowerCase() === "new-delhi") {
+        // Set to all members
+        // console.log(memberRes.data)
+        filteredMembers = memberRes.data.filter((item) => {
+          console.log(particularChapterData);
+          return (
+            // Match by chapter or region, and also check if the name starts with or includes the input value
+            item.chapter_id === particularChapterData?.chapter_id &&
+            (item.member_first_name
               .toLowerCase()
-              .includes(e.target.value.toLowerCase())) // Name includes filter
-        );
-      });
+              .startsWith(value.toLowerCase()) ||
+              item.member_first_name
+                .toLowerCase()
+                .includes(value.toLowerCase()))
+          );
+        });
+        setmemberData(filteredMembers);
+        setMemberLoading(false);
+      } else {
+        // Otherwise, filter members based on chapter, region, and name
+        filteredMembers = memberRes.data.filter((item) => {
+          return (
+            // Match by chapter or region, and also check if the name starts with or includes the input value
+            (item.chapter_id === particularChapterData?.chapter_id ||
+              item.region_id === particularRegionData?.region_id) &&
+            (item.member_first_name
+              .toLowerCase()
+              .startsWith(value.toLowerCase()) ||
+              item.member_first_name
+                .toLowerCase()
+                .includes(value.toLowerCase()))
+          );
+        });
+      }
 
+      // Update the member data state with the filtered members
+      setmemberData(filteredMembers);
       setMemberLoading(false);
-      // Debugging: log the filtered result
-      console.log("Filtered Members:", result);
 
-      // Set the filtered members in the state
-      setmemberData(result);
+      // Debugging: log the filtered result
+      console.log("Filtered Members:", filteredMembers);
     } catch (error) {
       setMemberLoading(false);
-      console.log("Something went wrong:", error);
+      console.error("Something went wrong:", error);
     }
   };
 
@@ -180,14 +231,20 @@ const BNIPaymentForm = () => {
   const handleCloseModal = () => {
     setShowModal(false);
   };
-
   useEffect(() => {
     const fetchRegions = async () => {
       try {
         setLoading(true);
         const res = await axios.get(`${baseUrl}/api/regions`);
-        console.log(res.data);
         setRegionData(res.data);
+
+        // If "New Delhi" is the default region, fetch all chapters
+        if (formData.region === "new-delhi") {
+          const chapterRes = await axios.get(`${baseUrl}/api/chapters`);
+          setChapterData(chapterRes.data);
+          setallChapterData(chapterRes.data);
+        }
+
         setLoading(false);
       } catch (error) {
         console.error("Error fetching regions:", error);
@@ -197,7 +254,7 @@ const BNIPaymentForm = () => {
     };
 
     fetchRegions();
-  }, []);
+  }, [formData.region]);
 
   const validate = () => {
     const errors = {};
@@ -264,16 +321,14 @@ const BNIPaymentForm = () => {
                         ? regionData?.findIndex(
                             (region) => region.region_name === formData.region
                           )
-                        : regionData?.findIndex(
-                            (region) => region.region_name === "new delhi"
-                          )
+                        : "new-delhi"
                     } // Use index as the value
                     onChange={handleRegionChange}
                     className={errors.region ? "error" : ""}
                   >
-                    <option value="new Delhi" default>
-                      N E W Delhi
-                    </option>
+                    {/* Add "New Delhi" as a default option */}
+                    <option value="new-delhi">N E W Delhi</option>
+
                     {regionData &&
                       regionData.map((region, index) => (
                         <option value={index} key={index}>
@@ -288,16 +343,17 @@ const BNIPaymentForm = () => {
 
                 <div className="form-group">
                   <label htmlFor="chapter" style={{ textAlign: "center" }}>
-                    BNI Chapter :
+                    BNI Chapter:
                   </label>
                   <select
                     id="chapter"
                     name="chapter"
                     value={formData.chapter}
-                    onChange={handleChapterChange} // This is where the chapter change is detected
+                    onChange={handleChapterChange} // Detect chapter change
                     className={errors.chapter ? "error" : ""}
                   >
                     <option value="">Select Chapter</option>
+
                     {chapterData &&
                       chapterData.map((chapter, index) => (
                         <option value={chapter.chapter_name} key={index}>
@@ -305,6 +361,7 @@ const BNIPaymentForm = () => {
                         </option>
                       ))}
                   </select>
+
                   {errors.chapter && (
                     <small className="error-text">{errors.chapter}</small>
                   )}
@@ -333,7 +390,7 @@ const BNIPaymentForm = () => {
                         className="member-list"
                         style={{ border: "1px solid red" }}
                       >
-                        {selectedRegion && selectedChapter ? (
+                        {selectedRegion || selectedChapter ? (
                           memberloading ? (
                             // Display loading message when loading is true
                             <p>Loading...</p>

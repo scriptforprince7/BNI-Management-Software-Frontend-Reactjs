@@ -73,9 +73,10 @@ const Navbar = () => {
                     <div className={`dropdown-content ${isPaymentDropdownOpen ? 'open' : ''}`}>
                         <Link to="/new-member-payment" onClick={toggleMenu}>New Member Payment</Link>
                         <Link to="/renewal-payment" onClick={toggleMenu}>Renewal Payment</Link>
-                        <Link to="/renewal-payment-with-late-fee" onClick={toggleMenu}>Renewal Payment With Late Fee</Link>
+                        {/* <Link to="/renewal-payment-with-late-fee" onClick={toggleMenu}>Renewal Payment With Late Fee</Link> */}
                         <Link to="/all-training-payments" onClick={toggleMenu}>All Training Payments</Link>
                         <Link to="/meeting-payment" onClick={toggleMenu}>Meeting Payment</Link>
+                        <Link to="/upcoming-events" onClick={toggleMenu}>Upcoming Events</Link>
                     </div>
                 </div>
             </div>

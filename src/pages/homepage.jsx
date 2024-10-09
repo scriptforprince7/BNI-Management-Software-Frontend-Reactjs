@@ -12,17 +12,17 @@ const Homepage = () => {
     const titles = [
         "New Member Payment",
         "Renewal Payment",
-        "Renewal Payment With Late Fee",
         "All Training Payments",
-        "Meeting Payment"
+        "Meeting Payment",
+        "Upcoming Events"
     ];
 
     const links = [
         "new-member-payment",
         "renewal-payment",
-        "renewal-payment-with-late-fee",
         "all-training-payments",
-        "meeting-payment"
+        "meeting-payment",
+        "upcoming-events"
     ];
     
 

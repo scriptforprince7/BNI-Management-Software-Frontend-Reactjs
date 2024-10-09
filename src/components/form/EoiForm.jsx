@@ -39,6 +39,11 @@ const BNIPaymentForm = () => {
   const handleRegionChange = async (e) => {
     try {
       const { name, value } = e.target;
+      const selectedIndex = e.target.value;
+    
+      const selectedRegionData = regionData[selectedIndex];
+      console.log(selectedIndex)
+      console.log(selectedRegionData)
       setFormData({
         ...formData,
         [name]: value
@@ -46,7 +51,8 @@ const BNIPaymentForm = () => {
 
       // Fetch chapters for selected region
       const res = await axios.get(`${baseUrl}/api/chapters`);
-      const result = res.data.data.filter(item => item.region.regionName === value);
+      console.log(res.data)
+      const result = res.data.filter(item => item.region_id ===selectedRegionData?.region_id );
 
       setChapterData(result);
     } catch (error) {
@@ -56,13 +62,15 @@ const BNIPaymentForm = () => {
 
   const handleChapterChange = (e) => {
     const selectedChapterIndex = e.target.selectedIndex - 1; // Adjust for the placeholder option
+    console.log(selectedChapterIndex)
     if (selectedChapterIndex >= 0) {
       const selectedChapter = chapterData[selectedChapterIndex];
+     console.log(selectedChapter)
       setFormData({
         ...formData,
         chapter: selectedChapter.chapterName
       });
-      setEoiLink(selectedChapter.eoiLink);
+      setEoiLink(selectedChapter.eoi_link);
     }
   };
 
@@ -94,7 +102,7 @@ const BNIPaymentForm = () => {
         setLoading(true)
         const res = await axios.get(`${baseUrl}/api/regions`);
 
-        setRegionData(res.data.data);
+        setRegionData(res.data);
          setLoading(false)
       } catch (error) {
         console.error("Error fetching regions:", error);
@@ -104,7 +112,7 @@ const BNIPaymentForm = () => {
     };
 
     fetchRegions();
-  }, [])
+  }, [formData.region])
 
   return (
     <>
@@ -123,8 +131,8 @@ const BNIPaymentForm = () => {
             >
               <option value="">Select Region</option>
               {regionData && regionData.map((region, index) => (
-                <option value={region.regionName} key={index}>
-                  {region.regionName}
+                <option value={index} key={index}>
+                  {region.region_name}
                 </option>
               ))}
             </select>
@@ -142,8 +150,8 @@ const BNIPaymentForm = () => {
             >
               <option value="">Select Chapter</option>
               {chapterData && chapterData.map((chapter, index) => (
-                <option value={chapter.chapterName} key={index}>
-                  {chapter.chapterName}
+                <option value={chapter.chapter_name} key={index}>
+                  {chapter.chapter_name}
                 </option>
               ))}
             </select>

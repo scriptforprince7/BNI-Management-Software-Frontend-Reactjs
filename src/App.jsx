@@ -11,8 +11,8 @@ import AllTrainingPayments from './pages/allTrainingPayments';
 import MeetingPayments from './pages/meetingPayments';
 import Memberapplication from './pages/memberapplication';
 import RenewalPayment from './pages/renewalPayment';
-import RenewalPaymentWithLateFee from './pages/renewalPaymentWithLateFee';
 import NewMemberPayment from './pages/newMemberPayment';
+import UpcomingEvents from './pages/upcomingEvents';
 function App() {
   return (
     <Router>
@@ -27,7 +27,7 @@ function App() {
         <Route path="/meeting-payment" element={<MeetingPayments />} />
         <Route path="/new-member-payment" element={<NewMemberPayment />} />
         <Route path="/renewal-payment" element={<RenewalPayment />} />
-        <Route path="/renewal-payment-with-late-fee" element={<RenewalPaymentWithLateFee />} />
+        <Route path="/upcoming-events" element={<UpcomingEvents />} />
       </Routes>
     </Router>
   );

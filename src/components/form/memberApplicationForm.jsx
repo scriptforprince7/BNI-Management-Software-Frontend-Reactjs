@@ -7,7 +7,6 @@ import baseUrl from '../../utils/baseurl';
 import LoaderImg from '../loading/loading';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 const MemberApplicationForm = () => {
   const [formData, setFormData] = useState({
     region: '',
@@ -40,6 +39,11 @@ const MemberApplicationForm = () => {
   const handleRegionChange = async (e) => {
     try {
       const { name, value } = e.target;
+      const selectedIndex = e.target.value;
+    
+      const selectedRegionData = regionData[selectedIndex];
+      console.log(selectedIndex)
+      console.log(selectedRegionData)
       setFormData({
         ...formData,
         [name]: value
@@ -47,7 +51,8 @@ const MemberApplicationForm = () => {
 
       // Fetch chapters for selected region
       const res = await axios.get(`${baseUrl}/api/chapters`);
-      const result = res.data.data.filter(item => item.region.regionName === value);
+      console.log(res.data)
+      const result = res.data.filter(item => item.region_id ===selectedRegionData?.region_id );
 
       setChapterData(result);
     } catch (error) {
@@ -57,13 +62,15 @@ const MemberApplicationForm = () => {
 
   const handleChapterChange = (e) => {
     const selectedChapterIndex = e.target.selectedIndex - 1; // Adjust for the placeholder option
+    console.log(selectedChapterIndex)
     if (selectedChapterIndex >= 0) {
       const selectedChapter = chapterData[selectedChapterIndex];
+     console.log(selectedChapter)
       setFormData({
         ...formData,
         chapter: selectedChapter.chapterName
       });
-      setEoiLink(selectedChapter.memberAppLink);
+      setEoiLink(selectedChapter.member_app_link);
     }
   };
 
@@ -89,14 +96,13 @@ const MemberApplicationForm = () => {
       alert('Form submitted successfully!');
     }
   };
-
   useEffect(() => {
     const fetchRegions = async () => {
       try {
         setLoading(true)
         const res = await axios.get(`${baseUrl}/api/regions`);
 
-        setRegionData(res.data.data);
+        setRegionData(res.data);
          setLoading(false)
       } catch (error) {
         console.error("Error fetching regions:", error);
@@ -106,7 +112,7 @@ const MemberApplicationForm = () => {
     };
 
     fetchRegions();
-  }, [])
+  }, [formData.region])
 
   return (
     <>
@@ -114,7 +120,7 @@ const MemberApplicationForm = () => {
     {loading? <LoaderImg/>: <div className="form-container" style={{ backgroundColor: '#f4f4f4' }}>
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', margin: "" }}>
-          <div className="form-group" style={{ margin: "0px 50px" }}>
+          <div className="form-group" style={{ padding: "0px 20px" }}>
             <label htmlFor="region" style={{ textAlign: 'center' }}>BNI Region :</label>
             <select
               id="region"
@@ -125,8 +131,8 @@ const MemberApplicationForm = () => {
             >
               <option value="">Select Region</option>
               {regionData && regionData.map((region, index) => (
-                <option value={region.regionName} key={index}>
-                  {region.regionName}
+                <option value={index} key={index}>
+                  {region.region_name}
                 </option>
               ))}
             </select>
@@ -144,8 +150,8 @@ const MemberApplicationForm = () => {
             >
               <option value="">Select Chapter</option>
               {chapterData && chapterData.map((chapter, index) => (
-                <option value={chapter.chapterName} key={index}>
-                  {chapter.chapterName}
+                <option value={chapter.chapter_name} key={index}>
+                  {chapter.chapter_name}
                 </option>
               ))}
             </select>
@@ -162,7 +168,7 @@ const MemberApplicationForm = () => {
               {eoiLink}
             </a>
           ) : (
-            <p>Your Member Application Form  link will display here on selecting Region and Chapter</p>
+            <p>Your EOI form link will display here on selecting Region and Chapter</p>
           )}
         </p>
       </div>}
@@ -172,9 +178,8 @@ const MemberApplicationForm = () => {
           <span style={{ color: "red" }}>NOTE:</span> Choose BNI region and BNI chapter for generating QR Code. <br />Please check the generated QR code after scanning.
         </p>
       </div>
-    </div>
-        }
-        </>
+    </div>}
+    </>
   );
 };
 
