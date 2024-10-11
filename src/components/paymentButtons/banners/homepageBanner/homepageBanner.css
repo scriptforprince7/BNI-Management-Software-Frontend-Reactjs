@@ -1,14 +1,22 @@
 .banner-container {
     display: flex;
+ 
     margin-top: -60px ;
     height: 86vh;
-    background-image: url("../../../../assets/images/banners/homepage-banner.jpg");
+    background-image: url("../../../../assets/images/banners/homebanner.jpg");
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
     align-items: center;
 }
-
+.container{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+  
+    justify-content: space-between;
+    align-items: center;
+}
 .text-container {
     width: 100%;
     display: flex;
@@ -62,6 +70,15 @@
     transform: scale(1.05);
     /* Slightly enlarges the button on hover */
 }
+.memberImg{
+    position: relative;
+    width: 50%;
+   background:transparent ;
+   /* background:inherit ; */
+    height: 10%;
+    border-radius: 10px;
+   
+}
 
 @media (min-width: 1024px){
    .text-container h1{
@@ -93,9 +110,23 @@
         padding: 10px;
         display: block;
     }
+    .memberImg{
+        position: relative;
+        width: 50%;
+       
+        height: 300px;
+       
+    }
 }
 
 @media (max-width: 425px) {
+    .memberImg{
+        position: relative;
+        width: 50%;
+       
+        height: 100px;
+       
+    }
     .banner-container {
         background-size: contain;
       padding-bottom: 0px;

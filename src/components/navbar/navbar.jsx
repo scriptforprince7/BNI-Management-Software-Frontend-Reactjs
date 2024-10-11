@@ -58,7 +58,7 @@ const Navbar = () => {
                     </button>
                     <div className={`dropdown-content ${isDropdownOpen ? 'open' : ''}`}>
                           <Link to="/eoi-form" onClick={toggleMenu}>EOI Form</Link>
-                        <Link to="member-application" onClick={toggleMenu}>Member Application Form</Link>
+                        <Link to="/member-application" onClick={toggleMenu}>Member Application Form</Link>
                         <a href="#" onClick={() => openModal("/Interview Sheet-Template.pdf")}>Interview Sheet</a>
                         <a href="#" onClick={() => openModal("/Commitment Sheet-Template.pdf")}>Commitment Sheet</a>
                       
@@ -74,9 +74,9 @@ const Navbar = () => {
                         <Link to="/new-member-payment" onClick={toggleMenu}>New Member Payment</Link>
                         <Link to="/renewal-payment" onClick={toggleMenu}>Renewal Payment</Link>
                         {/* <Link to="/renewal-payment-with-late-fee" onClick={toggleMenu}>Renewal Payment With Late Fee</Link> */}
-                        <Link to="/all-training-payments" onClick={toggleMenu}>All Training Payments</Link>
+                        <Link to="/all-training-payments" onClick={toggleMenu}>Training & Meeting Payments</Link>
                         <Link to="/meeting-payment" onClick={toggleMenu}>Meeting Payment</Link>
-                        <Link to="/upcoming-events" onClick={toggleMenu}>Upcoming Events</Link>
+                        <Link to="/visitors-payments" onClick={toggleMenu}>Visitor Payments</Link>
                     </div>
                 </div>
             </div>

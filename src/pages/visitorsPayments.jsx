@@ -1,15 +1,16 @@
 import React, { Fragment } from 'react'
 import Navbar from '../components/navbar/navbar'
 import Footer from '../components/footer/footer'
+import VisitorPaymentForm from '../components/form/visitorpaymentForm'
 
-const UpcomingEvents = () => {
+const VisitorsPayments = () => {
   return (
    <Fragment>
   <Navbar/>
-  <h1>Upcoming Events</h1>
+ <VisitorPaymentForm/>
   <Footer/>
    </Fragment>
   )
 }
 
-export default UpcomingEvents
+export default VisitorsPayments

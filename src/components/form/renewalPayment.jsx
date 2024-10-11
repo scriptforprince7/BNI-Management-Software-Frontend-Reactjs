@@ -620,7 +620,7 @@ console.log(particularMember)
                           particularChapterData.chapter_late_fee
 
                             ? Number(
-                               formData.late_fee_applicable? particularChapterData.chapter_late_fee:0
+                               formData.late_fee_applicable?particularChapterData.chapter_late_fee + (particularChapterData.chapter_late_fee * 0.18):0
 
                               ).toLocaleString("en-IN", {
                                 minimumFractionDigits: 2,
@@ -639,7 +639,7 @@ console.log(particularMember)
                             ? (
                                 Number(
                                 
-                                  formData.late_fee_applicable? particularChapterData.chapter_late_fee:0
+                                  formData.late_fee_applicable? particularChapterData.chapter_late_fee + (particularChapterData.chapter_late_fee * 0.18):0
                                 ) +
                                 Number(
                                   particularChapterData.chapter_membership_fee ||
@@ -662,7 +662,7 @@ console.log(particularMember)
                             ? (
                                 (Number(
                                   formData.late_fee_applicable 
-                                  ?   particularChapterData.chapter_late_fee:0
+                                  ?  particularChapterData.chapter_late_fee + (particularChapterData.chapter_late_fee * 0.18):0
                                 ) +
                                   Number(
                                     particularChapterData.chapter_membership_fee
@@ -708,7 +708,7 @@ console.log(particularMember)
                               fontWeight: "400",
                             }}
                           >
-                            Gateway charges will be applicable
+                            Convenience charges will be applicable
                           </span>
                         </p>
                       </div>
@@ -716,23 +716,23 @@ console.log(particularMember)
                         ₹
                         {particularChapterData
                           ? (
-                              Number(
+                              Math.round(Number(
                                 particularChapterData.chapter_membership_fee ||
                                   0
                               ) +
                               Number(
                            
                                 formData.late_fee_applicable 
-                                ?  particularChapterData.chapter_late_fee:0
+                                ?particularChapterData.chapter_late_fee + (particularChapterData.chapter_late_fee * 0.18):0
                               ) +
                               ( 
                                 Number(
                                   particularChapterData.chapter_membership_fee
                                 )+Number(
                                   formData.late_fee_applicable 
-                                  ?  particularChapterData.chapter_late_fee:0
+                                  ?  particularChapterData.chapter_late_fee + (particularChapterData.chapter_late_fee * 0.18):0
                                 )) *
-                                0.18
+                                0.18)
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
@@ -802,8 +802,9 @@ console.log(particularMember)
                           particularChapterData.chapter_late_fee
 
                             ? Number(
-                              formData.late_fee_applicable?particularChapterData.chapter_late_fee:0
-
+                              formData.late_fee_applicable
+                              ? particularChapterData.chapter_late_fee + (particularChapterData.chapter_late_fee * 0.18)
+                              : 0
                               ).toLocaleString("en-IN", {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2,
@@ -821,7 +822,7 @@ console.log(particularMember)
                             ? (
                                 Number(
                               
-                                formData.late_fee_applicable?  particularChapterData.chapter_late_fee: 0
+                                formData.late_fee_applicable? particularChapterData.chapter_late_fee + (particularChapterData.chapter_late_fee * 0.18): 0
                                 ) +
                                 Number(
                                   particularChapterData.chapter_membership_fee_two_year ||
@@ -842,14 +843,18 @@ console.log(particularMember)
                           ₹
                           {particularChapterData
                             ? (
-                                (Number(
-                                  formData.late_fee_applicable 
-                                  ?   particularChapterData.chapter_late_fee:0
-                                ) +
+                              Math.round(
+                                (
                                   Number(
-                                    particularChapterData.chapter_membership_fee_two_year
-                                  )) *
-                                0.18
+                                    formData.late_fee_applicable
+                                      ? particularChapterData.chapter_late_fee +
+                                        particularChapterData.chapter_late_fee * 0.18
+                                      : 0
+                                  ) +
+                                  Number(particularChapterData.chapter_membership_fee_two_year)
+                                ) * 0.18
+                              )
+                              
                               ).toLocaleString("en-IN", {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2,
@@ -890,7 +895,7 @@ console.log(particularMember)
                               fontWeight: "400",
                             }}
                           >
-                            Gateway charges will be applicable
+                            Convenience charges will be applicable
                           </span>
                         </p>
                       </div>
@@ -898,23 +903,23 @@ console.log(particularMember)
                         ₹
                         {particularChapterData
                           ? (
-                              Number(
+                              Math.round(Number(
                                 particularChapterData.chapter_membership_fee_two_year ||
                                   0
                               ) +
                               Number(
                            
                                 formData.late_fee_applicable 
-                                ?  particularChapterData.chapter_late_fee:0
+                                ? particularChapterData.chapter_late_fee + (particularChapterData.chapter_late_fee * 0.18):0
                               ) +
                               ( 
                                 Number(
                                   particularChapterData.chapter_membership_fee_two_year
                                 )+Number(
                                   formData.late_fee_applicable 
-                                  ?  particularChapterData.chapter_late_fee:0
+                                  ?  particularChapterData.chapter_late_fee + (particularChapterData.chapter_late_fee * 0.18):0
                                 )) *
-                                0.18
+                                0.18)
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,

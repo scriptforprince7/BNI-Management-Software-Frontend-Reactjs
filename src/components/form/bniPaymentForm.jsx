@@ -631,13 +631,11 @@ const BNIPaymentForm = () => {
                           ₹
                           {particularChapterData
                             ? (
-                                (Number(
-                                  particularChapterData.one_time_registration_fee
-                                ) +
-                                  Number(
-                                    particularChapterData.chapter_membership_fee
-                                  )) *
-                                0.18
+                              Math.round(
+                                (Number(particularChapterData.one_time_registration_fee) +
+                                  Number(particularChapterData.chapter_membership_fee)) * 0.18
+                              )
+                              
                               ).toLocaleString("en-IN", {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2,
@@ -678,7 +676,7 @@ const BNIPaymentForm = () => {
                               fontWeight: "400",
                             }}
                           >
-                            Gateway charges will be applicable
+                            Convenience charges will be applicable
                           </span>
                         </p>
                       </div>
@@ -686,23 +684,23 @@ const BNIPaymentForm = () => {
                         ₹
                         {particularChapterData
                           ? (
+                             Math.round( Number(
+                              particularChapterData.chapter_membership_fee ||
+                                0
+                            ) +
+                            Number(
+                              particularChapterData.one_time_registration_fee ||
+                                0
+                            ) +
+                            (Number(
+                              particularChapterData.one_time_registration_fee ||
+                                0
+                            ) +
                               Number(
                                 particularChapterData.chapter_membership_fee ||
                                   0
-                              ) +
-                              Number(
-                                particularChapterData.one_time_registration_fee ||
-                                  0
-                              ) +
-                              (Number(
-                                particularChapterData.one_time_registration_fee ||
-                                  0
-                              ) +
-                                Number(
-                                  particularChapterData.chapter_membership_fee ||
-                                    0
-                                )) *
-                                0.18
+                              )) *
+                              0.18)
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
@@ -793,13 +791,13 @@ const BNIPaymentForm = () => {
                           ₹
                           {particularChapterData
                             ? (
-                                (Number(
-                                  particularChapterData.one_time_registration_fee
-                                ) +
-                                  Number(
-                                    particularChapterData.chapter_membership_fee_two_year
-                                  )) *
-                                0.18
+                               Math.round( (Number(
+                                particularChapterData.one_time_registration_fee
+                              ) +
+                                Number(
+                                  particularChapterData.chapter_membership_fee_two_year
+                                )) *
+                              0.18)
                               ).toLocaleString("en-IN", {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2,
@@ -840,7 +838,7 @@ const BNIPaymentForm = () => {
                               fontWeight: "400",
                             }}
                           >
-                            Gateway charges will be applicable
+                            Convenience charges will be applicable
                           </span>
                         </p>
                       </div>
@@ -848,7 +846,7 @@ const BNIPaymentForm = () => {
                         ₹
                         {particularChapterData
                           ? (
-                              Number(
+                              Math.round(Number(
                                 particularChapterData.chapter_membership_fee_two_year ||
                                   0
                               ) +
@@ -864,7 +862,7 @@ const BNIPaymentForm = () => {
                                   particularChapterData.chapter_membership_fee_two_year ||
                                     0
                                 )) *
-                                0.18
+                                0.18)
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,

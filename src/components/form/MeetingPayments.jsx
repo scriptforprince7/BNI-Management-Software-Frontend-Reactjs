@@ -545,7 +545,7 @@ setLoading(false)
               </div>
             </div>
           </form>
-{formData.chapter_kitty_fees && <div className="summary-container">
+{particularChapterData?.chapter_kitty_fees && <div className="summary-container">
             <div className="summary">
               <h5 className="summary-heading">Summary</h5>
               <hr
@@ -558,10 +558,10 @@ setLoading(false)
                    Event/Training Fee:
                   </span>{" "}
                  
-                  <span>  ₹  {formData.chapter_kitty_fees
+                  <span>  ₹  {particularChapterData.chapter_kitty_fees
                           ? (
                               Number(
-                                formData?.chapter_kitty_fees||0
+                                particularChapterData?.chapter_kitty_fees||0
                               )
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
@@ -572,11 +572,11 @@ setLoading(false)
         
                 <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>GST (18%):</span>{" "}
-                  <span>₹  {formData.chapter_kitty_fees
+                  <span>₹  {particularChapterData.chapter_kitty_fees
                           ? (
-                              Number(
-                                (formData?.chapter_kitty_fees)*0.18||0
-                              )
+                             Math.round( Number(
+                              (particularChapterData?.chapter_kitty_fees)*0.18||0
+                            ))
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
@@ -606,14 +606,14 @@ setLoading(false)
                               fontWeight: "400",
                             }}
                           >
-                            Gateway charges will be applicable
+                            Convenience charges will be applicable
                           </span>
                         </p>
                 </div>
-                <p>₹  {formData.chapter_kitty_fees
+                <p>₹  {particularChapterData.chapter_kitty_fees
                           ? (
                               Number(
-                                Number(formData.chapter_kitty_fees) + Number(formData.chapter_kitty_fees) * 0.18
+                                Number(particularChapterData.chapter_kitty_fees) + Number(particularChapterData.chapter_kitty_fees) * 0.18
                               )
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,

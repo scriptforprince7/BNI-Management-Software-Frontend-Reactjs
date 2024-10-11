@@ -12,9 +12,9 @@ const Homepage = () => {
     const titles = [
         "New Member Payment",
         "Renewal Payment",
-        "All Training Payments",
+        "Training & Events Payments",
         "Meeting Payment",
-        "Upcoming Events"
+        "Visitors Payments"
     ];
 
     const links = [
@@ -22,7 +22,7 @@ const Homepage = () => {
         "renewal-payment",
         "all-training-payments",
         "meeting-payment",
-        "upcoming-events"
+        "visitors-payments"
     ];
     
 

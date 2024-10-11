@@ -326,7 +326,7 @@ setLoading(false)
         
      {loading? <LoaderImg/>: <div className="form-container">
         <div className="form-header">
-          <h1> All TRAINING PAYMENTS</h1>
+          <h1> All TRAINING & EVENTS PAYMENTS</h1>
           <img src={border} alt="" style={{ width: "250px" }} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent:'space-between',alignItems:'center', }}>
@@ -461,23 +461,7 @@ setLoading(false)
                 {errors.mobileNumber && <small className="error-text">{errors.mobileNumber}</small>}
               </div>
 
-              <div className="form-group">
-<label htmlFor="quarter">Select Quarter </label>
-<select
-  id="quarter"
-  name="quarter"
-  value={formData.quarter}
-  onChange={handleChange}
-  className={errors.quarter ? 'error' : ''}
->
-  <option value="">Select Quarter </option>
-  <option value="Jan-March">Jan-March(2024)</option>
-  <option value="Apr-June">Apr-June(2024)</option>
-  <option value="July-Sep">July-Sep(2024)</option>
-  <option value="Oct-Dec">Oct-Dec(2024)</option>
-</select>
-{errors.quarter && <small className="error-text">{errors.quarter}</small>}
-</div>
+   
               <div className="form-group">
       <label htmlFor="eventName">Select Event/Training</label>
       {events ? (
@@ -654,9 +638,9 @@ setLoading(false)
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>GST (18%):</span>{" "}
                   <span>₹  {formData.eventPrice
                           ? (
-                              Number(
-                                (formData?.eventPrice)*0.18||0
-                              )
+                        Math.round(      Number(
+                          (formData?.eventPrice)*0.18||0
+                        ))
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
@@ -686,15 +670,15 @@ setLoading(false)
                               fontWeight: "400",
                             }}
                           >
-                            Gateway charges will be applicable
+                            Convenience charges will be applicable
                           </span>
                         </p>
                 </div>
                 <p>₹  {formData.eventPrice
                           ? (
-                              Number(
-                                Number(formData.eventPrice) + Number(formData.eventPrice) * 0.18
-                              )
+                             Math.round( Number(
+                              Number(formData.eventPrice) + Number(formData.eventPrice) * 0.18
+                            ))
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
