@@ -284,11 +284,24 @@ const BNIPaymentForm = () => {
     //   data.append(key, formData[key]);
     // }
 
-
+    const data={
+      "order_amount":"100",
+      "order_currency":"INR",
+      "customer_details":{
+          "customer_id":"User1",
+          "Customer_name":"Aditya",
+          "customer_email":"abc@gmail.com",
+          "customer_phone":"+911234567890"
+      },
+      "order_meta":{
+  "notify_url":"https://webhook.site/790283fa-f414-4260-af91-89f17e984ce2"
+      }
+  }
+    
     try {
       setLoading(true)
       console.log(data)
-      const res = await axios.post("http://localhost:3000/generate-cashfree-session", data, { headers });
+      const res = await axios.post("http://localhost:3000/generate-cashfree-session", data, );
       let checkoutOptions = {
         paymentSessionId: res.data.payment_session_id,
         redirectTarget: "_self", //optional ( _self, _blank, or _top)
