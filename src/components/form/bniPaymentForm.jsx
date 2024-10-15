@@ -7,6 +7,7 @@ import baseUrl from "../../utils/baseurl";
 import LoaderImg from "../loading/loading";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import cashfree from "../../utils/cashfree/cashfree-checkout";
 import ModalBox from "../modal/modal";
 const BNIPaymentForm = () => {
   const [formData, setFormData] = useState({
@@ -17,7 +18,7 @@ const BNIPaymentForm = () => {
     renewalYear: "1Year",
     category: "",
     mobileNumber: "",
-    address: "",
+    
     company: "",
     gstin: "",
     paymentType: "",
@@ -36,6 +37,7 @@ const BNIPaymentForm = () => {
   const [selectedMember, setSelectedMember] = useState(false);
   const [memberloading, setMemberLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+    
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -59,7 +61,7 @@ const BNIPaymentForm = () => {
       renewalYear: "1Year",
       category: "",
       mobileNumber: "",
-      address: "",
+      
       company: "",
       gstin: "",
       paymentType: "",
@@ -68,9 +70,10 @@ const BNIPaymentForm = () => {
     const selectedChapterData = allChapterData?.find(
       (chapter) => chapter?.chapter_name === selectedChapter
     );
+    console.log(selectedChapterData)
     setParticularChapterData(selectedChapterData);
 
-    console.log(allChapterData);
+
     // Find the index of the selected chapter
     const selectedIndex = allChapterData?.findIndex(
       (chapter) => chapter.chapter_name === selectedChapter
@@ -81,7 +84,7 @@ const BNIPaymentForm = () => {
       handleSelectedChapterData(selectedIndex);
     }
   };
-
+  console.log(particularChapterData);
   const handleRegionChange = async (e) => {
     const selectedIndex = e.target.value;
     const selectedRegionData = regionData[selectedIndex];
@@ -96,7 +99,7 @@ const BNIPaymentForm = () => {
       renewalYear: "1Year",
       category: "",
       mobileNumber: "",
-      address: "",
+      
       company: "",
       gstin: "",
       paymentType: "",
@@ -264,19 +267,89 @@ const BNIPaymentForm = () => {
     if (!formData.email) errors.email = "Email is required";
     if (!formData.renewalYear) errors.renewalYear = "Renewal Year is required";
     if (!formData.category) errors.category = "Category is required";
-    if (!formData.mobileNumber)
-      errors.mobileNumber = "Mobile Number is required";
-    if (!formData.address) errors.address = "Address is required";
+    if (!formData.mobileNumber)errors.mobileNumber = "Mobile Number is required";
     if (!formData.company) errors.company = "Company is required";
     if (!formData.paymentType) errors.paymentType = "Payment Type is required";
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit =async (e) => {
     e.preventDefault();
+
     if (validate()) {
-      alert("Form submitted successfully!");
+         // Create form data
+    // const data = new FormData();
+    // for (const key in formData) {
+    //   data.append(key, formData[key]);
+    // }
+
+    const data={
+      "order_amount":"100",
+      "order_currency":"INR",
+      "customer_details":{
+          "customer_id":"User1",
+          "Customer_name":"Aditya",
+          "customer_email":"abc@gmail.com",
+          "customer_phone":"+911234567890"
+      },
+      "order_meta":{
+  "notify_url":"https://webhook.site/790283fa-f414-4260-af91-89f17e984ce2"
+      }
+  }
+    const headers = {
+      'x-client-id': 'TEST10319798896049137c9dffa78e6889791301',  // Replace with your client ID
+      'x-client-secret': 'cfsk_ma_test_1be7744c4212968f08d913247a648fa2_ea3c801c',  // Replace with your client secret
+      'x-api-version':'2023-08-01',
+// Include the headers for form data
+    };
+    try {
+      setLoading(true)
+      console.log(data)
+      const res = await axios.post("http://localhost:3000/generate-cashfree-session", data, { headers });
+      let checkoutOptions = {
+        paymentSessionId: res.data.payment_session_id,
+        redirectTarget: "_self", //optional ( _self, _blank, or _top)
+        returnUrl:"http://localhost:5173/new-member-payment",
+    }
+    
+   
+  cashfree.checkout(checkoutOptions).then((result) => {
+      if(result.error){
+          // This will be true whenever user clicks on close icon inside the modal or any error happens during the payment
+          console.log("User has closed the popup or there is some payment error, Check for Payment Status");
+          console.log(result.error);
+          setLoading(false);
+          alert(result.error)
+       
+      }
+      if(result.redirect){
+          // This will be true when the payment redirection page couldnt be opened in the same window
+          // This is an exceptional case only when the page is opened inside an inAppBrowser
+          // In this case the customer will be redirected to return url once payment is completed
+          console.log("Payment will be redirected");
+          setLoading(false);
+          
+      }
+      if(result.paymentDetails){
+          // This will be called whenever the payment is completed irrespective of transaction status
+          console.log("Payment has been completed, Check for Payment Status");
+          console.log(result.paymentDetails.paymentMessage);
+          setLoading(false);
+      }
+  });
+     // Handle the response data
+    } catch (error) {
+      setLoading(false);
+      console.error('Error:', error.response ? error.response.data : error.message);
+      alert(error.message)
+    }
+
+
+
+    }
+    else{
+      alert("Please fill all the required feilds");
     }
   };
 
@@ -478,7 +551,7 @@ const BNIPaymentForm = () => {
                       onChange={handleChange}
                       className={errors.paymentType ? "error" : ""}
                     >
-                      <option value="">CREDIT / DEBIT / NET BANKING</option>
+                      <option value="">Choose Payment  Type</option>
                       <option value="credit">Credit (1.25%)</option>
                       <option value="debit">Debit (1.25%)</option>
                       <option value="netBanking">Net Banking (1.25%)</option>
@@ -710,7 +783,7 @@ const BNIPaymentForm = () => {
                     </div>
                   </div>
                   <button className="pay-now-button" onClick={handleSubmit}>
-                    PAY NOW
+                   {loading?"Loading...":" PAY NOW"}
                   </button>
                 </div>
               )}

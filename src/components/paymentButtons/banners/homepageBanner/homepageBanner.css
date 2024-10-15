@@ -70,14 +70,14 @@
     transform: scale(1.05);
     /* Slightly enlarges the button on hover */
 }
-.memberImg{
+.memberImg {
     position: relative;
-    width: 50%;
-   background:transparent ;
-   /* background:inherit ; */
-    height: 10%;
-    border-radius: 10px;
-   
+    width: auto; /* Adjust to fill the parent */
+    height: auto; /* Maintain aspect ratio */
+    max-height: 300px; /* Set a maximum height */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Add shadow */
+    border-radius: 8px; /* Optional: rounded corners */
+    object-fit: contain; /* Ensures the image covers the area nicely */
 }
 
 @media (min-width: 1024px){
@@ -114,7 +114,7 @@
         position: relative;
         width: 50%;
        
-        height: 300px;
+        height: auto;
        
     }
 }
@@ -124,7 +124,7 @@
         position: relative;
         width: 50%;
        
-        height: 100px;
+        height: auto;
        
     }
     .banner-container {
