@@ -284,25 +284,7 @@ const BNIPaymentForm = () => {
     //   data.append(key, formData[key]);
     // }
 
-    const data={
-      "order_amount":"100",
-      "order_currency":"INR",
-      "customer_details":{
-          "customer_id":"User1",
-          "Customer_name":"Aditya",
-          "customer_email":"abc@gmail.com",
-          "customer_phone":"+911234567890"
-      },
-      "order_meta":{
-  "notify_url":"https://webhook.site/790283fa-f414-4260-af91-89f17e984ce2"
-      }
-  }
-    const headers = {
-      'x-client-id': 'TEST10319798896049137c9dffa78e6889791301',  // Replace with your client ID
-      'x-client-secret': 'cfsk_ma_test_1be7744c4212968f08d913247a648fa2_ea3c801c',  // Replace with your client secret
-      'x-api-version':'2023-08-01',
-// Include the headers for form data
-    };
+
     try {
       setLoading(true)
       console.log(data)
