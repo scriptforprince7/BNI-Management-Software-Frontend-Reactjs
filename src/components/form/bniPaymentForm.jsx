@@ -18,10 +18,14 @@ const BNIPaymentForm = () => {
     renewalYear: "1Year",
     category: "",
     mobileNumber: "",
-    
     company: "",
     gstin: "",
     paymentType: "",
+    one_time_registration_fee:"",
+membership_fee:"",
+tax:"",
+latefee:"",
+total_amount:"",
   });
 
   const [errors, setErrors] = useState({});
@@ -37,7 +41,7 @@ const BNIPaymentForm = () => {
   const [selectedMember, setSelectedMember] = useState(false);
   const [memberloading, setMemberLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-    
+const[paymentLoading,setPaymentLoading]=useState(false)
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -49,9 +53,9 @@ const BNIPaymentForm = () => {
 
   const handleChapterChange = (e) => {
     const selectedChapter = e.target.value;
+
     setselectedChapter(e.target.value);
     console.log(allChapterData);
-
     // Update formData with the selected chapter
     setFormData({
       ...formData,
@@ -61,36 +65,54 @@ const BNIPaymentForm = () => {
       renewalYear: "1Year",
       category: "",
       mobileNumber: "",
-      
       company: "",
       gstin: "",
       paymentType: "",
     });
-    setmemberData("")
+
     const selectedChapterData = allChapterData?.find(
       (chapter) => chapter?.chapter_name === selectedChapter
     );
-    console.log(selectedChapterData)
+
+    console.log(selectedChapterData);
     setParticularChapterData(selectedChapterData);
 
-
+    console.log(particularChapterData);
     // Find the index of the selected chapter
     const selectedIndex = allChapterData?.findIndex(
       (chapter) => chapter.chapter_name === selectedChapter
     );
+    console.log(selectedIndex);
     setselectedChapter(allChapterData[selectedIndex]);
-    // Call the function to handle the selected chapter data
-    if (selectedIndex !== -1) {
-      handleSelectedChapterData(selectedIndex);
+    console.log(selectedIndex);
+    setParticularChapterData(allChapterData[selectedIndex]);
+
+    if (formData.renewalYear === "1Year") {
+      const one_time_registration_fee = Number(particularChapterData.one_time_registration_fee) || 0;
+      const membership_fee = Number(particularChapterData.chapter_membership_fee) || 0;
+      const tax = (one_time_registration_fee + membership_fee) * 0.18;
+      const total_amount = one_time_registration_fee + membership_fee + tax;
+  
+      // Log values for debugging
+  
+  
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        one_time_registration_fee,
+        membership_fee,
+        tax,
+        total_amount,
+      }));
     }
+
   };
-  console.log(particularChapterData);
   const handleRegionChange = async (e) => {
     const selectedIndex = e.target.value;
     const selectedRegionData = regionData[selectedIndex];
 
     // Update formData with the selected region name
     const updatedRegion = selectedRegionData?.region_name || e.target.value;
+    console.log(updatedRegion);
     setFormData({
       ...formData,
       region: updatedRegion, // Ensure formData includes selected region
@@ -99,22 +121,24 @@ const BNIPaymentForm = () => {
       renewalYear: "1Year",
       category: "",
       mobileNumber: "",
-      
+
       company: "",
       gstin: "",
       paymentType: "",
     });
-    setmemberData("")
+
     setSelectedRegion(selectedRegionData);
     setParticularRegionData(selectedRegionData);
 
+    setselectedChapter("");
+    formData.chapter = "";
     try {
       setLoading(true);
 
       // If "New Delhi" is selected, fetch all chapters
       if (updatedRegion.toLowerCase() === "new-delhi") {
         const res = await axios.get(`${baseUrl}/api/chapters`);
-        setChapterData(res.data); // Display all chapters
+        // setChapterData(res.data); // Display all chapters
         setallChapterData(res.data);
       } else {
         // Filter chapters based on selected region's region_id
@@ -213,6 +237,7 @@ const BNIPaymentForm = () => {
     formData.company = particularMember.member_company_name;
     formData.gstin = particularMember.member_gst_number;
     formData.renewalYear = "1Year";
+    
   };
 
   const handleSelectedChapterData = async (index) => {
@@ -221,8 +246,57 @@ const BNIPaymentForm = () => {
 
   const handleRenewalYearChange = (e) => {
     const { value } = e.target;
+    console.log(value)
     setFormData({ ...formData, renewalYear: value });
 
+    let one_time_registration_fee = 0;
+    let membership_fee = 0;
+    let tax = 0;
+    let total_amount = 0;
+  
+    if (value === "1Year") {
+      const one_time_registration_fee = Number(particularChapterData.one_time_registration_fee) || 0;
+      const membership_fee = Number(particularChapterData.chapter_membership_fee) || 0;
+      const tax = (one_time_registration_fee + membership_fee) * 0.18;
+      const total_amount = one_time_registration_fee + membership_fee + tax;
+  
+      // Log values for debugging
+  
+  
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        one_time_registration_fee,
+        membership_fee,
+        tax,
+        total_amount,
+      }));
+    }
+  
+    
+    if (value === "2Year") {
+      const one_time_registration_fee = Number(particularChapterData.one_time_registration_fee) || 0;
+      const membership_fee = Number(particularChapterData.chapter_membership_fee_two_year) || 0;
+      
+      const tax = (one_time_registration_fee + membership_fee) * 0.18;
+      const total_amount = one_time_registration_fee + membership_fee + tax;
+    
+      // Log values for debugging
+  
+    
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        one_time_registration_fee,
+        membership_fee,
+        tax,
+        total_amount,
+      }));
+    }
+    
+    
+  
+ 
+  
+    
     // Show the modal if the selected year is "5Years"
     if (value === "5Year") {
       setShowModal(true);
@@ -267,83 +341,97 @@ const BNIPaymentForm = () => {
     if (!formData.email) errors.email = "Email is required";
     if (!formData.renewalYear) errors.renewalYear = "Renewal Year is required";
     if (!formData.category) errors.category = "Category is required";
-    if (!formData.mobileNumber)errors.mobileNumber = "Mobile Number is required";
+    if (!formData.mobileNumber)
+      errors.mobileNumber = "Mobile Number is required";
     if (!formData.company) errors.company = "Company is required";
     if (!formData.paymentType) errors.paymentType = "Payment Type is required";
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit =async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
+    if (formData.renewalYear === "1Year") {
+      const one_time_registration_fee = Number(particularChapterData.one_time_registration_fee) || 0;
+      const membership_fee = Number(particularChapterData.chapter_membership_fee) || 0;
+      const tax = (one_time_registration_fee + membership_fee) * 0.18;
+      const total_amount = one_time_registration_fee + membership_fee + tax;
+  
+      // Log values for debugging
+  
+  
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        one_time_registration_fee,
+        membership_fee,
+        tax,
+        total_amount,
+      }));
+    }
     if (validate()) {
-         // Create form data
-    // const data = new FormData();
-    // for (const key in formData) {
-    //   data.append(key, formData[key]);
-    // }
-
-    const data={
-      "order_amount":"100",
-      "order_currency":"INR",
-      "customer_details":{
+      // Create form data
+      const data = {
+        order_amount: formData.total_amount.toString(),
+        order_currency: "INR",
+        customer_details: { ...formData,
           "customer_id":"User1",
-          "Customer_name":"Aditya",
-          "customer_email":"abc@gmail.com",
-          "customer_phone":"+911234567890"
-      },
-      "order_meta":{
-  "notify_url":"https://webhook.site/790283fa-f414-4260-af91-89f17e984ce2"
-      }
-  }
-    
-    try {
-      setLoading(true)
-      console.log(data)
-      const res = await axios.post("http://localhost:3000/generate-cashfree-session", data, );
-      let checkoutOptions = {
-        paymentSessionId: res.data.payment_session_id,
-        redirectTarget: "_self", //optional ( _self, _blank, or _top)
-        returnUrl:"http://localhost:5173/new-member-payment",
-    }
-    
-   
-  cashfree.checkout(checkoutOptions).then((result) => {
-      if(result.error){
-          // This will be true whenever user clicks on close icon inside the modal or any error happens during the payment
-          console.log("User has closed the popup or there is some payment error, Check for Payment Status");
-          console.log(result.error);
-          setLoading(false);
-          alert(result.error)
-       
-      }
-      if(result.redirect){
-          // This will be true when the payment redirection page couldnt be opened in the same window
-          // This is an exceptional case only when the page is opened inside an inAppBrowser
-          // In this case the customer will be redirected to return url once payment is completed
-          console.log("Payment will be redirected");
-          setLoading(false);
-          
-      }
-      if(result.paymentDetails){
-          // This will be called whenever the payment is completed irrespective of transaction status
-          console.log("Payment has been completed, Check for Payment Status");
-          console.log(result.paymentDetails.paymentMessage);
-          setLoading(false);
-      }
-  });
-     // Handle the response data
-    } catch (error) {
-      setLoading(false);
-      console.error('Error:', error.response ? error.response.data : error.message);
-      alert(error.message)
-    }
+          "Customer_name":formData.memberName,
+          "customer_email":formData.email,
+          "customer_phone":formData.mobileNumber
+        },
+        order_meta: {
+          notify_url:
+            "https://webhook.site/790283fa-f414-4260-af91-89f17e984ce2",
+        },
+      };
 
+      try {
+        setPaymentLoading(true);
+        console.log(data);
+        const res = await axios.post(
+          "http://localhost:3000/generate-cashfree-session",
+          data
+        );
+        let checkoutOptions = {
+          paymentSessionId: res.data.payment_session_id,
+          redirectTarget: "_self", //optional ( _self, _blank, or _top)
+          returnUrl: "http://localhost:5173/",
+        };
 
-
-    }
-    else{
+        cashfree.checkout(checkoutOptions).then((result) => {
+          if (result.error) {
+            // This will be true whenever user clicks on close icon inside the modal or any error happens during the payment
+            console.log(
+              "User has closed the popup or there is some payment error, Check for Payment Status"
+            );
+            console.log(result.error);
+            setPaymentLoading(false);
+            alert(result.error);
+          }
+          if (result.redirect) {
+            // This will be true when the payment redirection page couldnt be opened in the same window
+            // This is an exceptional case only when the page is opened inside an inAppBrowser
+            // In this case the customer will be redirected to return url once payment is completed
+            console.log("Payment will be redirected");
+            setPaymentLoading(false);
+          }
+          if (result.paymentDetails) {
+            // This will be called whenever the payment is completed irrespective of transaction status
+            console.log("Payment has been completed, Check for Payment Status");
+            console.log(result.paymentDetails.paymentMessage);
+            setPaymentLoading(false);
+          }
+        });
+        // Handle the response data
+      } catch (error) {
+        setPaymentLoading(false);
+        console.error(
+          "Error:",
+          error.response ? error.response.data : error.message
+        );
+        alert(error.message);
+      }
+    } else {
       alert("Please fill all the required feilds");
     }
   };
@@ -546,7 +634,7 @@ const BNIPaymentForm = () => {
                       onChange={handleChange}
                       className={errors.paymentType ? "error" : ""}
                     >
-                      <option value="">Choose Payment  Type</option>
+                      <option value="">Choose Payment Type</option>
                       <option value="credit">Credit (1.25%)</option>
                       <option value="debit">Debit (1.25%)</option>
                       <option value="netBanking">Net Banking (1.25%)</option>
@@ -698,12 +786,14 @@ const BNIPaymentForm = () => {
                         <span>
                           ₹
                           {particularChapterData
-                            ? (
-                              Math.round(
-                                (Number(particularChapterData.one_time_registration_fee) +
-                                  Number(particularChapterData.chapter_membership_fee)) * 0.18
-                              )
-                              
+                            ? Math.round(
+                                (Number(
+                                  particularChapterData.one_time_registration_fee
+                                ) +
+                                  Number(
+                                    particularChapterData.chapter_membership_fee
+                                  )) *
+                                  0.18
                               ).toLocaleString("en-IN", {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2,
@@ -751,24 +841,24 @@ const BNIPaymentForm = () => {
                       <p>
                         ₹
                         {particularChapterData
-                          ? (
-                             Math.round( Number(
-                              particularChapterData.chapter_membership_fee ||
-                                0
-                            ) +
-                            Number(
-                              particularChapterData.one_time_registration_fee ||
-                                0
-                            ) +
-                            (Number(
-                              particularChapterData.one_time_registration_fee ||
-                                0
-                            ) +
+                          ? Math.round(
                               Number(
                                 particularChapterData.chapter_membership_fee ||
                                   0
-                              )) *
-                              0.18)
+                              ) +
+                                Number(
+                                  particularChapterData.one_time_registration_fee ||
+                                    0
+                                ) +
+                                (Number(
+                                  particularChapterData.one_time_registration_fee ||
+                                    0
+                                ) +
+                                  Number(
+                                    particularChapterData.chapter_membership_fee ||
+                                      0
+                                  )) *
+                                  0.18
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
@@ -778,7 +868,7 @@ const BNIPaymentForm = () => {
                     </div>
                   </div>
                   <button className="pay-now-button" onClick={handleSubmit}>
-                   {loading?"Loading...":" PAY NOW"}
+                    {loading ? "Loading..." : " PAY NOW"}
                   </button>
                 </div>
               )}
@@ -858,14 +948,14 @@ const BNIPaymentForm = () => {
                         <span>
                           ₹
                           {particularChapterData
-                            ? (
-                               Math.round( (Number(
-                                particularChapterData.one_time_registration_fee
-                              ) +
-                                Number(
-                                  particularChapterData.chapter_membership_fee_two_year
-                                )) *
-                              0.18)
+                            ? Math.round(
+                                (Number(
+                                  particularChapterData.one_time_registration_fee
+                                ) +
+                                  Number(
+                                    particularChapterData.chapter_membership_fee_two_year
+                                  )) *
+                                  0.18
                               ).toLocaleString("en-IN", {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2,
@@ -913,24 +1003,24 @@ const BNIPaymentForm = () => {
                       <p>
                         ₹
                         {particularChapterData
-                          ? (
-                              Math.round(Number(
+                          ? Math.round(
+                              Number(
                                 particularChapterData.chapter_membership_fee_two_year ||
                                   0
                               ) +
-                              Number(
-                                particularChapterData.one_time_registration_fee ||
-                                  0
-                              ) +
-                              (Number(
-                                particularChapterData.one_time_registration_fee ||
-                                  0
-                              ) +
                                 Number(
-                                  particularChapterData.chapter_membership_fee_two_year ||
+                                  particularChapterData.one_time_registration_fee ||
                                     0
-                                )) *
-                                0.18)
+                                ) +
+                                (Number(
+                                  particularChapterData.one_time_registration_fee ||
+                                    0
+                                ) +
+                                  Number(
+                                    particularChapterData.chapter_membership_fee_two_year ||
+                                      0
+                                  )) *
+                                  0.18
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
@@ -940,7 +1030,7 @@ const BNIPaymentForm = () => {
                     </div>
                   </div>
                   <button className="pay-now-button" onClick={handleSubmit}>
-                    PAY NOW
+                  {paymentLoading?"Loading...":"PAY NOW"} 
                   </button>
                 </div>
               )}
