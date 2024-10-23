@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './Navbar.css';
+import './navbar.css'
 import logo from '../../assets/images/logo/logo.jpeg';
 import { FaBars, FaTimes, FaChevronDown, FaChevronUp } from 'react-icons/fa'; // Import icons
 import { Link } from 'react-router-dom'; // Import Link from react-router-dom

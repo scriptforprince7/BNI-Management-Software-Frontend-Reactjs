@@ -7,7 +7,7 @@ import baseUrl from "../../utils/baseurl";
 import LoaderImg from "../loading/loading";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import cashfree from "../../utils/cashfree/cashfree-checkout";
+import {load} from '@cashfreepayments/cashfree-js';
 import ModalBox from "../modal/modal";
 const BNIPaymentForm = () => {
   const [formData, setFormData] = useState({
@@ -21,11 +21,11 @@ const BNIPaymentForm = () => {
     company: "",
     gstin: "",
     paymentType: "",
-    one_time_registration_fee:"",
-membership_fee:"",
-tax:"",
-latefee:"",
-total_amount:"",
+    one_time_registration_fee: "",
+    membership_fee: "",
+    tax: "",
+    latefee: "",
+    total_amount: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -41,7 +41,7 @@ total_amount:"",
   const [selectedMember, setSelectedMember] = useState(false);
   const [memberloading, setMemberLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-const[paymentLoading,setPaymentLoading]=useState(false)
+  const [paymentLoading, setPaymentLoading] = useState(false);
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -88,14 +88,15 @@ const[paymentLoading,setPaymentLoading]=useState(false)
     setParticularChapterData(allChapterData[selectedIndex]);
 
     if (formData.renewalYear === "1Year") {
-      const one_time_registration_fee = Number(particularChapterData.one_time_registration_fee) || 0;
-      const membership_fee = Number(particularChapterData.chapter_membership_fee) || 0;
+      const one_time_registration_fee =
+        Number(particularChapterData.one_time_registration_fee) || 0;
+      const membership_fee =
+        Number(particularChapterData.chapter_membership_fee) || 0;
       const tax = (one_time_registration_fee + membership_fee) * 0.18;
       const total_amount = one_time_registration_fee + membership_fee + tax;
-  
+
       // Log values for debugging
-  
-  
+
       setFormData((prevFormData) => ({
         ...prevFormData,
         one_time_registration_fee,
@@ -104,7 +105,6 @@ const[paymentLoading,setPaymentLoading]=useState(false)
         total_amount,
       }));
     }
-
   };
   const handleRegionChange = async (e) => {
     const selectedIndex = e.target.value;
@@ -237,7 +237,6 @@ const[paymentLoading,setPaymentLoading]=useState(false)
     formData.company = particularMember.member_company_name;
     formData.gstin = particularMember.member_gst_number;
     formData.renewalYear = "1Year";
-    
   };
 
   const handleSelectedChapterData = async (index) => {
@@ -246,23 +245,24 @@ const[paymentLoading,setPaymentLoading]=useState(false)
 
   const handleRenewalYearChange = (e) => {
     const { value } = e.target;
-    console.log(value)
+    console.log(value);
     setFormData({ ...formData, renewalYear: value });
 
     let one_time_registration_fee = 0;
     let membership_fee = 0;
     let tax = 0;
     let total_amount = 0;
-  
+
     if (value === "1Year") {
-      const one_time_registration_fee = Number(particularChapterData.one_time_registration_fee) || 0;
-      const membership_fee = Number(particularChapterData.chapter_membership_fee) || 0;
+      const one_time_registration_fee =
+        Number(particularChapterData.one_time_registration_fee) || 0;
+      const membership_fee =
+        Number(particularChapterData.chapter_membership_fee) || 0;
       const tax = (one_time_registration_fee + membership_fee) * 0.18;
       const total_amount = one_time_registration_fee + membership_fee + tax;
-  
+
       // Log values for debugging
-  
-  
+
       setFormData((prevFormData) => ({
         ...prevFormData,
         one_time_registration_fee,
@@ -271,18 +271,18 @@ const[paymentLoading,setPaymentLoading]=useState(false)
         total_amount,
       }));
     }
-  
-    
+
     if (value === "2Year") {
-      const one_time_registration_fee = Number(particularChapterData.one_time_registration_fee) || 0;
-      const membership_fee = Number(particularChapterData.chapter_membership_fee_two_year) || 0;
-      
+      const one_time_registration_fee =
+        Number(particularChapterData.one_time_registration_fee) || 0;
+      const membership_fee =
+        Number(particularChapterData.chapter_membership_fee_two_year) || 0;
+
       const tax = (one_time_registration_fee + membership_fee) * 0.18;
       const total_amount = one_time_registration_fee + membership_fee + tax;
-    
+
       // Log values for debugging
-  
-    
+
       setFormData((prevFormData) => ({
         ...prevFormData,
         one_time_registration_fee,
@@ -291,18 +291,124 @@ const[paymentLoading,setPaymentLoading]=useState(false)
         total_amount,
       }));
     }
-    
-    
-  
- 
-  
-    
+
     // Show the modal if the selected year is "5Years"
     if (value === "5Year") {
       setShowModal(true);
     } else {
       setShowModal(false);
     }
+  };
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (formData.renewalYear === "1Year") {
+      const one_time_registration_fee =
+        Number(particularChapterData.one_time_registration_fee) || 0;
+      const membership_fee =
+        Number(particularChapterData.chapter_membership_fee) || 0;
+      const tax = (one_time_registration_fee + membership_fee) * 0.18;
+      const total_amount = one_time_registration_fee + membership_fee + tax;
+
+      // Log values for debugging
+
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        one_time_registration_fee,
+        membership_fee,
+        tax,
+        total_amount,
+      }));
+    }
+    if (validate()) {
+      // Create form data
+      const data = {
+        order_amount: formData.total_amount.toString(),
+        order_currency: "INR",
+        customer_details: {
+          ...formData,
+          customer_id: "User1",
+          Customer_name: formData.memberName,
+          customer_email: formData.email,
+          customer_phone: formData.mobileNumber,
+        },
+        order_meta: {
+          notify_url:
+            "https://webhook.site/790283fa-f414-4260-af91-89f17e984ce2",
+        },
+      };
+
+      try {
+
+        
+
+
+const cashfree = await  load({
+    mode: "sandbox" // or "production"
+});
+        setPaymentLoading(true);
+        const res = await axios.post(
+          "http://localhost:5000/api/generate-cashfree-session",
+          data
+        );
+        console.log(res.data)
+        let checkoutOptions = {
+          paymentSessionId: res.data.payment_session_id,
+          redirectTarget: "_self", //optional ( _self, _blank, or _top)
+          returnUrl: "http://localhost:5173/",
+        };
+
+     await cashfree.checkout(checkoutOptions).then((result) => {
+          if (result.error) {
+           
+            console.log(
+              "User has closed the popup or there is some payment error, Check for Payment Status"
+            );
+            console.log(result.error);
+            setPaymentLoading(false);
+            alert(result.error);
+          }
+          if (result.redirect) {
+           
+            console.log("Payment will be redirected");
+            setPaymentLoading(false);
+          }
+          if (result.paymentDetails) {
+         
+            console.log("Payment has been completed, Check for Payment Status");
+            console.log(result.paymentDetails.paymentMessage);
+            setPaymentLoading(false);
+          }
+        });
+        // Handle the response data
+      } catch (error) {
+        setPaymentLoading(false);
+        console.error(
+          "Error:",
+          error.response ? error.response.data : error.message
+        );
+        alert(error.message);
+      }
+    } else {
+      alert("Please fill all the required feilds");
+    }
+  };
+
+  const validate = () => {
+    const errors = {};
+    if (!formData.region) errors.region = "BNI Region is required";
+    if (!formData.chapter) errors.chapter = "BNI Chapter is required";
+    if (!formData.memberName) errors.memberName = "Member Name is required";
+    if (!formData.email) errors.email = "Email is required";
+    if (!formData.renewalYear) errors.renewalYear = "Renewal Year is required";
+    if (!formData.category) errors.category = "Category is required";
+    if (!formData.mobileNumber)
+      errors.mobileNumber = "Mobile Number is required";
+    if (!formData.company) errors.company = "Company is required";
+    if (!formData.paymentType) errors.paymentType = "Payment Type is required";
+    setErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleCloseModal = () => {
@@ -333,108 +439,9 @@ const[paymentLoading,setPaymentLoading]=useState(false)
     fetchRegions();
   }, [formData.region]);
 
-  const validate = () => {
-    const errors = {};
-    if (!formData.region) errors.region = "BNI Region is required";
-    if (!formData.chapter) errors.chapter = "BNI Chapter is required";
-    if (!formData.memberName) errors.memberName = "Member Name is required";
-    if (!formData.email) errors.email = "Email is required";
-    if (!formData.renewalYear) errors.renewalYear = "Renewal Year is required";
-    if (!formData.category) errors.category = "Category is required";
-    if (!formData.mobileNumber)
-      errors.mobileNumber = "Mobile Number is required";
-    if (!formData.company) errors.company = "Company is required";
-    if (!formData.paymentType) errors.paymentType = "Payment Type is required";
-    setErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (formData.renewalYear === "1Year") {
-      const one_time_registration_fee = Number(particularChapterData.one_time_registration_fee) || 0;
-      const membership_fee = Number(particularChapterData.chapter_membership_fee) || 0;
-      const tax = (one_time_registration_fee + membership_fee) * 0.18;
-      const total_amount = one_time_registration_fee + membership_fee + tax;
   
-      // Log values for debugging
-  
-  
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        one_time_registration_fee,
-        membership_fee,
-        tax,
-        total_amount,
-      }));
-    }
-    if (validate()) {
-      // Create form data
-      const data = {
-        order_amount: formData.total_amount.toString(),
-        order_currency: "INR",
-        customer_details: { ...formData,
-          "customer_id":"User1",
-          "Customer_name":formData.memberName,
-          "customer_email":formData.email,
-          "customer_phone":formData.mobileNumber
-        },
-        order_meta: {
-          notify_url:
-            "https://webhook.site/790283fa-f414-4260-af91-89f17e984ce2",
-        },
-      };
 
-      try {
-        setPaymentLoading(true);
-        console.log(data);
-        const res = await axios.post(
-          "http://localhost:3000/generate-cashfree-session",
-          data
-        );
-        let checkoutOptions = {
-          paymentSessionId: res.data.payment_session_id,
-          redirectTarget: "_self", //optional ( _self, _blank, or _top)
-          returnUrl: "http://localhost:5173/",
-        };
-
-        cashfree.checkout(checkoutOptions).then((result) => {
-          if (result.error) {
-            // This will be true whenever user clicks on close icon inside the modal or any error happens during the payment
-            console.log(
-              "User has closed the popup or there is some payment error, Check for Payment Status"
-            );
-            console.log(result.error);
-            setPaymentLoading(false);
-            alert(result.error);
-          }
-          if (result.redirect) {
-            // This will be true when the payment redirection page couldnt be opened in the same window
-            // This is an exceptional case only when the page is opened inside an inAppBrowser
-            // In this case the customer will be redirected to return url once payment is completed
-            console.log("Payment will be redirected");
-            setPaymentLoading(false);
-          }
-          if (result.paymentDetails) {
-            // This will be called whenever the payment is completed irrespective of transaction status
-            console.log("Payment has been completed, Check for Payment Status");
-            console.log(result.paymentDetails.paymentMessage);
-            setPaymentLoading(false);
-          }
-        });
-        // Handle the response data
-      } catch (error) {
-        setPaymentLoading(false);
-        console.error(
-          "Error:",
-          error.response ? error.response.data : error.message
-        );
-        alert(error.message);
-      }
-    } else {
-      alert("Please fill all the required feilds");
-    }
-  };
+ 
 
   return (
     <>
@@ -1030,7 +1037,7 @@ const[paymentLoading,setPaymentLoading]=useState(false)
                     </div>
                   </div>
                   <button className="pay-now-button" onClick={handleSubmit}>
-                  {paymentLoading?"Loading...":"PAY NOW"} 
+                    {paymentLoading ? "Loading..." : "PAY NOW"}
                   </button>
                 </div>
               )}
