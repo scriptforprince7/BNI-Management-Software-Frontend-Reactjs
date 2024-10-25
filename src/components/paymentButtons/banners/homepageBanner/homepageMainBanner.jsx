@@ -1,10 +1,11 @@
 import React, { Fragment } from "react";
 import "./homepageBanner.css";
 import image from "../../../../assets/images/member/member.png"
+import Slider from "../../../Slider/slider";
 const HomepageMainBanner = () => {
   return (
     <Fragment>
-      <div className="banner-container">
+      <Slider>
         <div className="container">
           <div className="text-container">
             <h1>BNI Payment Simplified: </h1>
@@ -23,7 +24,7 @@ const HomepageMainBanner = () => {
           </div>
           <img src={image} alt=""  className="memberImg"/>
         </div>
-      </div>
+        </Slider>
     </Fragment>
   );
 };

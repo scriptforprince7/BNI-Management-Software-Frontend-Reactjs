@@ -8,6 +8,7 @@
     background-size: cover;
     background-repeat: no-repeat;
     align-items: center;
+    border:1px solid red;
 }
 .container{
     width: 100%;
@@ -16,6 +17,7 @@
   
     justify-content: space-between;
     align-items: center;
+    border:1px solid red;
 }
 .text-container {
     width: 100%;
