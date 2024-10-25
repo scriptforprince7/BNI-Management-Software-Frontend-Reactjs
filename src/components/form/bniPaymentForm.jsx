@@ -7,13 +7,19 @@ import baseUrl from "../../utils/baseurl";
 import LoaderImg from "../loading/loading";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {load} from '@cashfreepayments/cashfree-js';
+import { load } from '@cashfreepayments/cashfree-js';
 import ModalBox from "../modal/modal";
+import { useParams } from "react-router-dom";
 const BNIPaymentForm = () => {
+
   const [formData, setFormData] = useState({
     region: "new-delhi",
     chapter: "",
     memberName: "",
+    member_id: "",
+    chapter_id: "",
+    region_id: "",
+    payment_note: "",
     email: "",
     renewalYear: "1Year",
     category: "",
@@ -42,6 +48,7 @@ const BNIPaymentForm = () => {
   const [memberloading, setMemberLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
+    const { ulid } = useParams()
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -51,18 +58,19 @@ const BNIPaymentForm = () => {
     });
   };
 
-  const handleChapterChange = (e) => {
+  const handleChapterChange = async(e) => {
     const selectedChapter = e.target.value;
 
     setselectedChapter(e.target.value);
-    console.log(allChapterData);
+    const selectedChapterData = allChapterData?.find(
+      (chapter) => chapter?.chapter_name === selectedChapter
+    );
+     setParticularChapterData(selectedChapterData);
     // Update formData with the selected chapter
-    setFormData({
+   setFormData({
       ...formData,
-      chapter: selectedChapter,
       memberName: "",
       email: "",
-      renewalYear: "1Year",
       category: "",
       mobileNumber: "",
       company: "",
@@ -70,21 +78,14 @@ const BNIPaymentForm = () => {
       paymentType: "",
     });
 
-    const selectedChapterData = allChapterData?.find(
-      (chapter) => chapter?.chapter_name === selectedChapter
-    );
 
-    console.log(selectedChapterData);
-    setParticularChapterData(selectedChapterData);
-
-    console.log(particularChapterData);
     // Find the index of the selected chapter
     const selectedIndex = allChapterData?.findIndex(
       (chapter) => chapter.chapter_name === selectedChapter
     );
-    console.log(selectedIndex);
+
     setselectedChapter(allChapterData[selectedIndex]);
-    console.log(selectedIndex);
+
     setParticularChapterData(allChapterData[selectedIndex]);
 
     if (formData.renewalYear === "1Year") {
@@ -99,6 +100,8 @@ const BNIPaymentForm = () => {
 
       setFormData((prevFormData) => ({
         ...prevFormData,
+        chapter: selectedChapter,
+      
         one_time_registration_fee,
         membership_fee,
         tax,
@@ -106,6 +109,7 @@ const BNIPaymentForm = () => {
       }));
     }
   };
+  
   const handleRegionChange = async (e) => {
     const selectedIndex = e.target.value;
     const selectedRegionData = regionData[selectedIndex];
@@ -180,7 +184,7 @@ const BNIPaymentForm = () => {
         // Set to all members
         // console.log(memberRes.data)
         filteredMembers = memberRes.data.filter((item) => {
-          console.log(particularChapterData);
+        
           return (
             // Match by chapter or region, and also check if the name starts with or includes the input value
             item.chapter_id === particularChapterData?.chapter_id &&
@@ -199,7 +203,7 @@ const BNIPaymentForm = () => {
         filteredMembers = memberRes.data.filter((item) => {
           return (
             // Match by chapter or region, and also check if the name starts with or includes the input value
-            (item.chapter_id === particularChapterData?.chapter_id ||
+            (item.chapter_id === particularChapterData?.chapter_id &&
               item.region_id === particularRegionData?.region_id) &&
             (item.member_first_name
               .toLowerCase()
@@ -226,14 +230,15 @@ const BNIPaymentForm = () => {
   const memberDataHandler = async (index) => {
     setSelectedMember(true);
     const particularMember = memberData[index];
-
+    console.log(particularMember)
     formData.memberName =
       particularMember.member_first_name +
       " " +
       particularMember.member_last_name;
     formData.email = particularMember.member_email_address;
     (formData.mobileNumber = particularMember.member_phone_number),
-      (formData.category = particularMember.member_category);
+      formData.member_id = particularMember.member_id,
+      formData.category = particularMember.member_category;
     formData.company = particularMember.member_company_name;
     formData.gstin = particularMember.member_gst_number;
     formData.renewalYear = "1Year";
@@ -325,57 +330,72 @@ const BNIPaymentForm = () => {
       // Create form data
       const data = {
         order_amount: formData.total_amount.toString(),
+        order_note: formData.payment_note.toString(),
         order_currency: "INR",
         customer_details: {
           ...formData,
-          customer_id: "User1",
+          universal_link_id:`${ulid}`,
+          universallink_name:"new-member-payment",
+          customer_id:`User${formData.member_id}`,
+          payment_note: "new-member-payment",
           Customer_name: formData.memberName,
           customer_email: formData.email,
           customer_phone: formData.mobileNumber,
+          chapter_id: particularChapterData?.chapter_id,
+          payment_type_id:"1",
+      region_id: particularChapterData?.region_id,
         },
+
         order_meta: {
+          payment_note:formData.payment_note,
           notify_url:
             "https://webhook.site/790283fa-f414-4260-af91-89f17e984ce2",
         },
       };
 
+console.log(data);
+
+
       try {
 
-        
 
-
-const cashfree = await  load({
-    mode: "sandbox" // or "production"
-});
         setPaymentLoading(true);
+
+        const cashfree = await load({
+          mode: "sandbox" // or "production"
+        });
+       
         const res = await axios.post(
-          "http://localhost:5000/api/generate-cashfree-session",
-          data
+          `${baseUrl}/api/generate-cashfree-session`, 
+          data, // Make sure 'data' is the payload you want to send
+          
         );
-        console.log(res.data)
+        console.log(res.data);
+      
+
         let checkoutOptions = {
           paymentSessionId: res.data.payment_session_id,
           redirectTarget: "_self", //optional ( _self, _blank, or _top)
-          returnUrl: "http://localhost:5173/",
+          returnUrl: `https://bnipayments.nidmm.org/payment-status/${res.data.order_id}`,
         };
 
-     await cashfree.checkout(checkoutOptions).then((result) => {
+        await cashfree.checkout(checkoutOptions).then((result) => {
           if (result.error) {
-           
+
             console.log(
               "User has closed the popup or there is some payment error, Check for Payment Status"
             );
             console.log(result.error);
             setPaymentLoading(false);
-            alert(result.error);
+            alert(result.error.error);
           }
           if (result.redirect) {
-           
+
             console.log("Payment will be redirected");
             setPaymentLoading(false);
           }
           if (result.paymentDetails) {
-         
+
             console.log("Payment has been completed, Check for Payment Status");
             console.log(result.paymentDetails.paymentMessage);
             setPaymentLoading(false);
@@ -402,7 +422,7 @@ const cashfree = await  load({
     if (!formData.memberName) errors.memberName = "Member Name is required";
     if (!formData.email) errors.email = "Email is required";
     if (!formData.renewalYear) errors.renewalYear = "Renewal Year is required";
-    if (!formData.category) errors.category = "Category is required";
+    // if (!formData.category) errors.category = "Category is required";
     if (!formData.mobileNumber)
       errors.mobileNumber = "Mobile Number is required";
     if (!formData.company) errors.company = "Company is required";
@@ -425,6 +445,7 @@ const cashfree = await  load({
         if (formData.region === "new-delhi") {
           const chapterRes = await axios.get(`${baseUrl}/api/chapters`);
           setChapterData(chapterRes.data);
+          setParticularChapterData(chapterRes.data[0])
           setallChapterData(chapterRes.data);
         }
 
@@ -439,9 +460,9 @@ const cashfree = await  load({
     fetchRegions();
   }, [formData.region]);
 
-  
 
- 
+
+
 
   return (
     <>
@@ -482,8 +503,8 @@ const cashfree = await  load({
                     value={
                       formData.region
                         ? regionData?.findIndex(
-                            (region) => region.region_name === formData.region
-                          )
+                          (region) => region.region_name === formData.region
+                        )
                         : "new-delhi"
                     } // Use index as the value
                     onChange={handleRegionChange}
@@ -736,13 +757,13 @@ const cashfree = await  load({
                         <span>
                           ₹
                           {particularChapterData &&
-                          particularChapterData.one_time_registration_fee
+                            particularChapterData.one_time_registration_fee
                             ? Number(
-                                particularChapterData.one_time_registration_fee
-                              ).toLocaleString("en-IN", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              }) // Indian format
+                              particularChapterData.one_time_registration_fee
+                            ).toLocaleString("en-IN", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }) // Indian format
                             : ""}
                         </span>
                       </p>
@@ -753,13 +774,13 @@ const cashfree = await  load({
                         <span>
                           ₹
                           {particularChapterData &&
-                          particularChapterData.chapter_membership_fee
+                            particularChapterData.chapter_membership_fee
                             ? Number(
-                                particularChapterData.chapter_membership_fee
-                              ).toLocaleString("en-IN", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              }) // Indian format
+                              particularChapterData.chapter_membership_fee
+                            ).toLocaleString("en-IN", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }) // Indian format
                             : ""}{" "}
                         </span>
                       </p>
@@ -771,18 +792,18 @@ const cashfree = await  load({
                           ₹
                           {particularChapterData
                             ? (
-                                Number(
-                                  particularChapterData.one_time_registration_fee ||
-                                    0
-                                ) +
-                                Number(
-                                  particularChapterData.chapter_membership_fee ||
-                                    0
-                                )
-                              ).toLocaleString("en-IN", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              }) // Indian format
+                              Number(
+                                particularChapterData.one_time_registration_fee ||
+                                0
+                              ) +
+                              Number(
+                                particularChapterData.chapter_membership_fee ||
+                                0
+                              )
+                            ).toLocaleString("en-IN", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }) // Indian format
                             : ""}
                         </span>
                       </p>
@@ -794,17 +815,17 @@ const cashfree = await  load({
                           ₹
                           {particularChapterData
                             ? Math.round(
-                                (Number(
-                                  particularChapterData.one_time_registration_fee
-                                ) +
-                                  Number(
-                                    particularChapterData.chapter_membership_fee
-                                  )) *
-                                  0.18
-                              ).toLocaleString("en-IN", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              }) // Indian format
+                              (Number(
+                                particularChapterData.one_time_registration_fee
+                              ) +
+                                Number(
+                                  particularChapterData.chapter_membership_fee
+                                )) *
+                              0.18
+                            ).toLocaleString("en-IN", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }) // Indian format
                             : ""}
                         </span>
                       </p>
@@ -849,27 +870,27 @@ const cashfree = await  load({
                         ₹
                         {particularChapterData
                           ? Math.round(
+                            Number(
+                              particularChapterData.chapter_membership_fee ||
+                              0
+                            ) +
+                            Number(
+                              particularChapterData.one_time_registration_fee ||
+                              0
+                            ) +
+                            (Number(
+                              particularChapterData.one_time_registration_fee ||
+                              0
+                            ) +
                               Number(
                                 particularChapterData.chapter_membership_fee ||
-                                  0
-                              ) +
-                                Number(
-                                  particularChapterData.one_time_registration_fee ||
-                                    0
-                                ) +
-                                (Number(
-                                  particularChapterData.one_time_registration_fee ||
-                                    0
-                                ) +
-                                  Number(
-                                    particularChapterData.chapter_membership_fee ||
-                                      0
-                                  )) *
-                                  0.18
-                            ).toLocaleString("en-IN", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            }) // Indian format
+                                0
+                              )) *
+                            0.18
+                          ).toLocaleString("en-IN", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }) // Indian format
                           : "0.00"}
                       </p>
                     </div>
@@ -898,13 +919,13 @@ const cashfree = await  load({
                         <span>
                           ₹
                           {particularChapterData &&
-                          particularChapterData.one_time_registration_fee
+                            particularChapterData.one_time_registration_fee
                             ? Number(
-                                particularChapterData.one_time_registration_fee
-                              ).toLocaleString("en-IN", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              }) // Indian format
+                              particularChapterData.one_time_registration_fee
+                            ).toLocaleString("en-IN", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }) // Indian format
                             : ""}
                         </span>
                       </p>
@@ -915,13 +936,13 @@ const cashfree = await  load({
                         <span>
                           ₹
                           {particularChapterData &&
-                          particularChapterData.chapter_membership_fee_two_year
+                            particularChapterData.chapter_membership_fee_two_year
                             ? Number(
-                                particularChapterData.chapter_membership_fee_two_year
-                              ).toLocaleString("en-IN", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              }) // Indian format
+                              particularChapterData.chapter_membership_fee_two_year
+                            ).toLocaleString("en-IN", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }) // Indian format
                             : ""}{" "}
                         </span>
                       </p>
@@ -933,18 +954,18 @@ const cashfree = await  load({
                           ₹
                           {particularChapterData
                             ? (
-                                Number(
-                                  particularChapterData.one_time_registration_fee ||
-                                    0
-                                ) +
-                                Number(
-                                  particularChapterData.chapter_membership_fee_two_year ||
-                                    0
-                                )
-                              ).toLocaleString("en-IN", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              }) // Indian format
+                              Number(
+                                particularChapterData.one_time_registration_fee ||
+                                0
+                              ) +
+                              Number(
+                                particularChapterData.chapter_membership_fee_two_year ||
+                                0
+                              )
+                            ).toLocaleString("en-IN", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }) // Indian format
                             : ""}
                         </span>
                       </p>
@@ -956,17 +977,17 @@ const cashfree = await  load({
                           ₹
                           {particularChapterData
                             ? Math.round(
-                                (Number(
-                                  particularChapterData.one_time_registration_fee
-                                ) +
-                                  Number(
-                                    particularChapterData.chapter_membership_fee_two_year
-                                  )) *
-                                  0.18
-                              ).toLocaleString("en-IN", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              }) // Indian format
+                              (Number(
+                                particularChapterData.one_time_registration_fee
+                              ) +
+                                Number(
+                                  particularChapterData.chapter_membership_fee_two_year
+                                )) *
+                              0.18
+                            ).toLocaleString("en-IN", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }) // Indian format
                             : ""}
                         </span>
                       </p>
@@ -1011,27 +1032,27 @@ const cashfree = await  load({
                         ₹
                         {particularChapterData
                           ? Math.round(
+                            Number(
+                              particularChapterData.chapter_membership_fee_two_year ||
+                              0
+                            ) +
+                            Number(
+                              particularChapterData.one_time_registration_fee ||
+                              0
+                            ) +
+                            (Number(
+                              particularChapterData.one_time_registration_fee ||
+                              0
+                            ) +
                               Number(
                                 particularChapterData.chapter_membership_fee_two_year ||
-                                  0
-                              ) +
-                                Number(
-                                  particularChapterData.one_time_registration_fee ||
-                                    0
-                                ) +
-                                (Number(
-                                  particularChapterData.one_time_registration_fee ||
-                                    0
-                                ) +
-                                  Number(
-                                    particularChapterData.chapter_membership_fee_two_year ||
-                                      0
-                                  )) *
-                                  0.18
-                            ).toLocaleString("en-IN", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            }) // Indian format
+                                0
+                              )) *
+                            0.18
+                          ).toLocaleString("en-IN", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }) // Indian format
                           : "0.00"}
                       </p>
                     </div>
