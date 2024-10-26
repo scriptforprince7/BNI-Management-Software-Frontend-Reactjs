@@ -37,22 +37,70 @@ const PaymentStatusPage = () => {
     const { payment_status } = payment; // Assuming the response has a 'transaction_status' field
 console.log(payment_status)
     switch (payment_status) {
-      case "SUCCESS":
-        return <h2 style={{ color: 'green' }}>Payment Successful!</h2>;
-      case "NOT_ATTEMPTED":
-        return <h2 style={{ color: 'gray' }}>Payment Not Attempted</h2>;
-      case "FAILED":
-        return <h2 style={{ color: 'red' }}>Payment Failed</h2>;
-      case "USER_DROPPED":
-        return <h2 style={{ color: 'orange' }}>User Dropped Out</h2>;
-      case "VOID":
-        return <h2 style={{ color: 'purple' }}>Transaction Voided</h2>;
-      case "CANCELLED":
-        return <h2 style={{ color: 'darkred' }}>Transaction Cancelled</h2>;
-      case "PENDING":
-        return <h2 style={{ color: 'blue' }}>Payment Pending</h2>;
-      default:
-        return <h2>Unknown Payment Status</h2>;
+      case "SUCCESS": 
+      return (
+        <div style={{display:'flex',flexDirection:"column",alignItems:"center",width:"50%",margin:"0px auto"}}>
+        
+          <img src="https://cdn.dribbble.com/users/1751799/screenshots/5512482/check02.gif" alt="Success" width="400" height="400"  />
+          <h2 style={{ color: 'green' }}>Payment Successful!</h2>
+        </div>
+      );
+    
+    case "NOT_ATTEMPTED": 
+      return (
+        <div>
+          <h2 style={{ color: 'gray' }}>Payment Not Attempted</h2>
+          <img src="clock-icon.png" alt="Not Attempted" width="50" height="50" />
+        </div>
+      );
+    
+    case "FAILED": 
+      return (
+        <div>
+          <h2 style={{ color: 'red' }}>Payment Failed</h2>
+          <img src="error-icon.png" alt="Failed" width="50" height="50" />
+        </div>
+      );
+    
+    case "USER_DROPPED": 
+      return (
+        <div>
+          <h2 style={{ color: 'orange' }}>User Dropped Out</h2>
+          <img src="exit-icon.png" alt="User Dropped" width="50" height="50" />
+        </div>
+      );
+    
+    case "VOID": 
+      return (
+        <div>
+          <h2 style={{ color: 'purple' }}>Transaction Voided</h2>
+          <img src="ban-icon.png" alt="Void" width="50" height="50" />
+        </div>
+      );
+    
+    case "CANCELLED": 
+      return (
+        <div>
+          <h2 style={{ color: 'darkred' }}>Transaction Cancelled</h2>
+          <img src="cancel-icon.png" alt="Cancelled" width="50" height="50" />
+        </div>
+      );
+    
+    case "PENDING": 
+      return (
+        <div>
+          <h2 style={{ color: 'blue' }}>Payment Pending</h2>
+          <img src="loading-icon.gif" alt="Pending" width="50" height="50" />
+        </div>
+      );
+    
+    default: 
+      return (
+        <div>
+          <h2>Unknown Payment Status</h2>
+          <img src="question-mark-icon.png" alt="Unknown" width="50" height="50" />
+        </div>
+      );
     }
   };
 
@@ -64,7 +112,7 @@ console.log(payment_status)
         <LoaderImg />
       ) : (
         <div>
-          <h1>Payment Status Page</h1>
+         
           {renderPaymentStatus()} {/* Render the payment status based on the response */}
         </div>
       )}

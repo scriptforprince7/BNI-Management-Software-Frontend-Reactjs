@@ -19,6 +19,7 @@ const Homepage = () => {
       try {
         setLoading(true);
         const res = await axios.get(`${baseUrl}/api/universalLinks`);
+        console.log(res)
         setNavdata(res.data); // Set the navdata state with the fetched data
         setLoading(false);
       } catch (error) {
@@ -34,7 +35,7 @@ const Homepage = () => {
 
   // Create titles and links from navdata
   const titles = navdata.map(link => link.universal_link_name); // Extract titles
-  const links = navdata.map(link => `${link.link_slug}/${link.ulid}`); // Create links with slug and id
+  const links = navdata.map(link => `${link.link_slug}/${link.id}/${link.ulid}/${link.payment_gateway}`); // Create links with slug and id
 
   console.log(navdata); // Debug log for fetched navdata
 

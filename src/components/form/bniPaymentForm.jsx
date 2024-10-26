@@ -31,6 +31,7 @@ const BNIPaymentForm = () => {
     membership_fee: "",
     tax: "",
     latefee: "",
+    sub_total:"",
     total_amount: "",
   });
 
@@ -48,7 +49,7 @@ const BNIPaymentForm = () => {
   const [memberloading, setMemberLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
-    const { ulid } = useParams()
+    const { ulid,universal_link_id,payment_gateway} = useParams()
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -95,7 +96,7 @@ const BNIPaymentForm = () => {
         Number(particularChapterData.chapter_membership_fee) || 0;
       const tax = (one_time_registration_fee + membership_fee) * 0.18;
       const total_amount = one_time_registration_fee + membership_fee + tax;
-
+const sub_total=one_time_registration_fee + membership_fee;
       // Log values for debugging
 
       setFormData((prevFormData) => ({
@@ -104,8 +105,10 @@ const BNIPaymentForm = () => {
       
         one_time_registration_fee,
         membership_fee,
+        sub_total,
         tax,
         total_amount,
+        
       }));
     }
   };
@@ -285,13 +288,14 @@ const BNIPaymentForm = () => {
 
       const tax = (one_time_registration_fee + membership_fee) * 0.18;
       const total_amount = one_time_registration_fee + membership_fee + tax;
-
+const sub_total=one_time_registration_fee + membership_fee ;
       // Log values for debugging
 
       setFormData((prevFormData) => ({
         ...prevFormData,
         one_time_registration_fee,
         membership_fee,
+        sub_total,
         tax,
         total_amount,
       }));
@@ -328,13 +332,15 @@ const BNIPaymentForm = () => {
     }
     if (validate()) {
       // Create form data
+      console.log(formData)
+    
       const data = {
         order_amount: formData.total_amount.toString(),
         order_note: formData.payment_note.toString(),
         order_currency: "INR",
         customer_details: {
           ...formData,
-          universal_link_id:`${ulid}`,
+          ulid_id:`${ulid}`,
           universallink_name:"new-member-payment",
           customer_id:`User${formData.member_id}`,
           payment_note: "new-member-payment",
@@ -342,7 +348,8 @@ const BNIPaymentForm = () => {
           customer_email: formData.email,
           customer_phone: formData.mobileNumber,
           chapter_id: particularChapterData?.chapter_id,
-          payment_type_id:"1",
+          universal_link_id:`${universal_link_id}`,
+          payment_gateway_id:`${payment_gateway}`,
       region_id: particularChapterData?.region_id,
         },
 
@@ -366,7 +373,8 @@ console.log(data);
         });
        
         const res = await axios.post(
-          `${baseUrl}/api/generate-cashfree-session`, 
+          // `${baseUrl}/api/generate-cashfree-session`, 
+          `http://localhost:5000/api/generate-cashfree-session`,
           data, // Make sure 'data' is the payload you want to send
           
         );
@@ -376,7 +384,8 @@ console.log(data);
         let checkoutOptions = {
           paymentSessionId: res.data.payment_session_id,
           redirectTarget: "_self", //optional ( _self, _blank, or _top)
-          returnUrl: `https://bnipayments.nidmm.org/payment-status/${res.data.order_id}`,
+          // returnUrl: `https://bnipayments.nidmm.org/payment-status/${res.data.order_id}`,
+          returnUrl: `http://localhost:5000/api/getCashfreeOrderDataAndVerifyPayment/${res.data.order_id}`,
         };
 
         await cashfree.checkout(checkoutOptions).then((result) => {
