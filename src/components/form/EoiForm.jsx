@@ -3,7 +3,10 @@ import './form.css';
 import axios from 'axios';
 import border from "../../assets/images/form icons/border.png"
 import qrCode from "../../assets/images/form icons/qr.png"
-
+import baseUrl from '../../utils/baseurl';
+import LoaderImg from '../loading/loading';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const BNIPaymentForm = () => {
   const [formData, setFormData] = useState({
     region: '',
@@ -23,6 +26,7 @@ const BNIPaymentForm = () => {
   const [regionData, setRegionData] = useState([]);
   const [chapterData, setChapterData] = useState([]);
   const [eoiLink, setEoiLink] = useState("");
+  const[loading,setLoading]=useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -35,14 +39,20 @@ const BNIPaymentForm = () => {
   const handleRegionChange = async (e) => {
     try {
       const { name, value } = e.target;
+      const selectedIndex = e.target.value;
+    
+      const selectedRegionData = regionData[selectedIndex];
+      console.log(selectedIndex)
+      console.log(selectedRegionData)
       setFormData({
         ...formData,
         [name]: value
       });
 
       // Fetch chapters for selected region
-      const res = await axios.get("http://localhost:5000/api/getChapters");
-      const result = res.data.data.filter(item => item.region.regionName === value);
+      const res = await axios.get(`${baseUrl}/api/chapters`);
+      console.log(res.data)
+      const result = res.data.filter(item => item.region_id ===selectedRegionData?.region_id );
 
       setChapterData(result);
     } catch (error) {
@@ -52,13 +62,15 @@ const BNIPaymentForm = () => {
 
   const handleChapterChange = (e) => {
     const selectedChapterIndex = e.target.selectedIndex - 1; // Adjust for the placeholder option
+    console.log(selectedChapterIndex)
     if (selectedChapterIndex >= 0) {
       const selectedChapter = chapterData[selectedChapterIndex];
+     console.log(selectedChapter)
       setFormData({
         ...formData,
         chapter: selectedChapter.chapterName
       });
-      setEoiLink(selectedChapter.eoiLink);
+      setEoiLink(selectedChapter.eoi_link);
     }
   };
 
@@ -84,25 +96,31 @@ const BNIPaymentForm = () => {
       alert('Form submitted successfully!');
     }
   };
-
   useEffect(() => {
     const fetchRegions = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/getregions");
-        setRegionData(res.data.data);
+        setLoading(true)
+        const res = await axios.get(`${baseUrl}/api/regions`);
+
+        setRegionData(res.data);
+         setLoading(false)
       } catch (error) {
         console.error("Error fetching regions:", error);
+        setLoading(false)
+        toast.error(error.message);
       }
     };
 
     fetchRegions();
-  }, []);
+  }, [formData.region])
 
   return (
-    <div className="form-container" style={{ backgroundColor: '#f4f4f4' }}>
+    <>
+    <ToastContainer />
+    {loading? <LoaderImg/>: <div className="form-container" style={{ backgroundColor: '#f4f4f4' }}>
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', margin: "" }}>
-          <div className="form-group" style={{ margin: "0px 50px" }}>
+          <div className="form-group" style={{ padding: "0px 20px" }}>
             <label htmlFor="region" style={{ textAlign: 'center' }}>BNI Region :</label>
             <select
               id="region"
@@ -113,8 +131,8 @@ const BNIPaymentForm = () => {
             >
               <option value="">Select Region</option>
               {regionData && regionData.map((region, index) => (
-                <option value={region.regionName} key={index}>
-                  {region.regionName}
+                <option value={index} key={index}>
+                  {region.region_name}
                 </option>
               ))}
             </select>
@@ -132,8 +150,8 @@ const BNIPaymentForm = () => {
             >
               <option value="">Select Chapter</option>
               {chapterData && chapterData.map((chapter, index) => (
-                <option value={chapter.chapterName} key={index}>
-                  {chapter.chapterName}
+                <option value={chapter.chapter_name} key={index}>
+                  {chapter.chapter_name}
                 </option>
               ))}
             </select>
@@ -160,7 +178,8 @@ const BNIPaymentForm = () => {
           <span style={{ color: "red" }}>NOTE:</span> Choose BNI region and BNI chapter for generating QR Code. <br />Please check the generated QR code after scanning.
         </p>
       </div>
-    </div>
+    </div>}
+    </>
   );
 };
 

@@ -47,12 +47,12 @@ const Footer = () => {
         <div className="footer-right">
           <p className="footer-company-about" >
             <span >About the company</span>
-            BNI is the World’s Largest professional networking organization. Over the past 38 Years, BNI has grown to over 300K members worldwide, in more than 77 different countries, from over 300 different types of professions, all of whom have benefited from increased referral business as a result of BNI.          </p>
+            BNI is the World’s Largest professional networking organization. Over the past 38 Years, BNI has grown to over 300K members worldwide, in more than 77 different countries, from over 300 different types of professions, all of whom have benefited from increased referral business as a result of BNI.</p>
           <div className="footer-icons">
-            <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
-            <a href="#"><i class="fa-brands fa-twitter"></i></a>
-            <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-            <a href="#"><i class="fa-brands fa-github"></i></a>
+            <a href="#"><i className="fa-brands fa-facebook-f"></i></a>
+            <a href="#"><i className="fa-brands fa-twitter"></i></a>
+            <a href="#"><i className="fa-brands fa-linkedin-in"></i></a>
+            <a href="#"><i className="fa-brands fa-github"></i></a>
           </div>
         </div>
 

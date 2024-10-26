@@ -14,7 +14,7 @@ const NewMemberPayment = () => {
     
     <>
       <Navbar />
-    {/* <PaymentButtons titles={titles} links={links} /> */}
+
   <Breadcrumb link={link}/>
     <BNIPaymentForm/>
     <Footer />
