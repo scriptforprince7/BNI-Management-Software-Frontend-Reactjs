@@ -5,6 +5,7 @@ import LoaderImg from '../components/loading/loading';
 import { Link, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import axios from 'axios';
+import baseUrl from '../utils/baseurl';
 
 const PaymentStatusPage = () => {
   const [loading, setLoading] = useState(false);
@@ -15,7 +16,7 @@ const PaymentStatusPage = () => {
     const fetchPaymentStatus = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`http://localhost:5000/api/getCashfreeOrderDataAndVerifyPayment/${order_id}`);
+        const res = await axios.get(`${baseUrl}/api/getCashfreeOrderDataAndVerifyPayment/${order_id}`);
 
         setPaymentData(res.data); // Assuming the status is part of this data
         setLoading(false);

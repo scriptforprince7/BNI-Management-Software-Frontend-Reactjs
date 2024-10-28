@@ -10,6 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import paymentHandler from '../../utils/paymentHandler';
 import { useNavigate, useParams } from 'react-router-dom';
 import { load } from '@cashfreepayments/cashfree-js';
+import redirectUrl from '../../utils/redirectUrl';
 
 const AllPaymentsForm = () => {
   const [formData, setFormData] = useState({
@@ -346,7 +347,7 @@ console.log(data);
        
         const res = await axios.post(
           // `${baseUrl}/api/generate-cashfree-session`, 
-          `http://localhost:5000/api/generate-cashfree-session`,
+          `${baseUrl}/api/generate-cashfree-session`,
           data, // Make sure 'data' is the payload you want to send
           
         );
@@ -357,7 +358,7 @@ console.log(data);
           paymentSessionId: res.data.payment_session_id,
           redirectTarget: "_self", //optional ( _self, _blank, or _top)
           // returnUrl: `https://bnipayments.nidmm.org/payment-status/${res.data.order_id}`,
-          returnUrl: `http://localhost:5173/payment-status/${res.data.order_id}`,
+          returnUrl: `${redirectUrl}/payment-status/${res.data.order_id}`,
         };
 
         await cashfree.checkout(checkoutOptions).then((result) => {
