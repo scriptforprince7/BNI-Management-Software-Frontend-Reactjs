@@ -112,7 +112,7 @@ const [errors, setErrors] = useState({});
   }
   const events= await axios.get(`${baseUrl}/api/allEvents`);
 setEvents(events.data)
-console.log(events)
+// console.log(events)
 setLoading(false)
  } catch (error) {
   setLoading(false)
@@ -166,7 +166,7 @@ setLoading(false)
 
       setLoading(false);
     } catch (error) {
-      console.error("Error fetching chapters:", error);
+      // console.error("Error fetching chapters:", error);
       setLoading(false);
     }
   };
@@ -230,16 +230,16 @@ setLoading(false)
       setMemberLoading(false);
 
       // Debugging: log the filtered result
-      console.log("Filtered Members:", filteredMembers);
+      // console.log("Filtered Members:", filteredMembers);
     } catch (error) {
       setMemberLoading(false);
-      console.error("Something went wrong:", error);
+      // console.error("Something went wrong:", error);
     }
   };
   const eventChangeHandler = (e) => {
     const eventId = e.target.value; // Get the event_id from the selected option
     const selectedEvent = events[eventId] // Find the event based on event_id
-  console.log(selctedEvent)
+  // console.log(selctedEvent)
     if (selectedEvent) {
       // Convert event_date to a Date object
       const eventDate = new Date(selectedEvent.event_date);
@@ -275,7 +275,7 @@ total_amount:totalAmount,
     setSelectedMember(true);
   
     const particularMember = memberData[index];
-    console.log(particularMember)
+    // console.log(particularMember)
     formData.memberName =
       particularMember.member_first_name +
       " " +
@@ -315,7 +315,7 @@ total_amount:totalAmount,
 
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching regions:", error);
+        // console.error("Error fetching regions:", error);
         setLoading(false);
         toast.error(error.message);
       }
@@ -345,7 +345,7 @@ total_amount:totalAmount,
   
     if (validate()) {
       // Create form data
-      console.log(formData)
+      // console.log(formData)
     
       const data = {
         order_amount: formData.total_amount,
@@ -373,7 +373,7 @@ total_amount:totalAmount,
         },
       };
 
-console.log(data);
+// console.log(data);
 
 
       try {
@@ -407,19 +407,19 @@ console.log(data);
             console.log(
               "User has closed the popup or there is some payment error, Check for Payment Status"
             );
-            console.log(result.error);
+            // console.log(result.error);
             setPaymentLoading(false);
             alert(result.error.error);
           }
           if (result.redirect) {
 
-            console.log("Payment will be redirected");
+            // console.log("Payment will be redirected");
             setPaymentLoading(false);
           }
           if (result.paymentDetails) {
 
-            console.log("Payment has been completed, Check for Payment Status");
-            console.log(result.paymentDetails.paymentMessage);
+            // console.log("Payment has been completed, Check for Payment Status");
+            // console.log(result.paymentDetails.paymentMessage);
             setPaymentLoading(false);
           }
         });
