@@ -7,42 +7,36 @@ import baseUrl from '../../utils/baseurl';
 import LoaderImg from '../loading/loading';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import paymentHandler from '../../utils/paymentHandler';
+import { useNavigate, useParams } from 'react-router-dom';
 import { load } from '@cashfreepayments/cashfree-js';
-import { useNavigate } from 'react-router-dom';
-import { useParams } from "react-router-dom";
-
 
 const AllPaymentsForm = () => {
   const [formData, setFormData] = useState({
     region: "new-delhi",
-  
+    chapter: '',
+    chapter_id:'',
+    region_id:'',
     memberName: '',
     email: '',
-  member_id: "",
-    chapter_id: "",
-    region_id: "",
+    payment_note:'all-training-ans-meeting-payment',
     quarter: 'Jan-March',
     renewalYear: '1Year',
     category: '',
     mobileNumber: '',
-    event_id:'',
     address: '',
     company: '',
     gstin: '',
-    payment_note:"all-training-and -meeting-fee",
-    paymentType:"",
     location: "",
     date: "",
     time: "",
     eventPrice: '',
     eventName: '',
-    tax: "",
-    latefee: "",
-    sub_total:"",
-    total_amount: "",
+    sub_total:'',
+total_amount:"",
+tax:"",
   });
   
-  const { ulid,universal_link_id,payment_gateway} = useParams()
   
 const navigate=useNavigate();
 const [errors, setErrors] = useState({});
@@ -56,12 +50,12 @@ const [errors, setErrors] = useState({});
   const [particularRegionData, setParticularRegionData] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedMember, setSelectedMember] = useState(false);
-  const [paymentLoading, setPaymentLoading] = useState(false);
-
   const [memberloading, setMemberLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [events,setEvents]=useState();
+  const [paymentLoading, setPaymentLoading] = useState(false);
   const [selctedEvent,setSelctedEvent]=useState();
+  const { ulid,universal_link_id,payment_gateway} = useParams()
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -112,7 +106,7 @@ const [errors, setErrors] = useState({});
   }
   const events= await axios.get(`${baseUrl}/api/allEvents`);
 setEvents(events.data)
-// console.log(events)
+console.log(events)
 setLoading(false)
  } catch (error) {
   setLoading(false)
@@ -135,7 +129,6 @@ setLoading(false)
       renewalYear: "1Year",
       category: "",
       mobileNumber: "",
-  
       address: "",
       company: "",
       quarter:"",
@@ -166,7 +159,7 @@ setLoading(false)
 
       setLoading(false);
     } catch (error) {
-      // console.error("Error fetching chapters:", error);
+      console.error("Error fetching chapters:", error);
       setLoading(false);
     }
   };
@@ -230,29 +223,24 @@ setLoading(false)
       setMemberLoading(false);
 
       // Debugging: log the filtered result
-      // console.log("Filtered Members:", filteredMembers);
+      console.log("Filtered Members:", filteredMembers);
     } catch (error) {
       setMemberLoading(false);
-      // console.error("Something went wrong:", error);
+      console.error("Something went wrong:", error);
     }
   };
   const eventChangeHandler = (e) => {
     const eventId = e.target.value; // Get the event_id from the selected option
     const selectedEvent = events[eventId] // Find the event based on event_id
-  // console.log(selctedEvent)
+    const eventPrice = Number(selectedEvent.event_price);
     if (selectedEvent) {
       // Convert event_date to a Date object
       const eventDate = new Date(selectedEvent.event_date);
   
       // Format the date as yyyy-MM-dd (required for input type="date")
       const formattedDate = eventDate.toISOString().split('T')[0]; // This will give you "yyyy-MM-dd"
-      const subtotal = Number(selectedEvent.event_price);
-
-// Calculate event tax as a string
-const eventTax = (subtotal * 0.18).toFixed(2);
-
-// Calculate total amount, converting eventTax back to a number
-const totalAmount = (subtotal + Number(eventTax)).toFixed(2);
+      const subtotal = Number(eventPrice.toFixed(2)); // This will still return a string
+      const eventTax = Number((eventPrice * 0.18).toFixed(2))
       // Update form data based on selected event
       setFormData({
         ...formData,
@@ -261,11 +249,12 @@ const totalAmount = (subtotal + Number(eventTax)).toFixed(2);
         date: formattedDate,       
         eventPrice:selectedEvent.eventPrice,           // Set the formatted date in "yyyy-MM-dd" format
         time: selectedEvent.event_time || "16:00", // Update time if available, otherwise set a default value
-        eventPrice: selectedEvent.event_price,// Update event price
-event_id:selectedEvent.event_id,
-tax: eventTax,
-sub_total: subtotal,
-total_amount:totalAmount,
+        eventPrice: selectedEvent.event_price ,// Update event price
+        tax:eventTax,
+        sub_total:subtotal,
+        total_amount:eventTax+subtotal
+
+
       });
   
     }
@@ -273,9 +262,8 @@ total_amount:totalAmount,
 
   const memberDataHandler = async (index) => {
     setSelectedMember(true);
-  
     const particularMember = memberData[index];
-    // console.log(particularMember)
+
     formData.memberName =
       particularMember.member_first_name +
       " " +
@@ -285,85 +273,56 @@ total_amount:totalAmount,
       (formData.category = particularMember.member_category);
     formData.company = particularMember.member_company_name;
     formData.gstin = particularMember.member_gst_number;
-    formData.renewalYear =particularMember.member_current_membership+"Year";
+    formData.renewalYear = "1Year";
     formData.chapter_id=particularMember.chapter_id;
     formData.region_id=particularMember.region_id;
-    formData.member_id=particularMember.member_id;
   };
 
   const handleSelectedChapterData = async (index) => {
     setParticularChapterData(chapterData[index]);
   };
 
-  
-  
-
-  useEffect(() => {
-    const fetchRegions = async () => {
-      try {
-        setLoading(true);
-        const res = await axios.get(`${baseUrl}/api/regions`);
-        setRegionData(res.data);
-        // If "New Delhi" is the default region, fetch all chapters
-        if (formData.region === "new-delhi") {
-          const chapterRes = await axios.get(`${baseUrl}/api/chapters`);
-          setChapterData(chapterRes.data);
-          setSelectedRegion("new-delhi")
-          setParticularChapterData(chapterRes.data[0])
-          setallChapterData(chapterRes.data);
-        }
-
-        setLoading(false);
-      } catch (error) {
-        // console.error("Error fetching regions:", error);
-        setLoading(false);
-        toast.error(error.message);
-      }
-    };
-
-    fetchRegions();
-  }, [formData.region,]);
-
-  const validate = () => {
-    const errors = {};
-    if (!formData.region) errors.region = "BNI Region is required";
-    if (!formData.chapter) errors.chapter = "BNI Chapter is required";
-    if (!formData.memberName) errors.memberName = "Member Name is required";
-    if (!formData.email) errors.email = "Email is required";
-    if (!formData.renewalYear) errors.renewalYear = "Renewal Year is required";
-    if (!formData.paymentType) errors.paymentType = "paymentType is required";
-    if (!formData.mobileNumber)
-      errors.mobileNumber = "Mobile Number is required";
-    // if (!formData.address) errors.address = "Address is required";
-    // if (!formData.company) errors.company = "Company is required";
-    if (!formData.eventPrice) errors.eventPrice = "Payment Type is required";
-    setErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    if (formData.renewalYear === "1Year") {
+      const one_time_registration_fee =
+        Number(particularChapterData.one_time_registration_fee) || 0;
+      const membership_fee =
+        Number(particularChapterData.chapter_membership_fee) || 0;
+      const tax = (one_time_registration_fee + membership_fee) * 0.18;
+      const total_amount = one_time_registration_fee + membership_fee + tax;
+
+      // Log values for debugging
+
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        one_time_registration_fee,
+        membership_fee,
+        tax,
+        total_amount,
+      }));
+    }
     if (validate()) {
       // Create form data
-      // console.log(formData)
+      console.log(formData)
     
       const data = {
-        order_amount: formData.total_amount,
+        order_amount: formData.total_amount.toString(),
         order_note: formData.payment_note.toString(),
         order_currency: "INR",
         customer_details: {
           ...formData,
           ulid_id:`${ulid}`,
-          universallink_name:"All Training Payments & Meeting Payments",
+          universallink_name:"new-member-payment",
           customer_id:`User${formData.member_id}`,
-          payment_note: "All Training Payments & Meeting Payments",
+          payment_note: "new-member-payment",
           Customer_name: formData.memberName,
           customer_email: formData.email,
           customer_phone: formData.mobileNumber,
-          chapter_id: formData?.chapter_id,
+          chapter_id: particularChapterData?.chapter_id,
           universal_link_id:`${universal_link_id}`,
           payment_gateway_id:`${payment_gateway}`,
-      region_id: formData?.region_id,
+      region_id: particularChapterData?.region_id,
         },
 
         order_meta: {
@@ -373,7 +332,7 @@ total_amount:totalAmount,
         },
       };
 
-// console.log(data);
+console.log(data);
 
 
       try {
@@ -407,19 +366,19 @@ total_amount:totalAmount,
             console.log(
               "User has closed the popup or there is some payment error, Check for Payment Status"
             );
-            // console.log(result.error);
+            console.log(result.error);
             setPaymentLoading(false);
             alert(result.error.error);
           }
           if (result.redirect) {
 
-            // console.log("Payment will be redirected");
+            console.log("Payment will be redirected");
             setPaymentLoading(false);
           }
           if (result.paymentDetails) {
 
-            // console.log("Payment has been completed, Check for Payment Status");
-            // console.log(result.paymentDetails.paymentMessage);
+            console.log("Payment has been completed, Check for Payment Status");
+            console.log(result.paymentDetails.paymentMessage);
             setPaymentLoading(false);
           }
         });
@@ -436,6 +395,53 @@ total_amount:totalAmount,
       alert("Please fill all the required feilds");
     }
   };
+
+  
+  const validate = () => {
+    const errors = {};
+    if (!formData.region) errors.region = "BNI Region is required";
+    if (!formData.chapter) errors.chapter = "BNI Chapter is required";
+    if (!formData.memberName) errors.memberName = "Member Name is required";
+    if (!formData.email) errors.email = "Email is required";
+    if (!formData.renewalYear) errors.renewalYear = "Renewal Year is required";
+    // if (!formData.category) errors.category = "Category is required";
+    if (!formData.mobileNumber)
+      errors.mobileNumber = "Mobile Number is required";
+    // if (!formData.address) errors.address = "Address is required";
+    // if (!formData.company) errors.company = "Company is required";
+    if (!formData.eventPrice) errors.eventPrice = "Payment Type is required";
+    setErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(`${baseUrl}/api/regions`);
+        setRegionData(res.data);
+        // If "New Delhi" is the default region, fetch all chapters
+        if (formData.region === "new-delhi") {
+          const chapterRes = await axios.get(`${baseUrl}/api/chapters`);
+          setChapterData(chapterRes.data);
+          setSelectedRegion("new-delhi")
+          setallChapterData(chapterRes.data);
+        }
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching regions:", error);
+        setLoading(false);
+        toast.error(error.message);
+      }
+    };
+
+    fetchRegions();
+  }, [formData.region,]);
+
+
+ 
 
   return (
 <>
@@ -637,10 +643,10 @@ total_amount:totalAmount,
               
                 >
                   <option value="">CREDIT / DEBIT / NET BANKING</option>
-                  <option value="credit">Credit </option>
-                  <option value="debit">Debit </option>
+                  <option value="credit">Credit</option>
+                  <option value="debit">Debit</option>
                
-                  <option value="netBanking">Net Banking </option>
+                  <option value="netBanking">Net Banking</option>
                 </select>
                 {errors.paymentType && <small className="error-text">{errors.paymentType}</small>}
               </div>

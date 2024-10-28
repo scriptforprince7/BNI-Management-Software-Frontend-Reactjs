@@ -8,6 +8,7 @@ import LoaderImg from "../loading/loading";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { load } from '@cashfreepayments/cashfree-js';
+
 import ModalBox from "../modal/modal";
 import { useParams } from "react-router-dom";
 const BNIPaymentForm = () => {
@@ -86,7 +87,7 @@ const BNIPaymentForm = () => {
     );
 
     setselectedChapter(allChapterData[selectedIndex]);
-console.log(selectedChapter)
+
     setParticularChapterData(allChapterData[selectedIndex]);
 
     if (formData.renewalYear === "1Year") {
@@ -549,7 +550,7 @@ console.log(data);
 
                     {chapterData &&
                       chapterData.map((chapter, index) => (
-                        <option value={index} key={index}>
+                        <option value={chapter.chapter_name} key={index}>
                           {chapter.chapter_name}
                         </option>
                       ))}
