@@ -5,25 +5,35 @@ import axios from "axios";
 import ErrorBoundary from "../error/ErrorBoundary";
 import baseUrl from "../../utils/baseurl";
 import LoaderImg from "../loading/loading";
+import { load } from '@cashfreepayments/cashfree-js';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ModalBox from "../modal/modal";
+import { useParams } from "react-router-dom";
+
 const RenewalPaymentForm = () => {
   const [formData, setFormData] = useState({
     region: "new-delhi",
     chapter: "",
     memberName: "",
+    member_id: "",
+    chapter_id: "",
+    region_id: "",
+    payment_note: "",
     email: "",
     renewalYear: "1Year",
     category: "",
     mobileNumber: "",
-    address: "",
     company: "",
     gstin: "",
     paymentType: "",
-    late_fee_applicable:""
+    one_time_registration_fee: "",
+    membership_fee: "",
+    tax: "",
+    latefee: "",
+    sub_total:"",
+    total_amount: "",
   });
-
 
   const [errors, setErrors] = useState({});
   const [regionData, setRegionData] = useState();
@@ -38,6 +48,9 @@ const RenewalPaymentForm = () => {
   const [selectedMember, setSelectedMember] = useState(false);
   const [memberloading, setMemberLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+    const { ulid,universal_link_id,payment_gateway} = useParams();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -46,51 +59,68 @@ const RenewalPaymentForm = () => {
       [name]: value,
     });
   };
-
-  const handleChapterChange = (e) => {
+  console.log(particularChapterData)
+  const handleChapterChange = async(e) => {
     const selectedChapter = e.target.value;
-    setselectedChapter(e.target.value);
-    console.log(allChapterData);
 
-    // Update formData with the selected chapter
-    setFormData({
-      ...formData,
-      chapter: selectedChapter,
-      memberName: "",
-      email: "",
-      renewalYear: "1Year",
-      category: "",
-      mobileNumber: "",
-      address: "",
-      company: "",
-      gstin: "",
-      paymentType: "",
-      late_fee_applicable:""
-    });
-    setmemberData("")
+    setselectedChapter(e.target.value);
     const selectedChapterData = allChapterData?.find(
       (chapter) => chapter?.chapter_name === selectedChapter
     );
-    setParticularChapterData(selectedChapterData);
+     setParticularChapterData(selectedChapterData);
+    // Update formData with the selected chapter
+   setFormData({
+      ...formData,
+      memberName: "",
+      email: "",
+      category: "",
+      mobileNumber: "",
+      company: "",
+      gstin: "",
+      paymentType: "",
+    });
 
-    console.log(allChapterData);
+
     // Find the index of the selected chapter
     const selectedIndex = allChapterData?.findIndex(
       (chapter) => chapter.chapter_name === selectedChapter
     );
+
     setselectedChapter(allChapterData[selectedIndex]);
-    // Call the function to handle the selected chapter data
-    if (selectedIndex !== -1) {
-      handleSelectedChapterData(selectedIndex);
+
+    setParticularChapterData(allChapterData[selectedIndex]);
+    // console.log(particularChapterData)
+
+    if (formData.renewalYear === "1Year") {
+      const one_time_registration_fee =0;
+      const membership_fee =
+        Number(particularChapterData.chapter_membership_fee) || 0;
+      const tax = (one_time_registration_fee + membership_fee) * 0.18;
+      const total_amount = one_time_registration_fee + membership_fee + tax;
+const sub_total=one_time_registration_fee + membership_fee;
+      // Log values for debugging
+
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        chapter: selectedChapter,
+      
+        one_time_registration_fee,
+        membership_fee,
+        sub_total,
+        tax,
+        total_amount,
+        
+      }));
     }
   };
-
+  
   const handleRegionChange = async (e) => {
     const selectedIndex = e.target.value;
     const selectedRegionData = regionData[selectedIndex];
 
     // Update formData with the selected region name
     const updatedRegion = selectedRegionData?.region_name || e.target.value;
+    console.log(updatedRegion);
     setFormData({
       ...formData,
       region: updatedRegion, // Ensure formData includes selected region
@@ -99,23 +129,24 @@ const RenewalPaymentForm = () => {
       renewalYear: "1Year",
       category: "",
       mobileNumber: "",
-      address: "",
+
       company: "",
       gstin: "",
       paymentType: "",
-       late_fee_applicable:""
     });
-    setmemberData("")
+
     setSelectedRegion(selectedRegionData);
     setParticularRegionData(selectedRegionData);
 
+    setselectedChapter("");
+    formData.chapter = "";
     try {
       setLoading(true);
 
       // If "New Delhi" is selected, fetch all chapters
       if (updatedRegion.toLowerCase() === "new-delhi") {
         const res = await axios.get(`${baseUrl}/api/chapters`);
-        setChapterData(res.data); // Display all chapters
+        // setChapterData(res.data); // Display all chapters
         setallChapterData(res.data);
       } else {
         // Filter chapters based on selected region's region_id
@@ -157,7 +188,7 @@ const RenewalPaymentForm = () => {
         // Set to all members
         // console.log(memberRes.data)
         filteredMembers = memberRes.data.filter((item) => {
-          console.log(particularChapterData);
+        
           return (
             // Match by chapter or region, and also check if the name starts with or includes the input value
             item.chapter_id === particularChapterData?.chapter_id &&
@@ -176,7 +207,7 @@ const RenewalPaymentForm = () => {
         filteredMembers = memberRes.data.filter((item) => {
           return (
             // Match by chapter or region, and also check if the name starts with or includes the input value
-            (item.chapter_id === particularChapterData?.chapter_id ||
+            (item.chapter_id === particularChapterData?.chapter_id &&
               item.region_id === particularRegionData?.region_id) &&
             (item.member_first_name
               .toLowerCase()
@@ -200,23 +231,21 @@ const RenewalPaymentForm = () => {
     }
   };
 
-
-  console.log(particularChapterData)
   const memberDataHandler = async (index) => {
     setSelectedMember(true);
     const particularMember = memberData[index];
-console.log(particularMember)
+    console.log(particularMember)
     formData.memberName =
       particularMember.member_first_name +
       " " +
       particularMember.member_last_name;
     formData.email = particularMember.member_email_address;
     (formData.mobileNumber = particularMember.member_phone_number),
-      (formData.category = particularMember.member_category);
+      formData.member_id = particularMember.member_id,
+      formData.category = particularMember.member_category;
     formData.company = particularMember.member_company_name;
     formData.gstin = particularMember.member_gst_number;
-    formData.renewalYear = "1Year";
-    formData.late_fee_applicable=particularMember.late_fee_applicable;
+    formData.renewalYear = particularMember.member_current_membership+"Year";
   };
 
   const handleSelectedChapterData = async (index) => {
@@ -225,7 +254,51 @@ console.log(particularMember)
 
   const handleRenewalYearChange = (e) => {
     const { value } = e.target;
+    console.log(value);
     setFormData({ ...formData, renewalYear: value });
+
+    let one_time_registration_fee = 0;
+    let membership_fee = 0;
+    let tax = 0;
+    let total_amount = 0;
+
+    if (value === "1Year") {
+      const one_time_registration_fee =0;
+      const membership_fee =
+        Number(particularChapterData.chapter_membership_fee) || 0;
+      const tax = (one_time_registration_fee + membership_fee) * 0.18;
+      const total_amount = one_time_registration_fee + membership_fee + tax;
+
+      // Log values for debugging
+
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        one_time_registration_fee,
+        membership_fee,
+        tax,
+        total_amount,
+      }));
+    }
+
+    if (value === "2Year") {
+      const one_time_registration_fee = 0;
+      const membership_fee =
+        Number(particularChapterData.chapter_membership_fee_two_year) || 0;
+
+      const tax = (one_time_registration_fee + membership_fee) * 0.18;
+      const total_amount = one_time_registration_fee + membership_fee + tax;
+const sub_total=one_time_registration_fee + membership_fee ;
+      // Log values for debugging
+
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        one_time_registration_fee,
+        membership_fee,
+        sub_total,
+        tax,
+        total_amount,
+      }));
+    }
 
     // Show the modal if the selected year is "5Years"
     if (value === "5Year") {
@@ -233,6 +306,133 @@ console.log(particularMember)
     } else {
       setShowModal(false);
     }
+  };
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (formData.renewalYear === "1Year") {
+      const one_time_registration_fee =0;
+      const membership_fee =
+        Number(particularChapterData.chapter_membership_fee) || 0;
+      const tax = (one_time_registration_fee + membership_fee) * 0.18;
+      const total_amount = one_time_registration_fee + membership_fee + tax;
+
+      // Log values for debugging
+
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        one_time_registration_fee,
+        membership_fee,
+        tax,
+        total_amount,
+      }));
+    }
+    if (validate()) {
+      // Create form data
+   
+      const data = {
+        order_amount: formData.total_amount.toString(),
+        order_note: formData.payment_note.toString(),
+        order_currency: "INR",
+        customer_details: {
+          ...formData,
+          ulid_id:`${ulid}`,
+          universallink_name:"member-renewal-payment",
+          customer_id:`User${formData.member_id}`,
+          payment_note: "member-renewal-payment",
+          Customer_name: formData.memberName,
+          customer_email: formData.email,
+          customer_phone: formData.mobileNumber,
+          chapter_id: particularChapterData?.chapter_id,
+          universal_link_id:`${universal_link_id}`,
+          payment_gateway_id:`${payment_gateway}`,
+      region_id: particularChapterData?.region_id,
+        },
+
+        order_meta: {
+          payment_note:formData.payment_note,
+          notify_url:
+            "https://webhook.site/790283fa-f414-4260-af91-89f17e984ce2",
+        },
+      };
+
+console.log(data);
+      try {
+
+
+        setPaymentLoading(true);
+
+        const cashfree = await load({
+          mode: "sandbox" // or "production"
+        });
+       
+        const res = await axios.post(
+          // `${baseUrl}/api/generate-cashfree-session`, 
+          `http://localhost:5000/api/generate-cashfree-session`,
+          data, // Make sure 'data' is the payload you want to send
+          
+        );
+        console.log(res.data);
+      
+
+        let checkoutOptions = {
+          paymentSessionId: res.data.payment_session_id,
+          redirectTarget: "_self", //optional ( _self, _blank, or _top)
+          // returnUrl: `https://bnipayments.nidmm.org/payment-status/${res.data.order_id}`,
+          returnUrl: `http://localhost:5173/payment-status/${res.data.order_id}`,
+        };
+
+        await cashfree.checkout(checkoutOptions).then((result) => {
+          if (result.error) {
+
+            console.log(
+              "User has closed the popup or there is some payment error, Check for Payment Status"
+            );
+            console.log(result.error);
+            setPaymentLoading(false);
+            alert(result.error.error);
+          }
+          if (result.redirect) {
+
+            console.log("Payment will be redirected");
+            setPaymentLoading(false);
+          }
+          if (result.paymentDetails) {
+
+            console.log("Payment has been completed, Check for Payment Status");
+            console.log(result.paymentDetails.paymentMessage);
+            setPaymentLoading(false);
+          }
+        });
+        // Handle the response data
+      } catch (error) {
+        setPaymentLoading(false);
+        console.error(
+          "Error:",
+          error.response ? error.response.data : error.message
+        );
+        alert(error.message);
+      }
+    } else {
+      alert("Please fill all the required feilds");
+    }
+  };
+
+  const validate = () => {
+    const errors = {};
+    if (!formData.region) errors.region = "BNI Region is required";
+    if (!formData.chapter) errors.chapter = "BNI Chapter is required";
+    if (!formData.memberName) errors.memberName = "Member Name is required";
+    if (!formData.email) errors.email = "Email is required";
+    if (!formData.renewalYear) errors.renewalYear = "Renewal Year is required";
+    // if (!formData.category) errors.category = "Category is required";
+    if (!formData.mobileNumber)
+      errors.mobileNumber = "Mobile Number is required";
+    if (!formData.company) errors.company = "Company is required";
+    if (!formData.paymentType) errors.paymentType = "Payment Type is required";
+    setErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleCloseModal = () => {
@@ -249,6 +449,7 @@ console.log(particularMember)
         if (formData.region === "new-delhi") {
           const chapterRes = await axios.get(`${baseUrl}/api/chapters`);
           setChapterData(chapterRes.data);
+          setParticularChapterData(chapterRes.data[0])
           setallChapterData(chapterRes.data);
         }
 
@@ -261,31 +462,9 @@ console.log(particularMember)
     };
 
     fetchRegions();
-  }, [formData.region,]);
+  }, [formData.region]);
 
-  const validate = () => {
-    const errors = {};
-    if (!formData.region) errors.region = "BNI Region is required";
-    if (!formData.chapter) errors.chapter = "BNI Chapter is required";
-    if (!formData.memberName) errors.memberName = "Member Name is required";
-    if (!formData.email) errors.email = "Email is required";
-    if (!formData.renewalYear) errors.renewalYear = "Renewal Year is required";
-    if (!formData.category) errors.category = "Category is required";
-    if (!formData.mobileNumber)
-      errors.mobileNumber = "Mobile Number is required";
-    if (!formData.address) errors.address = "Address is required";
-    if (!formData.company) errors.company = "Company is required";
-    if (!formData.paymentType) errors.paymentType = "Payment Type is required";
-    setErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (validate()) {
-      alert("Form submitted successfully!");
-    }
-  };
 
   return (
     <>
@@ -307,7 +486,7 @@ console.log(particularMember)
                 justifyContent: "center",
               }}
             >
-              <form
+               <form
                 action=""
                 style={{
                   display: "flex",
@@ -326,8 +505,8 @@ console.log(particularMember)
                     value={
                       formData.region
                         ? regionData?.findIndex(
-                            (region) => region.region_name === formData.region
-                          )
+                          (region) => region.region_name === formData.region
+                        )
                         : "new-delhi"
                     } // Use index as the value
                     onChange={handleRegionChange}
@@ -489,9 +668,9 @@ console.log(particularMember)
                       className={errors.paymentType ? "error" : ""}
                     >
                       <option value="">CREDIT / DEBIT / NET BANKING</option>
-                      <option value="credit">Credit (1.25%)</option>
-                      <option value="debit">Debit (1.25%)</option>
-                      <option value="netBanking">Net Banking (1.25%)</option>
+                      <option value="credit">Credit </option>
+                      <option value="debit">Debit </option>
+                      <option value="netBanking">Net Banking </option>
                     </select>
                     {errors.paymentType && (
                       <small className="error-text">{errors.paymentType}</small>
