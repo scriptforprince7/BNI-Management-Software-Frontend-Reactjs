@@ -1,4 +1,4 @@
-const redirectUrl = "https://bnipayments.nidmm.org";
+const redirectUrl = "https://bni-management-software-frontend-reactjs.vercel.app";
 
 // const redirectUrl = "http://localhost:5173";
 
