@@ -385,7 +385,7 @@ console.log(data);
           paymentSessionId: res.data.payment_session_id,
           redirectTarget: "_self", //optional ( _self, _blank, or _top)
           // returnUrl: `https://bnipayments.nidmm.org/payment-status/${res.data.order_id}`,
-          returnUrl: `http://localhost:5000/api/getCashfreeOrderDataAndVerifyPayment/${res.data.order_id}`,
+          returnUrl: `http://localhost:5173/payment-status/${res.data.order_id}`,
         };
 
         await cashfree.checkout(checkoutOptions).then((result) => {
