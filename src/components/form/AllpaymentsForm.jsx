@@ -66,46 +66,44 @@ const [errors, setErrors] = useState({});
     });
   };
 
-  const handleChapterChange =async (e) => {
- try {
-  setLoading(true)
-  const selectedChapter = e.target.value;
-  setselectedChapter(e.target.value);
+  const handleChapterChange = async(e) => {
+    try{
+    const selectedChapter = e.target.value;
+
+    setselectedChapter(e.target.value);
+    const selectedChapterData = allChapterData?.find(
+      (chapter) => chapter?.chapter_name === selectedChapter
+    );
+     setParticularChapterData(selectedChapterData);
+    // Update formData with the selected chapter
+   setFormData({
+      ...formData,
+      chapter:selectedChapter,
+      memberName: "",
+      email: "",
+      category: "",
+      mobileNumber: "",
+      company: "",
+      gstin: "",
+      paymentType: "",
+    });
 
 
-  // Update formData with the selected chapter
-  setFormData({
-    ...formData,
-    chapter: selectedChapter,
-    memberName: "",
-    email: "",
-    quarter:"",
-    renewalYear: "1Year",
-    category: "",
-    mobileNumber: "",
-    address: "",
-    company: "",
-    gstin: "",
-    eventPrice: "",
-  });
+    // Find the index of the selected chapter
+    const selectedIndex = allChapterData?.findIndex(
+      (chapter) => chapter.chapter_name === selectedChapter
+    );
 
-  const selectedChapterData = allChapterData?.find(
-    (chapter) => chapter?.chapter_name === selectedChapter
-  );
- 
-  setParticularChapterData(allChapterData[selectedChapter]);
+    setselectedChapter(allChapterData[selectedIndex]);
+    setParticularChapterData(allChapterData[selectedChapter]);
+    setParticularChapterData(allChapterData[selectedIndex]);
+    setselectedChapter(allChapterData[selectedIndex]);
+    // Call the function to handle the selected chapter data
+    if (selectedIndex !== -1) {
+      handleSelectedChapterData(selectedIndex);
+    }
 
-  
-  // Find the index of the selected chapter
-  const selectedIndex = allChapterData?.findIndex(
-    (chapter) => chapter.chapter_name === selectedChapter
-  );
-  setselectedChapter(allChapterData[selectedIndex]);
-  // Call the function to handle the selected chapter data
-  if (selectedIndex !== -1) {
-    handleSelectedChapterData(selectedIndex);
-  }
-  const events= await axios.get(`${baseUrl}/api/allEvents`);
+    const events= await axios.get(`${baseUrl}/api/allEvents`);
 setEvents(events.data)
 console.log(events)
 setLoading(false)
@@ -115,6 +113,7 @@ setLoading(false)
  }
 
   };
+ 
 
   const handleRegionChange = async (e) => {
     const selectedIndex = e.target.value;
@@ -122,6 +121,7 @@ setLoading(false)
 
     // Update formData with the selected region name
     const updatedRegion = selectedRegionData?.region_name || e.target.value;
+    console.log(updatedRegion);
     setFormData({
       ...formData,
       region: updatedRegion, // Ensure formData includes selected region
@@ -130,23 +130,23 @@ setLoading(false)
       renewalYear: "1Year",
       category: "",
       mobileNumber: "",
-      address: "",
+
       company: "",
-      quarter:"",
       gstin: "",
-      eventPrice: "",
+      paymentType: "",
     });
     setmemberData("")
     setSelectedRegion(selectedRegionData);
     setParticularRegionData(selectedRegionData);
 
+  
     try {
       setLoading(true);
 
       // If "New Delhi" is selected, fetch all chapters
       if (updatedRegion.toLowerCase() === "new-delhi") {
         const res = await axios.get(`${baseUrl}/api/chapters`);
-        setChapterData(res.data); // Display all chapters
+        // setChapterData(res.data); // Display all chapters
         setallChapterData(res.data);
       } else {
         // Filter chapters based on selected region's region_id
@@ -156,6 +156,7 @@ setLoading(false)
         );
         setChapterData(filteredChapters);
         setallChapterData(res.data);
+       
       }
 
       setLoading(false);
@@ -164,6 +165,7 @@ setLoading(false)
       setLoading(false);
     }
   };
+
 
   const handleMemberNameChange = async (e) => {
     setSelectedMember(false);
@@ -247,19 +249,19 @@ setLoading(false)
         ...formData,
         eventName: selectedEvent.event_name,  // Set eventName to selected event's name
         location: selectedEvent.event_venue,  // Update location
-        date: formattedDate,       
-        eventPrice:selectedEvent.eventPrice,           // Set the formatted date in "yyyy-MM-dd" format
+        date: formattedDate,            // Set the formatted date in "yyyy-MM-dd" format
         time: selectedEvent.event_time || "16:00", // Update time if available, otherwise set a default value
         eventPrice: selectedEvent.event_price ,// Update event price
         tax:eventTax,
         sub_total:subtotal,
-        total_amount:eventTax+subtotal
+        total_amount:eventTax+subtotal,
 
 
       });
   
     }
   };
+ 
 
   const memberDataHandler = async (index) => {
     setSelectedMember(true);
@@ -283,26 +285,10 @@ setLoading(false)
     setParticularChapterData(chapterData[index]);
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.renewalYear === "1Year") {
-      const one_time_registration_fee =
-        Number(particularChapterData.one_time_registration_fee) || 0;
-      const membership_fee =
-        Number(particularChapterData.chapter_membership_fee) || 0;
-      const tax = (one_time_registration_fee + membership_fee) * 0.18;
-      const total_amount = one_time_registration_fee + membership_fee + tax;
 
-      // Log values for debugging
-
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        one_time_registration_fee,
-        membership_fee,
-        tax,
-        total_amount,
-      }));
-    }
     if (validate()) {
       // Create form data
       console.log(formData)
@@ -334,7 +320,6 @@ setLoading(false)
       };
 
 console.log(data);
-
 
       try {
 
@@ -422,11 +407,12 @@ console.log(data);
         setLoading(true);
         const res = await axios.get(`${baseUrl}/api/regions`);
         setRegionData(res.data);
+
         // If "New Delhi" is the default region, fetch all chapters
         if (formData.region === "new-delhi") {
           const chapterRes = await axios.get(`${baseUrl}/api/chapters`);
           setChapterData(chapterRes.data);
-          setSelectedRegion("new-delhi")
+          setParticularChapterData(chapterRes.data[0])
           setallChapterData(chapterRes.data);
         }
 
@@ -439,7 +425,7 @@ console.log(data);
     };
 
     fetchRegions();
-  }, [formData.region,]);
+  }, [formData.region]);
 
 
  
@@ -455,8 +441,16 @@ console.log(data);
           <img src={border} alt="" style={{ width: "250px" }} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent:'space-between',alignItems:'center', }}>
-          <form action="" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
-          <div className="form-group" style={{ padding: "0px 20px" }}>
+        <form
+                action=""
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  margin: "",
+                }}
+              >
+                <div className="form-group" style={{ padding: "0px 20px" }}>
                   <label htmlFor="region" style={{ textAlign: "center" }}>
                     BNI Region :
                   </label>
@@ -466,8 +460,8 @@ console.log(data);
                     value={
                       formData.region
                         ? regionData?.findIndex(
-                            (region) => region.region_name === formData.region
-                          )
+                          (region) => region.region_name === formData.region
+                        )
                         : "new-delhi"
                     } // Use index as the value
                     onChange={handleRegionChange}
@@ -488,28 +482,32 @@ console.log(data);
                   )}
                 </div>
 
+                <div className="form-group">
+                  <label htmlFor="chapter" style={{ textAlign: "center" }}>
+                    BNI Chapter:
+                  </label>
+                  <select
+                    id="chapter"
+                    name="chapter"
+                    value={formData.chapter}
+                    onChange={handleChapterChange} // Detect chapter change
+                    className={errors.chapter ? "error" : ""}
+                  >
+                    <option value="">Select Chapter</option>
 
-            <div className="form-group">
-  <label htmlFor="chapter" style={{ textAlign: 'center' }}>BNI Chapter :</label>
-  <select
-    id="chapter"
-    name="chapter"
-    value={formData.chapter}
-    onChange={handleChapterChange} // This is where the chapter change is detected
-    className={errors.chapter ? 'error' : ''}
-  >
-    <option value="">Select Chapter</option>
-    {chapterData && chapterData.map((chapter, index) => (
-      <option value={index} key={index}>
-        {chapter.chapter_name}
-      </option>
-    ))}
-  </select>
-  {errors.chapter && <small className="error-text">{errors.chapter}</small>}
-</div>
+                    {chapterData &&
+                      chapterData.map((chapter, index) => (
+                        <option value={chapter.chapter_name} key={index}>
+                          {chapter.chapter_name}
+                        </option>
+                      ))}
+                  </select>
 
-
-          </form>
+                  {errors.chapter && (
+                    <small className="error-text">{errors.chapter}</small>
+                  )}
+                </div>
+              </form>
         </div>
         <div className="box-container" >
           <form className="form-content" onSubmit={handleSubmit} >
