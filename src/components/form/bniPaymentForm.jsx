@@ -8,8 +8,10 @@ import LoaderImg from "../loading/loading";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { load } from '@cashfreepayments/cashfree-js';
+
 import ModalBox from "../modal/modal";
 import { useParams } from "react-router-dom";
+import redirectUrl from "../../utils/redirectUrl";
 const BNIPaymentForm = () => {
 
   const [formData, setFormData] = useState({
@@ -244,7 +246,7 @@ const sub_total=one_time_registration_fee + membership_fee;
       formData.category = particularMember.member_category;
     formData.company = particularMember.member_company_name;
     formData.gstin = particularMember.member_gst_number;
-    formData.renewalYear = "1Year";
+    formData.renewalYear = particularMember.member_current_membership+"Year";
   };
 
   const handleSelectedChapterData = async (index) => {
@@ -373,8 +375,7 @@ console.log(data);
         });
        
         const res = await axios.post(
-          // `${baseUrl}/api/generate-cashfree-session`, 
-          `http://localhost:5000/api/generate-cashfree-session`,
+          `${baseUrl}/api/generate-cashfree-session`, 
           data, // Make sure 'data' is the payload you want to send
           
         );
@@ -385,7 +386,7 @@ console.log(data);
           paymentSessionId: res.data.payment_session_id,
           redirectTarget: "_self", //optional ( _self, _blank, or _top)
           // returnUrl: `https://bnipayments.nidmm.org/payment-status/${res.data.order_id}`,
-          returnUrl: `http://localhost:5173/payment-status/${res.data.order_id}`,
+          returnUrl: `${redirectUrl}/payment-status/${res.data.order_id}`,
         };
 
         await cashfree.checkout(checkoutOptions).then((result) => {
@@ -672,9 +673,9 @@ console.log(data);
                       className={errors.paymentType ? "error" : ""}
                     >
                       <option value="">Choose Payment Type</option>
-                      <option value="credit">Credit (1.25%)</option>
-                      <option value="debit">Debit (1.25%)</option>
-                      <option value="netBanking">Net Banking (1.25%)</option>
+                      <option value="credit">Credit</option>
+                      <option value="debit">Debit</option>
+                      <option value="netBanking">Net Banking</option>
                     </select>
                     {errors.paymentType && (
                       <small className="error-text">{errors.paymentType}</small>
