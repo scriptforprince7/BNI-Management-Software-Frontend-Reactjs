@@ -21,7 +21,7 @@ const PaymentStatusPage = () => {
     const fetchPaymentStatus = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`${baseUrl}/api/getCashfreeOrderDataAndVerifyPayment/${order_id}`);
+        const res = await axios.get(`${baseUrl}/api/orders/${order_id}/paymentStatus`);
 
         setPaymentData(res.data); // Assuming the status is part of this data
         setLoading(false);

@@ -14,6 +14,7 @@ import RenewalPayment from './pages/renewalPayment';
 import NewMemberPayment from './pages/newMemberPayment';
 import VisitorsPayments from './pages/visitorsPayments';
 import PaymentStatusPage from './pages/paymentStatusPage';
+import ErrorPage from './pages/error-page';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="/renewal-payment/:universal_link_id/:ulid/:payment_gateway" element={<RenewalPayment />} />
         <Route path="/visitors-payment/:universal_link_id/:ulid/:payment_gateway" element={<VisitorsPayments/>} />
         <Route path="/payment-status/:order_id" element={<PaymentStatusPage/>}/>
+        <Route path="/error-page" element={<ErrorPage />} />
       </Routes>
     </Router>
   );

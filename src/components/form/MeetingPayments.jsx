@@ -3,19 +3,24 @@ import './form.css';
 import border from "../../assets/images/form icons/border.png"
 import axios from 'axios';
 import ErrorBoundary from '../error/ErrorBoundary';
-import baseUrl from '../../utils/baseurl';
 import LoaderImg from '../loading/loading';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import paymentHandler from '../../utils/paymentHandler';
-import { useNavigate } from 'react-router-dom';
-
+import { load } from '@cashfreepayments/cashfree-js';
+import { useNavigate, useParams } from 'react-router-dom';
+import redirectUrl from '../../utils/redirectUrl';
+import baseUrl from '../../utils/baseurl';
 const MeetingPaymentsForm = () => {
   const [formData, setFormData] = useState({
     region: "new-delhi",
     chapter: '',
     memberName: '',
     email: '',
+    member_id: "",
+    chapter_id: "",
+    region_id: "",
+    payment_note: "",
     quarter: 'Jan-March',
     renewalYear: '1Year',
     category: '',
@@ -28,6 +33,10 @@ const MeetingPaymentsForm = () => {
     time: "",
     eventPrice: '',
     chapter_kitty_fees:'',
+    tax: "",
+    latefee: "",
+    sub_total:"",
+    total_amount: "",
     eventName: ''
   });
   
@@ -45,9 +54,14 @@ const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [selectedMember, setSelectedMember] = useState(false);
   const [memberloading, setMemberLoading] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+
   const [showModal, setShowModal] = useState(false);
   const [events,setEvents]=useState();
   const [selctedEvent,setSelctedEvent]=useState();
+
+  const { ulid,universal_link_id,payment_gateway} = useParams()
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -57,55 +71,51 @@ const [errors, setErrors] = useState({});
     });
   };
 
-  const handleChapterChange =async (e) => {
- try {
-  setLoading(true)
-  const selectedChapter = e.target.value;
-  setselectedChapter(e.target.value);
+  const handleChapterChange = async(e) => {
+    const selectedChapter = e.target.value;
+
+    setselectedChapter(e.target.value);
+    const selectedChapterData = allChapterData?.find(
+      (chapter) => chapter?.chapter_name === selectedChapter
+    );
+     setParticularChapterData(selectedChapterData);
+    // Update formData with the selected chapter
+   setFormData({
+      ...formData,
+      memberName: "",
+      email: "",
+      category: "",
+      mobileNumber: "",
+      company: "",
+      gstin: "",
+      paymentType: "",
+      
+    });
 
 
-  // Update formData with the selected chapter
+    // Find the index of the selected chapter
+    const selectedIndex = allChapterData?.findIndex(
+      (chapter) => chapter.chapter_name === selectedChapter
+    );
 
+    setselectedChapter(allChapterData[selectedIndex]);
 
-  const selectedChapterData = allChapterData?.find(
-    (chapter) => chapter?.chapter_name === selectedChapter
-  );
- 
-  setParticularChapterData(allChapterData[selectedChapter]);
-  setFormData({
-    ...formData,
-    chapter: selectedChapter,
-    memberName: "",
-    email: "",
-    quarter:"",
-    renewalYear: "1Year",
-    category: "",
-    mobileNumber: "",
-    address: "",
-    company: "",
-    gstin: "",
-    eventPrice: "",
-    chapter_kitty_fees:particularChapterData?.chapter_kitty_fees,
+    setParticularChapterData(allChapterData[selectedIndex]);
+
+   
+    const kitty_fee = particularChapterData.chapter_kitty_fees;
+    const tax = (kitty_fee * 0.18).toFixed(2);
+    const total_amount = (parseFloat(tax) + parseFloat(kitty_fee)).toFixed(2);
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        chapter: selectedChapter,
+        total_amount:total_amount,
+        sub_total:kitty_fee,
+        tax:tax,
+        
+      }));
     
-  });
-  // Find the index of the selected chapter
-  const selectedIndex = allChapterData?.findIndex(
-    (chapter) => chapter.chapter_name === selectedChapter
-  );
-  setselectedChapter(allChapterData[selectedIndex]);
-  // Call the function to handle the selected chapter data
-  if (selectedIndex !== -1) {
-    handleSelectedChapterData(selectedIndex);
-  }
- 
-
-
-setLoading(false)
- } catch (error) {
-  setLoading(false)
-  toast.error("Something went wrong try again")
- }
-
+    
   };
 
   const handleRegionChange = async (e) => {
@@ -114,6 +124,7 @@ setLoading(false)
 
     // Update formData with the selected region name
     const updatedRegion = selectedRegionData?.region_name || e.target.value;
+    console.log(updatedRegion);
     setFormData({
       ...formData,
       region: updatedRegion, // Ensure formData includes selected region
@@ -122,23 +133,24 @@ setLoading(false)
       renewalYear: "1Year",
       category: "",
       mobileNumber: "",
-      address: "",
+
       company: "",
-      quarter:"",
       gstin: "",
-      eventPrice: "",
+      paymentType: "",
     });
-    setmemberData("")
+
     setSelectedRegion(selectedRegionData);
     setParticularRegionData(selectedRegionData);
 
+    setselectedChapter("");
+    formData.chapter = "";
     try {
       setLoading(true);
 
       // If "New Delhi" is selected, fetch all chapters
       if (updatedRegion.toLowerCase() === "new-delhi") {
         const res = await axios.get(`${baseUrl}/api/chapters`);
-        setChapterData(res.data); // Display all chapters
+        // setChapterData(res.data); // Display all chapters
         setallChapterData(res.data);
       } else {
         // Filter chapters based on selected region's region_id
@@ -233,7 +245,9 @@ setLoading(false)
       particularMember.member_last_name;
     formData.email = particularMember.member_email_address;
     (formData.mobileNumber = particularMember.member_phone_number),
-      (formData.category = particularMember.member_category);
+     
+      formData.member_id = particularMember.member_id,
+      formData.category = particularMember.member_category;
     formData.company = particularMember.member_company_name;
     formData.gstin = particularMember.member_gst_number;
     formData.renewalYear = "1Year";
@@ -243,8 +257,6 @@ setLoading(false)
     setParticularChapterData(chapterData[index]);
   };
 
-  
-  
 
   useEffect(() => {
     const fetchRegions = async () => {
@@ -252,11 +264,12 @@ setLoading(false)
         setLoading(true);
         const res = await axios.get(`${baseUrl}/api/regions`);
         setRegionData(res.data);
+
         // If "New Delhi" is the default region, fetch all chapters
         if (formData.region === "new-delhi") {
           const chapterRes = await axios.get(`${baseUrl}/api/chapters`);
           setChapterData(chapterRes.data);
-          setSelectedRegion("new-delhi")
+          setParticularChapterData(chapterRes.data[0])
           setallChapterData(chapterRes.data);
         }
 
@@ -269,7 +282,7 @@ setLoading(false)
     };
 
     fetchRegions();
-  }, [formData.region,]);
+  }, [formData.region]);
 
   const validate = () => {
     const errors = {};
@@ -278,22 +291,124 @@ setLoading(false)
     if (!formData.memberName) errors.memberName = "Member Name is required";
     if (!formData.email) errors.email = "Email is required";
     if (!formData.renewalYear) errors.renewalYear = "Renewal Year is required";
-    if (!formData.category) errors.category = "Category is required";
+    // if (!formData.category) errors.category = "Category is required";
     if (!formData.mobileNumber)
       errors.mobileNumber = "Mobile Number is required";
-    if (!formData.address) errors.address = "Address is required";
-    if (!formData.company) errors.company = "Company is required";
-    if (!formData.eventPrice) errors.eventPrice = "Payment Type is required";
+    // if (!formData.address) errors.address = "Address is required";
+    // if (!formData.company) errors.company = "Company is required";
+    // if (!formData.eventPrice) errors.eventPrice = "Payment Type is required";
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
-
-  const handleSubmit = (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(particularChapterData)
+      // Log values for debugging
+      const kitty_fee = particularChapterData.chapter_kitty_fees;
+      const tax = (kitty_fee * 0.18).toFixed(2);
+      const total_amount = (parseFloat(tax) + parseFloat(kitty_fee)).toFixed(2);
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+   total_amount:total_amount,
+   sub_total:kitty_fee,
+   tax:tax,
+  
+
+      }));
+    
+      console.log(particularChapterData)
     if (validate()) {
-      alert("Form submitted successfully!");
+      // Create form data
+      console.log(formData)
+    
+      const data = {
+        order_amount: formData.total_amount.toString(),
+        order_note: formData.payment_note.toString(),
+        order_currency: "INR",
+        customer_details: {
+          ...formData,
+          ulid_id:`${ulid}`,
+          universallink_name:"meeting-payments",
+          customer_id:`User${formData.member_id}`,
+          payment_note: "meeting-payments",
+          Customer_name: formData.memberName,
+          customer_email: formData.email,
+          customer_phone: formData.mobileNumber,
+          chapter_id: particularChapterData?.chapter_id,
+          universal_link_id:`${universal_link_id}`,
+          payment_gateway_id:`${payment_gateway}`,
+      region_id: particularChapterData?.region_id,
+        },
+
+        order_meta: {
+          payment_note:formData.payment_note,
+          notify_url:
+            "https://webhook.site/790283fa-f414-4260-af91-89f17e984ce2",
+        },
+      };
+
+console.log(data);
+
+      try {
+
+
+        setPaymentLoading(true);
+
+        const cashfree = await load({
+          mode: "sandbox" // or "production"
+        });
+       
+        const res = await axios.post(
+          `${baseUrl}/api/generate-cashfree-session`, 
+          data, // Make sure 'data' is the payload you want to send
+          
+        );
+        console.log(res.data);
+      
+
+        let checkoutOptions = {
+          paymentSessionId: res.data.payment_session_id,
+          redirectTarget: "_self", //optional ( _self, _blank, or _top)
+          // returnUrl: `https://bnipayments.nidmm.org/payment-status/${res.data.order_id}`,
+          returnUrl: `${redirectUrl}/payment-status/${res.data.order_id}`,
+        };
+
+        await cashfree.checkout(checkoutOptions).then((result) => {
+          if (result.error) {
+
+            console.log(
+              "User has closed the popup or there is some payment error, Check for Payment Status"
+            );
+            console.log(result.error);
+            setPaymentLoading(false);
+            alert(result.error.error);
+          }
+          if (result.redirect) {
+
+            console.log("Payment will be redirected");
+            setPaymentLoading(false);
+          }
+          if (result.paymentDetails) {
+
+            console.log("Payment has been completed, Check for Payment Status");
+            console.log(result.paymentDetails.paymentMessage);
+            setPaymentLoading(false);
+          }
+        });
+        // Handle the response data
+      } catch (error) {
+        setPaymentLoading(false);
+        console.error(
+          "Error:",
+          error.response ? error.response.data : error.message
+        );
+        alert(error.message);
+      }
+    } else {
+      alert("Please fill all the required feilds");
     }
   };
+
 
   return (
 <>
@@ -351,7 +466,7 @@ setLoading(false)
   >
     <option value="">Select Chapter</option>
     {chapterData && chapterData.map((chapter, index) => (
-      <option value={index} key={index}>
+      <option value={chapter.chapter_name} key={index}>
         {chapter.chapter_name}
       </option>
     ))}

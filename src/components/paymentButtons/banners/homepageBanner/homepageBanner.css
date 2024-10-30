@@ -2,13 +2,25 @@
     display: flex;
  
     margin-top: -60px ;
-    height: 86vh;
-    background-image: url("../../../../assets/images/banners/homebanner.jpg");
+    height: 90vh;
+    background-image: url("../../../../assets/images/banners/homepage-banner.jpg");
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
     align-items: center;
-    border:1px solid red;
+  
+}
+
+.banner-container1{
+    display: flex;
+    margin-top: -60px ;
+    height: 90vh;
+    background-image: url("../../../../assets/images/banners/homebanner2.jpg");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    align-items: center;
+  
 }
 .container{
     width: 100%;
@@ -17,7 +29,7 @@
   
     justify-content: space-between;
     align-items: center;
-    border:1px solid red;
+   
 }
 .text-container {
     width: 100%;
