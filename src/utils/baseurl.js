@@ -1,4 +1,4 @@
-// const baseUrl = "https://bni-data-backend.onrender.com";
+const baseUrl = "https://bni-data-backend.onrender.com";
 
-const baseUrl = "http://103.169.86.3:5173";
+// const baseUrl = "http://localhost:5000";
 export default baseUrl;
