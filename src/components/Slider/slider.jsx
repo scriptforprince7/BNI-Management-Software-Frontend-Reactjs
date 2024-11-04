@@ -36,7 +36,6 @@ function Slider() {
           <div className="text-container">
             <h1>Member Of The Region: </h1>
             <h3>"Congrats to our Region Member of the Month"</h3>
-           
           </div>
           <img className="d-block w-100" src={Member_of_the_region} alt="Second slide" style={{width:"100%",height:"100%"}} />
         </div>

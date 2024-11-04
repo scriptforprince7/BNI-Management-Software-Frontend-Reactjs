@@ -320,7 +320,7 @@ setLoading(false)
       };
 
 console.log(data);
-return;
+
       try {
 
 
@@ -343,7 +343,7 @@ return;
           paymentSessionId: res.data.payment_session_id,
           redirectTarget: "_self", //optional ( _self, _blank, or _top)
           // returnUrl: `https://bnipayments.nidmm.org/payment-status/${res.data.order_id}`,
-          returnUrl: `${redirectUrl}/payment-status/${res.data.order_id}`,
+          returnUrl: `${redirectUrl}/api/getCashfreeOrderDataAndVerifyPayment/${res.data.order_id}`,
         };
 
         await cashfree.checkout(checkoutOptions).then((result) => {
