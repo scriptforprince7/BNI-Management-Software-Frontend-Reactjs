@@ -722,7 +722,7 @@ console.log(data);
            
                  <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>
-                   Event/Training Fee:
+                   Visior Fee:
                   </span>{" "}
                  
                   <span>  ₹  {formData

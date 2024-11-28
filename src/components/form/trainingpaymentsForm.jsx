@@ -300,9 +300,9 @@ setLoading(false)
         customer_details: {
           ...formData,
           ulid_id:`${ulid}`,
-          universallink_name:"new-member-payment",
+          universallink_name:"training-payment",
           customer_id:`User${formData.member_id}`,
-          payment_note: "new-member-payment",
+          payment_note: "training-payment",
           Customer_name: formData.memberName,
           customer_email: formData.email,
           customer_phone: formData.mobileNumber,
@@ -437,7 +437,7 @@ console.log(data);
         
      {loading? <LoaderImg/>: <div className="form-container">
         <div className="form-header">
-          <h1> All TRAINING & EVENTS PAYMENTS</h1>
+          <h1>TRAINING  PAYMENTS</h1>
           <img src={border} alt="" style={{ width: "250px" }} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent:'space-between',alignItems:'center', }}>
@@ -586,7 +586,7 @@ console.log(data);
 
    
               <div className="form-group">
-      <label htmlFor="eventName">Select Event/Training</label>
+      <label htmlFor="eventName">Select Training</label>
       {events ? (
         <select
           id="eventName"
@@ -597,7 +597,7 @@ console.log(data);
           onChange={eventChangeHandler}
           className={errors.eventName ? 'error' : ''}
         >
-          <option value="">Select Event/Training</option>
+          <option value="">Select Training</option>
           {events.map((event, index) => (
             <option key={index} value={event.event_id}>
               {event.event_name}
@@ -742,7 +742,7 @@ console.log(data);
            
                  <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>
-                   Event/Training Fee:
+                   Training Fee:
                   </span>{" "}
                  
                   <span>  ₹  {formData.eventPrice

@@ -2,15 +2,15 @@ import React, { Fragment } from 'react'
 import Navbar from '../components/navbar/navbar'
 import PaymentButtons from '../components/paymentButtons/paymentButtons'
 import Footer from '../components/footer/footer'
-import AllPaymentsForm from '../components/form/AllpaymentsForm'
+import AllPaymentsForm from '../components/form/trainingpaymentsForm'
 import Copyright from '../components/footer/copyright'
 import Breadcrumb from '../components/breadcum/breadcrumb'
 import { ToastContainer } from 'react-toastify'
 
 
-const AllTrainingPayments = () => {
+const TrainingPayments = () => {
 
-const link="all-training-payments"
+const link="training-payments"
 
   return (
     
@@ -27,4 +27,4 @@ const link="all-training-payments"
   )
 }
 
-export default AllTrainingPayments
+export default TrainingPayments

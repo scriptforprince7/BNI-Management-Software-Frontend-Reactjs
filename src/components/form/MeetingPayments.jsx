@@ -670,7 +670,7 @@ console.log(data);
            
                  <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>
-                   Event/Training Fee:
+                   Meeting Fee:
                   </span>{" "}
                  
                   <span>  ₹  {particularChapterData.chapter_kitty_fees

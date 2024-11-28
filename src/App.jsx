@@ -7,7 +7,7 @@ import Homepage from './pages/homepage';
 import InterviewSheet from './pages/interviewSheet';
 import CommitmentSheet from './pages/commitmentSheet';
 import EoiForm from './pages/eoiForm';
-import AllTrainingPayments from './pages/allTrainingPayments';
+import TrainingPayments from './pages/trainingPayments';
 import MeetingPayments from './pages/meetingPayments';
 import Memberapplication from './pages/memberapplication';
 import RenewalPayment from './pages/renewalPayment';
@@ -26,12 +26,14 @@ function App() {
         <Route path="/interview-sheet" element={<InterviewSheet />} />
         <Route path="/commitment-sheet" element={<CommitmentSheet />} />
         <Route path="/eoi-form" element={<EoiForm />} />
-        <Route path="/training-events-payments/:universal_link_id/:ulid/:payment_gateway" element={<AllTrainingPayments />} />
         <Route path="/meeting-payment/:universal_link_id/:ulid/:payment_gateway" element={<MeetingPayments />} />
         <Route path="/new-member-payment/:universal_link_id/:ulid/:payment_gateway" element={<NewMemberPayment />} />
         <Route path="/renewal-payment/:universal_link_id/:ulid/:payment_gateway" element={<RenewalPayment />} />
         <Route path="/visitors-payment/:universal_link_id/:ulid/:payment_gateway" element={<VisitorsPayments/>} />
         <Route path="/payment-status/:order_id" element={<PaymentStatusPage/>}/>
+        <Route path="/training-payments/:universal_link_id/:ulid/:payment_gateway" element={<TrainingPayments />} />
+        <Route path="/event-payments/:universal_link_id/:ulid/:payment_gateway" element={<TrainingPayments />} />
+
         <Route path="/error-page" element={<ErrorPage />} />
       </Routes>
     </Router>
