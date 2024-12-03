@@ -41,8 +41,11 @@ const Navbar = () => {
             <div className="nav-links">
             <Link to="/eoi-form">EOI Form</Link>
                 <Link to="/member-application">Member Application Form</Link>
-                <a href="#" onClick={() => openModal("https://bnipayments.nidmm.org/commitment.pdf")}>Interview Sheet</a>
-                <a href="#" onClick={() => openModal("https://bnipayments.nidmm.org/interview.pdf")}>Commitment Sheet</a>
+                 <Link to="/interview-sheet">Interview Sheet</Link>
+                 <Link to="/commitment-sheet">Commitment Sheet</Link>
+                 {/* <a href="#" onClick={() => openModal("https://bnipayments.nidmm.org/commitment.pdf")}>Interview Sheet</a>  */}
+                {/* <a href="#" onClick={() => openModal("https://bnipayments.nidmm.org/interview.pdf")}>Commitment Sheet</a> */}
+                <Link to="/inclusionexclusion-sheet">Inclusion and Exclusion Sheet</Link>
                
             </div>
             <div className="hamburger" onClick={toggleMenu}>
@@ -59,8 +62,10 @@ const Navbar = () => {
                     <div className={`dropdown-content ${isDropdownOpen ? 'open' : ''}`}>
                           <Link to="/eoi-form" onClick={toggleMenu}>EOI Form</Link>
                         <Link to="/member-application" onClick={toggleMenu}>Member Application Form</Link>
-                        <a href="#" onClick={() => openModal("/Interview Sheet-Template.pdf")}>Interview Sheet</a>
+                        <Link to="/interview-sheet-form">Interview Sheet</Link>
+                        {/* <a href="#" onClick={() => openModal("/Interview Sheet-Template.pdf")}>Interview Sheet</a> */}
                         <a href="#" onClick={() => openModal("/Commitment Sheet-Template.pdf")}>Commitment Sheet</a>
+                        <Link to="/">Inclusion and Exclusion Sheet</Link>
                       
                     </div>
                 </div>

@@ -436,8 +436,8 @@ console.log(data);
     <ErrorBoundary>
         
      {loading? <LoaderImg/>: <div className="form-container">
-        <div className="form-header">
-          <h1>TRAINING  PAYMENTS</h1>
+        <div className="flex flex-col items-center justify-center text-center mb-4">
+          <h1 className='text-4xl'>TRAINING  PAYMENTS</h1>
           <img src={border} alt="" style={{ width: "250px" }} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent:'space-between',alignItems:'center', }}>

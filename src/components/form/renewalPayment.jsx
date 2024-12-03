@@ -476,8 +476,8 @@ console.log(data);
           <LoaderImg />
         ) : (
           <div className="form-container">
-            <div className="form-header">
-              <h1> Member Renewal Payment</h1>
+            <div className="flex flex-col items-center justify-center text-center mb-4">
+              <h1 className="text-4xl"> Member Renewal Payment</h1>
               <img src={border} alt="" style={{ width: "250px" }} />
             </div>
             <div
