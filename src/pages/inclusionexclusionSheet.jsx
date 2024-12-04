@@ -8,16 +8,27 @@ import { useState } from "react";
 const InclusionexclusionSheet = () => {
   const link = "inclusionexclusion-sheet";
   const [inclusionexclusionSheet, setInclusionexlusionSheet] = useState({
-    memberName:"",
-    chapter:"",
-    category:"",
-    date:""
-  })
+    memberName: "",
+    chapter: "",
+    category: "",
+    date: "",
+  });
 
-  const handleForm = (e)=>{
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState("");
+
+  const handleForm = (e) => {
     e.preventDefault();
-    console.log(inclusionexclusionSheet)
-  }
+    console.log(inclusionexclusionSheet);
+  };
+  const openModal = (url) => {
+    setModalContent(url);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+  };
 
   return (
     <>
@@ -32,10 +43,31 @@ const InclusionexclusionSheet = () => {
         <form onSubmit={handleForm} className="p-4">
           <section className="mb-6">
             <p className="font-bold mb-4">
-              I, <input className='bg-white border-b border-black focus:outline-none leading-none w-full sm:w-auto' type='text' value={inclusionexclusionSheet.memberName} onChange={(e)=>setInclusionexlusionSheet({...inclusionexclusionSheet, memberName: e.target.value})}/>,
-              agree to the following terms and conditions of my classification
+              I,{" "}
+              <input
+                className="bg-white border-b border-black focus:outline-none leading-none w-full sm:w-auto"
+                type="text"
+                value={inclusionexclusionSheet.memberName}
+                onChange={(e) =>
+                  setInclusionexlusionSheet({
+                    ...inclusionexclusionSheet,
+                    memberName: e.target.value,
+                  })
+                }
+              />
+              , agree to the following terms and conditions of my classification
               of my membership in the{" "}
-              <input className='bg-white border-b border-black focus:outline-none leading-none w-full sm:w-auto' type='text' value={inclusionexclusionSheet.chapter} onChange={(e)=>setInclusionexlusionSheet({...inclusionexclusionSheet, chapter: e.target.value})}/>{" "}
+              <input
+                className="bg-white border-b border-black focus:outline-none leading-none w-full sm:w-auto"
+                type="text"
+                value={inclusionexclusionSheet.chapter}
+                onChange={(e) =>
+                  setInclusionexlusionSheet({
+                    ...inclusionexclusionSheet,
+                    chapter: e.target.value,
+                  })
+                }
+              />{" "}
               chapter of BNI NEW Delhi.
             </p>
             <div className="flex flex-col">
@@ -49,7 +81,12 @@ const InclusionexclusionSheet = () => {
                 id="classification"
                 type="text"
                 value={inclusionexclusionSheet.category}
-                onChange={(e)=>setInclusionexlusionSheet({...inclusionexclusionSheet, category: e.target.value})}
+                onChange={(e) =>
+                  setInclusionexlusionSheet({
+                    ...inclusionexclusionSheet,
+                    category: e.target.value,
+                  })
+                }
                 className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold"
               />
             </div>
@@ -149,8 +186,12 @@ const InclusionexclusionSheet = () => {
                 id="memberName"
                 type="text"
                 value={inclusionexclusionSheet.memberName}
-
-                onChange={(e)=>setInclusionexlusionSheet({...inclusionexclusionSheet, memberName: e.target.value})}
+                onChange={(e) =>
+                  setInclusionexlusionSheet({
+                    ...inclusionexclusionSheet,
+                    memberName: e.target.value,
+                  })
+                }
                 className="bg-white border-b border-black focus:outline-none leading-none w-full"
               />
             </div>
@@ -165,7 +206,12 @@ const InclusionexclusionSheet = () => {
                 id="date"
                 type="date"
                 value={inclusionexclusionSheet.date}
-                onChange={(e) => setInclusionexlusionSheet({...inclusionexclusionSheet, date: e.target.value})}
+                onChange={(e) =>
+                  setInclusionexlusionSheet({
+                    ...inclusionexclusionSheet,
+                    date: e.target.value,
+                  })
+                }
                 className="bg-white border-b border-black focus:outline-none leading-none w-full"
               />
             </div>
@@ -216,18 +262,44 @@ const InclusionexclusionSheet = () => {
             </div>
           </section>
 
-          <div className="flex justify-center items-center">
+          <div className="flex justify-center items-center mt-2">
             <button
               type="submit"
-              className=" text-white rounded-sm shadow-md px-6 py-2 bg-red-600 hover:bg-red-700"
+              className=" text-white rounded-sm shadow-md px-6 py-2 bg-red-600 hover:bg-red-700 mr-5"
             >
-              Submit
+              Update
+            </button>
+            <button className=" text-white rounded-sm shadow-md my-3 px-6 py-2 bg-red-600 hover:bg-red-700">
+              <a
+                href="#"
+                onClick={() =>
+                  openModal("https://bnipayments.nidmm.org/inesheet.pdf")
+                }
+                className="text-white"
+              >
+                View & Submit
+              </a>
             </button>
           </div>
         </form>
       </main>
       <Footer />
       <Copyright />
+      {modalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <span className="close-modal" onClick={closeModal}>
+              &times;
+            </span>
+            <iframe
+              src={modalContent}
+              title="PDF Viewer"
+              width="100%"
+              height="500px"
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 };

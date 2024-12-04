@@ -13,12 +13,21 @@ const CommitmentSheet = () => {
     memberName: "",
     date: "",
   })
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState("");
 
   const handleForm = (e)=>{
     e.preventDefault();
     console.log(commitmentSheet)
   }
+  const openModal = (url) => {
+    setModalContent(url);
+    setModalOpen(true);
+  };
 
+  const closeModal = () => {
+    setModalOpen(false);
+  };
   return (
     <>
       <Navbar />
@@ -161,18 +170,36 @@ const CommitmentSheet = () => {
             </div>
           </section>
 
-          <div className="flex justify-center items-center">
+          <div className="flex justify-center items-center mt-2">
             <button
               type="submit"
-              className="rounded-sm shadow-md px-6 py-2 bg-red-600 hover:bg-red-700 text-white"
+              className="rounded-sm shadow-md px-6 py-2 bg-red-600 hover:bg-red-700 text-white mr-5"
             >
-              Submit
+              Update
             </button>
+            <button className=" text-white rounded-sm shadow-md my-3 px-6 py-2 bg-red-600 hover:bg-red-700">
+              <a href="#" onClick={() => openModal("https://bnipayments.nidmm.org/interview.pdf")} className="text-white">View & Submit</a>
+              </button>
           </div>
         </form>
       </main>
       <Footer />
       <Copyright />
+      {modalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <span className="close-modal" onClick={closeModal}>
+              &times;
+            </span>
+            <iframe
+              src={modalContent}
+              title="PDF Viewer"
+              width="100%"
+              height="500px"
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 };

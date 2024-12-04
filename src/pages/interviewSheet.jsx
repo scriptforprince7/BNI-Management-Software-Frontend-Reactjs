@@ -34,6 +34,9 @@ const InterviewSheet = () => {
     inductionDate: "",
   });
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState("");
+
   useEffect(() => {
     const { chequeNum, neftNum, gstin, mobile } = interviewSheet;
     const newErrors = {};
@@ -73,6 +76,15 @@ const InterviewSheet = () => {
   const handleForm = (e) => {
     e.preventDefault();
     console.log(interviewSheet, interviewSheet.chequeDate);
+  };
+
+  const openModal = (url) => {
+    setModalContent(url);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
   };
 
   return (
@@ -515,12 +527,15 @@ const InterviewSheet = () => {
                 </div>
               </div>
             </section>
-            <div className="flex justify-center items-center">
+            <div className="flex justify-center items-center mt-2">
               <button
                 type="submit"
-                className=" text-white rounded-sm shadow-md my-3 px-6 py-2 bg-red-600 hover:bg-red-700"
+                className=" text-white rounded-sm shadow-md my-3 px-6 py-2 bg-red-600 hover:bg-red-700 mr-5"
               >
                 Update
+              </button>
+              <button className=" text-white rounded-sm shadow-md my-3 px-6 py-2 bg-red-600 hover:bg-red-700">
+              <a href="#" onClick={() => openModal("https://bnipayments.nidmm.org/commitment.pdf")} className="text-white">View & Submit</a>
               </button>
             </div>
           </form>
@@ -528,6 +543,21 @@ const InterviewSheet = () => {
       </div>
       <Footer />
       <Copyright />
+      {modalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <span className="close-modal" onClick={closeModal}>
+              &times;
+            </span>
+            <iframe
+              src={modalContent}
+              title="PDF Viewer"
+              width="100%"
+              height="500px"
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 };

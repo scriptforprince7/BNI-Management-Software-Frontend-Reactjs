@@ -35,14 +35,12 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-  
-
+    padding-left: 9.4rem;
 
 }
 
 .text-container h1 {
     font-weight: 700;
-    padding: 5px 0px;
     font-size: xx-large;
     color: #d12031;
     
@@ -51,7 +49,6 @@
 .text-container h3 {
     font-weight: 600;
     font-size: x-large;
-    padding: 5px 0px;
 
 }
 
@@ -116,6 +113,15 @@
  
         height: 350px
     }
+
+    .banner-container1 {
+        background-size: cover;
+        border-radius: 5px;
+        margin-top: -8px;
+        padding: 0px 10px;
+
+        height: 350px
+    }
     .text-container h1{
         font-size: 1.5rem;
     }
@@ -146,6 +152,17 @@
       padding-bottom: 0px;
         height: 200px
     }
+
+    .banner-container1 {
+        background-size: contain;
+      padding-bottom: 0px;
+        height: 200px
+    }
+
+    .banner-container1 img {
+        height : 100%;
+    }
+
     .text-container{
         width: 80%;
         padding: 5px 0px;

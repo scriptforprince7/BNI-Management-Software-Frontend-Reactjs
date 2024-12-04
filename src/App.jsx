@@ -16,6 +16,7 @@ import VisitorsPayments from './pages/visitorsPayments';
 import PaymentStatusPage from './pages/paymentStatusPage';
 import ErrorPage from './pages/error-page';
 import InclusionexclusionSheet from './pages/inclusionexclusionSheet';
+import EventPayments from './pages/eventPayemnts';
 
 function App() {
   return (
@@ -24,8 +25,8 @@ function App() {
         {/* Define routes */}
         <Route path="/" element={<Homepage />} />
         <Route path="/member-application" element={<Memberapplication />} />
-        <Route path="/interview-sheet" element={<InterviewSheet />} />
-        <Route path="/commitment-sheet" element={<CommitmentSheet />} />
+        <Route path="/interview-sheet" element={<CommitmentSheet/>} />
+        <Route path="/commitment-sheet" element={<InterviewSheet />} />
         <Route path="/inclusionexclusion-sheet" element={<InclusionexclusionSheet/>}/>
         <Route path="/eoi-form" element={<EoiForm />} />
         <Route path="/meeting-payment/:universal_link_id/:ulid/:payment_gateway" element={<MeetingPayments />} />
@@ -34,7 +35,7 @@ function App() {
         <Route path="/visitors-payment/:universal_link_id/:ulid/:payment_gateway" element={<VisitorsPayments/>} />
         <Route path="/payment-status/:order_id" element={<PaymentStatusPage/>}/>
         <Route path="/training-payments/:universal_link_id/:ulid/:payment_gateway" element={<TrainingPayments />} />
-        <Route path="/event-payments/:universal_link_id/:ulid/:payment_gateway" element={<TrainingPayments />} />
+        <Route path="/event-payments/:universal_link_id/:ulid/:payment_gateway" element={<EventPayments />} />
 
         <Route path="/error-page" element={<ErrorPage />} />
       </Routes>
