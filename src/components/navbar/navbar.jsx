@@ -22,7 +22,7 @@ const Navbar = () => {
       try {
         setLoading(true);
         const res = await axios.get(`${baseUrl}/api/universalLinks`);
-        console.log(res);
+        //console.log(res);
         setNavdata(res.data); // Set the navdata state with the fetched data
         setLoading(false);
       } catch (error) {
@@ -41,7 +41,7 @@ const Navbar = () => {
       `${link.link_slug}/${link.id}/${link.ulid}/${link.payment_gateway}`
   );
 
-  console.log(navdata);
+  //console.log(navdata);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);

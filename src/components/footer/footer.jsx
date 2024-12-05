@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import "./footer.css";
 import logo from '../../assets/images/logo/logo.jpeg';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -15,10 +16,10 @@ const Footer = () => {
             style={{ borderBottom: "1px solid #ccc", width: "250px" }} 
           />
           <p className="footer-links">
-            <a href="#" className="link-1">Member Application Form</a>
-            <a href="#">Interview Sheet</a>
-            <a href="#">Commitment Sheet</a>
-            <a href="#">EOI Form</a>
+            <Link to="/member-application" className="link-1">Member Application Form</Link>
+            <Link to="/interview-sheet">Interview Sheet</Link>
+            <Link to="/commitment-sheet">Commitment Sheet</Link>
+            <Link to="/eoi-form">EOI Form</Link>
             <br />
             <a href="#">New Member Payment</a>
             <a href="#">Renewal Payment | </a>

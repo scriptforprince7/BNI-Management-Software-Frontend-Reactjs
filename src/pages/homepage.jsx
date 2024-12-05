@@ -37,7 +37,7 @@ const Homepage = () => {
   const titles = navdata.map(link => link.universal_link_name); // Extract titles
   const links = navdata.map(link => `${link.link_slug}/${link.id}/${link.ulid}/${link.payment_gateway}`); // Create links with slug and id
 
-  console.log(navdata); // Debug log for fetched navdata
+  //console.log(navdata); // Debug log for fetched navdata
 
   return (
     <>

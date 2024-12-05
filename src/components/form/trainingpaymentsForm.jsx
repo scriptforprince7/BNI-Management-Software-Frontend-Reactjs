@@ -1,46 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import './form.css';
-import border from "../../assets/images/form icons/border.png"
-import axios from 'axios';
-import ErrorBoundary from '../error/ErrorBoundary';
-import baseUrl from '../../utils/baseurl';
-import LoaderImg from '../loading/loading';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import paymentHandler from '../../utils/paymentHandler';
-import { useNavigate, useParams } from 'react-router-dom';
-import { load } from '@cashfreepayments/cashfree-js';
-import redirectUrl from '../../utils/redirectUrl';
+import React, { useState, useEffect } from "react";
+import "./form.css";
+import border from "../../assets/images/form icons/border.png";
+import axios from "axios";
+import ErrorBoundary from "../error/ErrorBoundary";
+import baseUrl from "../../utils/baseurl";
+import LoaderImg from "../loading/loading";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import paymentHandler from "../../utils/paymentHandler";
+import { useNavigate, useParams } from "react-router-dom";
+import { load } from "@cashfreepayments/cashfree-js";
+import redirectUrl from "../../utils/redirectUrl";
 
 const AllPaymentsForm = () => {
   const [formData, setFormData] = useState({
     region: "new-delhi",
-    chapter: '',
-    chapter_id:'',
-    region_id:'',
-    memberName: '',
-    email: '',
-    payment_note:'all-training-ans-meeting-payment',
-    quarter: 'Jan-March',
-    renewalYear: '1Year',
-    category: '',
-    mobileNumber: '',
-    address: '',
-    company: '',
-    gstin: '',
+    chapter: "",
+    chapter_id: "",
+    region_id: "",
+    memberName: "",
+    email: "",
+    payment_note: "all-training-ans-meeting-payment",
+    quarter: "Jan-March",
+    renewalYear: "1Year",
+    category: "",
+    mobileNumber: "",
+    address: "",
+    company: "",
+    gstin: "",
     location: "",
     date: "",
     time: "",
-    eventPrice: '',
-    eventName: '',
-    sub_total:'',
-total_amount:"",
-tax:"",
+    trainingPrice: "",
+    trainingName: "",
+    sub_total: "",
+    total_amount: "",
+    tax: "",
   });
-  
-  
-const navigate=useNavigate();
-const [errors, setErrors] = useState({});
+
+  const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
   const [regionData, setRegionData] = useState();
   const [allChapterData, setallChapterData] = useState();
   const [chapterData, setChapterData] = useState();
@@ -53,10 +52,10 @@ const [errors, setErrors] = useState({});
   const [selectedMember, setSelectedMember] = useState(false);
   const [memberloading, setMemberLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [events,setEvents]=useState();
+  const [trainings, setTrainings] = useState();
   const [paymentLoading, setPaymentLoading] = useState(false);
-  const [selctedEvent,setSelctedEvent]=useState();
-  const { ulid,universal_link_id,payment_gateway} = useParams()
+  const [selectedTraining, setSelectedTraining] = useState();
+  const { ulid, universal_link_id, payment_gateway } = useParams();
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -66,54 +65,52 @@ const [errors, setErrors] = useState({});
     });
   };
 
-  const handleChapterChange = async(e) => {
-    try{
-    const selectedChapter = e.target.value;
+  const handleChapterChange = async (e) => {
+    try {
+      const selectedChapter = e.target.value;
 
-    setselectedChapter(e.target.value);
-    const selectedChapterData = allChapterData?.find(
-      (chapter) => chapter?.chapter_name === selectedChapter
-    );
-     setParticularChapterData(selectedChapterData);
-    // Update formData with the selected chapter
-   setFormData({
-      ...formData,
-      chapter:selectedChapter,
-      memberName: "",
-      email: "",
-      category: "",
-      mobileNumber: "",
-      company: "",
-      gstin: "",
-      paymentType: "",
-    });
+      setselectedChapter(e.target.value);
+      const selectedChapterData = allChapterData?.find(
+        (chapter) => chapter?.chapter_name === selectedChapter
+      );
+      setParticularChapterData(selectedChapterData);
+      // Update formData with the selected chapter
+      setFormData({
+        ...formData,
+        chapter: selectedChapter,
+        memberName: "",
+        email: "",
+        category: "",
+        mobileNumber: "",
+        company: "",
+        gstin: "",
+        paymentType: "",
+      });
 
+      // Find the index of the selected chapter
+      const selectedIndex = allChapterData?.findIndex(
+        (chapter) => chapter.chapter_name === selectedChapter
+      );
 
-    // Find the index of the selected chapter
-    const selectedIndex = allChapterData?.findIndex(
-      (chapter) => chapter.chapter_name === selectedChapter
-    );
+      setselectedChapter(allChapterData[selectedIndex]);
+      setParticularChapterData(allChapterData[selectedChapter]);
+      setParticularChapterData(allChapterData[selectedIndex]);
+      setselectedChapter(allChapterData[selectedIndex]);
+      // Call the function to handle the selected chapter data
+      if (selectedIndex !== -1) {
+        handleSelectedChapterData(selectedIndex);
+      }
 
-    setselectedChapter(allChapterData[selectedIndex]);
-    setParticularChapterData(allChapterData[selectedChapter]);
-    setParticularChapterData(allChapterData[selectedIndex]);
-    setselectedChapter(allChapterData[selectedIndex]);
-    // Call the function to handle the selected chapter data
-    if (selectedIndex !== -1) {
-      handleSelectedChapterData(selectedIndex);
+      const trainings = await axios.get(`${baseUrl}/api/allTrainings`);
+      console.log("list of trainings", trainings);
+      console.log(trainings.data);
+      setTrainings(trainings.data);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      toast.error("Something went wrong try again");
     }
-
-    const events= await axios.get(`${baseUrl}/api/allEvents`);
-setEvents(events.data)
-console.log(events)
-setLoading(false)
- } catch (error) {
-  setLoading(false)
-  toast.error("Something went wrong try again")
- }
-
   };
- 
 
   const handleRegionChange = async (e) => {
     const selectedIndex = e.target.value;
@@ -135,11 +132,10 @@ setLoading(false)
       gstin: "",
       paymentType: "",
     });
-    setmemberData("")
+    setmemberData("");
     setSelectedRegion(selectedRegionData);
     setParticularRegionData(selectedRegionData);
 
-  
     try {
       setLoading(true);
 
@@ -156,7 +152,6 @@ setLoading(false)
         );
         setChapterData(filteredChapters);
         setallChapterData(res.data);
-       
       }
 
       setLoading(false);
@@ -165,7 +160,6 @@ setLoading(false)
       setLoading(false);
     }
   };
-
 
   const handleMemberNameChange = async (e) => {
     setSelectedMember(false);
@@ -190,7 +184,6 @@ setLoading(false)
         // Set to all members
         // console.log(memberRes.data)
         filteredMembers = memberRes.data.filter((item) => {
-       
           return (
             // Match by chapter or region, and also check if the name starts with or includes the input value
             item.chapter_id === particularChapterData?.chapter_id &&
@@ -226,42 +219,46 @@ setLoading(false)
       setMemberLoading(false);
 
       // Debugging: log the filtered result
-      console.log("Filtered Members:", filteredMembers);
+      //console.log("Filtered Members:", filteredMembers);
     } catch (error) {
       setMemberLoading(false);
       console.error("Something went wrong:", error);
     }
   };
-  const eventChangeHandler = (e) => {
-    const eventId = e.target.value; // Get the event_id from the selected option
-    const selectedEvent = events[eventId] // Find the event based on event_id
-    const eventPrice = Number(selectedEvent.event_price);
-    if (selectedEvent) {
-      // Convert event_date to a Date object
-      const eventDate = new Date(selectedEvent.event_date);
+  const trainingChangeHandler = (e) => {
+    const trainingId = e.target.value; // Get the selected training_id
+    console.log("training id:", trainingId, typeof trainingId);
+    
+    // Find the selected training using the ID
+    const selectedTraining = trainings.find(
+      (training) => training.training_id === Number(trainingId) // Ensure type match
+    );
+    console.log("selected training:", selectedTraining);
   
-      // Format the date as yyyy-MM-dd (required for input type="date")
-      const formattedDate = eventDate.toISOString().split('T')[0]; // This will give you "yyyy-MM-dd"
-      const subtotal = Number(eventPrice.toFixed(2)); // This will still return a string
-      const eventTax = Number((eventPrice * 0.18).toFixed(2))
-      // Update form data based on selected event
+    if (selectedTraining) {
+      const trainingPrice = Number(selectedTraining.training_price); // Convert to number
+      const trainingDate = new Date(selectedTraining.training_date); // Parse date
+      const formattedDate = trainingDate.toISOString().split("T")[0]; // Format date
+  
+      const subtotal = trainingPrice;
+      const trainingTax = Number((trainingPrice * 0.18).toFixed(2)); // Calculate tax
+  
+      // Update formData with the selected training details
       setFormData({
         ...formData,
-        eventName: selectedEvent.event_name,  // Set eventName to selected event's name
-        location: selectedEvent.event_venue,  // Update location
-        date: formattedDate,            // Set the formatted date in "yyyy-MM-dd" format
-        time: selectedEvent.event_time || "16:00", // Update time if available, otherwise set a default value
-        eventPrice: selectedEvent.event_price ,// Update event price
-        tax:eventTax,
-        sub_total:subtotal,
-        total_amount:eventTax+subtotal,
-
-
+        trainingName: selectedTraining.training_id
+        , // Set training name
+        location: selectedTraining.training_venue,
+        date: formattedDate,
+        time: selectedTraining.training_time || "16:00", // Default time
+        trainingPrice: trainingPrice,
+        tax: trainingTax,
+        sub_total: subtotal,
+        total_amount: subtotal + trainingTax,
       });
-  
     }
   };
- 
+  
 
   const memberDataHandler = async (index) => {
     setSelectedMember(true);
@@ -277,67 +274,62 @@ setLoading(false)
     formData.company = particularMember.member_company_name;
     formData.gstin = particularMember.member_gst_number;
     formData.renewalYear = "1Year";
-    formData.chapter_id=particularMember.chapter_id;
-    formData.region_id=particularMember.region_id;
+    formData.chapter_id = particularMember.chapter_id;
+    formData.region_id = particularMember.region_id;
   };
 
   const handleSelectedChapterData = async (index) => {
     setParticularChapterData(chapterData[index]);
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (validate()) {
       // Create form data
-      console.log(formData)
-    
+      console.log(formData);
+
       const data = {
         order_amount: formData.total_amount.toString(),
         order_note: formData.payment_note.toString(),
         order_currency: "INR",
         customer_details: {
           ...formData,
-          ulid_id:`${ulid}`,
-          universallink_name:"training-payment",
-          customer_id:`User${formData.member_id}`,
+          ulid_id: `${ulid}`,
+          universallink_name: "training-payment",
+          customer_id: `User${formData.member_id}`,
           payment_note: "training-payment",
           Customer_name: formData.memberName,
           customer_email: formData.email,
           customer_phone: formData.mobileNumber,
           chapter_id: particularChapterData?.chapter_id,
-          universal_link_id:`${universal_link_id}`,
-          payment_gateway_id:`${payment_gateway}`,
-      region_id: particularChapterData?.region_id,
+          universal_link_id: `${universal_link_id}`,
+          payment_gateway_id: `${payment_gateway}`,
+          region_id: particularChapterData?.region_id,
         },
 
         order_meta: {
-          payment_note:formData.payment_note,
+          payment_note: formData.payment_note,
           notify_url:
             "https://webhook.site/790283fa-f414-4260-af91-89f17e984ce2",
         },
       };
 
-console.log(data);
+      //console.log(data);
 
       try {
-
-
         setPaymentLoading(true);
 
         const cashfree = await load({
-          mode: "sandbox" // or "production"
+          mode: "sandbox", // or "production"
         });
-       
+
         const res = await axios.post(
-          // `${baseUrl}/api/generate-cashfree-session`, 
+          // `${baseUrl}/api/generate-cashfree-session`,
           `${baseUrl}/api/generate-cashfree-session`,
-          data, // Make sure 'data' is the payload you want to send
-          
+          data // Make sure 'data' is the payload you want to send
         );
-        console.log(res.data);
-      
+        //console.log(res.data);
 
         let checkoutOptions = {
           paymentSessionId: res.data.payment_session_id,
@@ -348,7 +340,6 @@ console.log(data);
 
         await cashfree.checkout(checkoutOptions).then((result) => {
           if (result.error) {
-
             console.log(
               "User has closed the popup or there is some payment error, Check for Payment Status"
             );
@@ -357,12 +348,10 @@ console.log(data);
             alert(result.error.error);
           }
           if (result.redirect) {
-
             console.log("Payment will be redirected");
             setPaymentLoading(false);
           }
           if (result.paymentDetails) {
-
             console.log("Payment has been completed, Check for Payment Status");
             console.log(result.paymentDetails.paymentMessage);
             setPaymentLoading(false);
@@ -382,7 +371,6 @@ console.log(data);
     }
   };
 
-  
   const validate = () => {
     const errors = {};
     if (!formData.region) errors.region = "BNI Region is required";
@@ -395,11 +383,11 @@ console.log(data);
       errors.mobileNumber = "Mobile Number is required";
     // if (!formData.address) errors.address = "Address is required";
     // if (!formData.company) errors.company = "Company is required";
-    if (!formData.eventPrice) errors.eventPrice = "Payment Type is required";
+    if (!formData.trainingPrice)
+      errors.trainingPrice = "Payment Type is required";
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
-
 
   useEffect(() => {
     const fetchRegions = async () => {
@@ -412,7 +400,7 @@ console.log(data);
         if (formData.region === "new-delhi") {
           const chapterRes = await axios.get(`${baseUrl}/api/chapters`);
           setChapterData(chapterRes.data);
-          setParticularChapterData(chapterRes.data[0])
+          setParticularChapterData(chapterRes.data[0]);
           setallChapterData(chapterRes.data);
         }
 
@@ -427,21 +415,27 @@ console.log(data);
     fetchRegions();
   }, [formData.region]);
 
-
- 
-
   return (
-<>
-<ToastContainer />
-    <ErrorBoundary>
-        
-     {loading? <LoaderImg/>: <div className="form-container">
-        <div className="flex flex-col items-center justify-center text-center mb-4">
-          <h1 className='text-4xl'>TRAINING  PAYMENTS</h1>
-          <img src={border} alt="" style={{ width: "250px" }} />
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent:'space-between',alignItems:'center', }}>
-        <form
+    <>
+      <ToastContainer />
+      <ErrorBoundary>
+        {loading ? (
+          <LoaderImg />
+        ) : (
+          <div className="form-container">
+            <div className="flex flex-col items-center justify-center text-center mb-4">
+              <h1 className="text-4xl">TRAINING PAYMENTS</h1>
+              <img src={border} alt="" style={{ width: "250px" }} />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <form
                 action=""
                 style={{
                   display: "flex",
@@ -460,8 +454,8 @@ console.log(data);
                     value={
                       formData.region
                         ? regionData?.findIndex(
-                          (region) => region.region_name === formData.region
-                        )
+                            (region) => region.region_name === formData.region
+                          )
                         : "new-delhi"
                     } // Use index as the value
                     onChange={handleRegionChange}
@@ -508,13 +502,11 @@ console.log(data);
                   )}
                 </div>
               </form>
-        </div>
-        <div className="box-container" >
-          <form className="form-content" onSubmit={handleSubmit} >
-            <div className="form-left">
-             
-
-            <div className="form-group">
+            </div>
+            <div className="box-container">
+              <form className="form-content" onSubmit={handleSubmit}>
+                <div className="form-left">
+                  <div className="form-group">
                     <label htmlFor="memberName">Member Name :</label>
                     <input
                       type="text"
@@ -566,217 +558,246 @@ console.log(data);
                     )}
                   </div>
 
+                  <div className="form-group">
+                    <label htmlFor="mobileNumber">Mobile Number :</label>
+                    <input
+                      type="text"
+                      id="mobileNumber"
+                      name="mobileNumber"
+                      value={formData.mobileNumber}
+                      onChange={handleChange}
+                      placeholder="Enter Mobile Number"
+                      className={errors.mobileNumber ? "error" : ""}
+                      readOnly
+                    />
+                    {errors.mobileNumber && (
+                      <small className="error-text">
+                        {errors.mobileNumber}
+                      </small>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+  <label htmlFor="eventName">Select Training</label>
+  {trainings && trainings.length > 0 ? (
+    <select
+      id="eventName"
+      name="eventName"
+      value={formData.trainingName} // Bind the selected value to formData
+      onChange={trainingChangeHandler} // Use onChange for the select element
+      className={errors.trainingName ? "error" : ""}
+    >
+      <option value="">Select Training</option>
+      {trainings
+        .sort((a, b) => a.training_name.localeCompare(b.training_name)) // Sort alphabetically
+        .map((training) => (
+          <option key={training.training_id} value={training.training_id}>
+            {training.training_name}
+          </option>
+        ))}
+    </select>
+  ) : (
+    <select disabled>
+      <option>Please select region and chapter</option>
+    </select>
+  )}
+
+  {errors.trainingName && (
+    <small className="error-text">{errors.trainingName}</small>
+  )}
+</div>
 
 
+                  {formData.trainingName && (
+                    <div className="form-group">
+                      <label htmlFor="date">Event Date :</label>
+                      <input
+                        id="date"
+                        name="date"
+                        value={formData.date} // Bind the date input to formData.date
+                        type="date" // Corrected to "date"
+                        onChange={handleChange} // If you have a specific handler for changes
+                        placeholder="Event date fetch automatically on selecting event"
+                        className={errors.date ? "error" : ""}
+                        readOnly // You can keep this readOnly if you don't want users to edit it
+                      />
 
-              <div className="form-group">
-                <label htmlFor="mobileNumber">Mobile Number :</label>
-                <input
-                  type="text"
-                  id="mobileNumber"
-                  name="mobileNumber"
-                  value={formData.mobileNumber}
-                  onChange={handleChange}
-                  placeholder="Enter Mobile Number"
-                  className={errors.mobileNumber ? 'error' : ''}
-                  readOnly
-                />
-                {errors.mobileNumber && <small className="error-text">{errors.mobileNumber}</small>}
-              </div>
+                      {errors.date && (
+                        <small className="error-text">{errors.date}</small>
+                      )}
+                    </div>
+                  )}
+                  <div className="form-group">
+                    <label htmlFor="paymentType">Payment Type :</label>
+                    <select
+                      id="paymentType"
+                      name="paymentType"
+                      value={formData.paymentType}
+                      onChange={handleChange}
+                      className={errors.paymentType ? "error" : ""}
+                    >
+                      <option value="">CREDIT / DEBIT / NET BANKING</option>
+                      <option value="credit">Credit</option>
+                      <option value="debit">Debit</option>
 
-   
-              <div className="form-group">
-      <label htmlFor="eventName">Select Training</label>
-      {events ? (
-        <select
-          id="eventName"
-          name="eventName"
-          value={ events?.findIndex(
-            (event) => event.event_name === formData.eventName
-          )||formData.eventName}  // Bind the selected event name to formData
-          onChange={eventChangeHandler}
-          className={errors.eventName ? 'error' : ''}
-        >
-          <option value="">Select Training</option>
-          {events.map((event, index) => (
-            <option key={index} value={event.event_id}>
-              {event.event_name}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <select disabled>
-          <option>Please select region and chapter</option>
-        </select>
-      )}
+                      <option value="netBanking">Net Banking</option>
+                    </select>
+                    {errors.paymentType && (
+                      <small className="error-text">{errors.paymentType}</small>
+                    )}
+                  </div>
+                </div>
 
-      {errors.eventName && <small className="error-text">{errors.eventName}</small>}
-    </div>
+                <div className="form-right">
+                  <div className="form-group">
+                    <label htmlFor="email">Email :</label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="Enter Email Address"
+                      className={errors.email ? "error" : ""}
+                      readOnly
+                    />
+                    {errors.email && (
+                      <small className="error-text">{errors.email}</small>
+                    )}
+                  </div>
 
+                  <div className="form-group">
+                    <label htmlFor="category">Category :</label>
+                    <input
+                      type="text"
+                      id="category"
+                      name="category"
+                      value={formData.category}
+                      onChange={handleChange}
+                      placeholder="Enter Category"
+                      readOnly
+                      className={errors.category ? "error" : ""}
+                    />
+                    {errors.category && (
+                      <small className="error-text">{errors.category}</small>
+                    )}
+                  </div>
 
-    {formData.eventName && (
-      <div className="form-group">
-        <label htmlFor="date">Event Date :</label>
-        <input
-          id="date"
-          name="date"
-          value={formData.date}  // Bind the date input to formData.date
-          type="date"  // Corrected to "date"
-          onChange={handleChange} // If you have a specific handler for changes
-          placeholder='Event date fetch automatically on selecting event'
-          className={errors.date ? 'error' : ''}
-          readOnly // You can keep this readOnly if you don't want users to edit it
-        />
-        
-        {errors.date && <small className="error-text">{errors.date}</small>}
-      </div>
-    )}
-              <div className="form-group">
-                <label htmlFor="paymentType">Payment Type :</label>
-                <select
-                  id="paymentType"
-                  name="paymentType"
-                  value={formData.paymentType}
-                  onChange={handleChange}
-                  className={errors.paymentType ? 'error' : ''}
-              
-                >
-                  <option value="">CREDIT / DEBIT / NET BANKING</option>
-                  <option value="credit">Credit</option>
-                  <option value="debit">Debit</option>
-               
-                  <option value="netBanking">Net Banking</option>
-                </select>
-                {errors.paymentType && <small className="error-text">{errors.paymentType}</small>}
-              </div>
-            </div>
+                  {formData.trainingName && (
+                    <div className="form-group">
+                      <label htmlFor="location">Location :</label>
+                      <input
+                        type="text"
+                        id="location"
+                        name="location"
+                        value={formData.location}
+                        onChange={handleChange}
+                        placeholder=" Enter location  "
+                        className={errors.location ? "error" : ""}
+                        readOnly
+                      />
+                      {errors.location && (
+                        <small className="error-text">{errors.location}</small>
+                      )}
+                    </div>
+                  )}
 
-            <div className="form-right">
-     
+                  {formData.trainingName && (
+                    <div className="form-group">
+                      <label htmlFor="company">Event Time :</label>
+                      <input
+                        type="time"
+                        id="time"
+                        name="time"
+                        value={formData.time}
+                        onChange={handleChange}
+                        placeholder=" Enter time  "
+                        className={errors.time ? "error" : ""}
+                        readOnly
+                      />
+                      {errors.time && (
+                        <small className="error-text">{errors.time}</small>
+                      )}
+                    </div>
+                  )}
+                  <div className="form-group">
+                    <label htmlFor="gstin">GSTIN No. :</label>
+                    <input
+                      type="text"
+                      id="gstin"
+                      name="gstin"
+                      value={formData.gstin}
+                      onChange={handleChange}
+                      placeholder="Enter GSTIN Number (or enter 'null' if not available)"
+                    />
+                    <p style={{ fontSize: "12px", color: "red" }}>
+                      *Please fill null if you don't have GST Number
+                    </p>
+                  </div>
+                </div>
+              </form>
+              {formData.trainingPrice && (
+                <div className="summary-container">
+                  <div className="summary">
+                    <h5 className="summary-heading">Summary</h5>
+                    <hr
+                      style={{
+                        borderBottom: "1px solid rgb(204, 204, 204)",
+                        marginTop: "-5px",
+                      }}
+                    />
+                    <div className="summary-content">
+                      <p>
+                        <span style={{ fontWeight: "bold", fontSize: "14px" }}>
+                          Training Fee:
+                        </span>{" "}
+                        <span>
+                          {" "}
+                          ₹{" "}
+                          {formData.trainingPrice
+                            ? Number(
+                                formData?.trainingPrice || 0
+                              ).toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }) // Indian format
+                            : "0.00"}
+                        </span>
+                      </p>
 
-              <div className="form-group">
-                <label htmlFor="email">Email :</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Enter Email Address"
-                  className={errors.email ? 'error' : ''}
-                  readOnly
-                />
-                {errors.email && <small className="error-text">{errors.email}</small>}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="category">Category :</label>
-                <input
-                  type="text"
-                  id="category"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  placeholder="Enter Category"
-                  readOnly
-                  className={errors.category ? 'error' : ''}
-                />
-                {errors.category && <small className="error-text">{errors.category}</small>}
-              </div>
-
-              {formData .eventName  && 
-      <div className="form-group">
-                <label htmlFor="location">Location :</label>
-                <input
-                  type="text"
-                  id="location"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  placeholder=" Enter location  "
-                  className={errors.location ? 'error' : ''}
-                  readOnly
-                />
-                {errors.location && <small className="error-text">{errors.location}</small>}
-              </div>}
-       
-
-{formData .eventName  && 
-      <div className="form-group">
-                <label htmlFor="company">Event Time :</label>
-                <input
-                  type="time"
-                  id="time"
-                  name="time"
-                  value={formData.time}
-                  onChange={handleChange}
-                  placeholder=" Enter time  "
-                  className={errors.time ? 'error' : ''}
-                  readOnly
-                />
-                {errors.time && <small className="error-text">{errors.time}</small>}
-              </div>}
-              <div className="form-group">
-                <label htmlFor="gstin">GSTIN No. :</label>
-                <input
-                  type="text"
-                  id="gstin"
-                  name="gstin"
-                  value={formData.gstin}
-                  onChange={handleChange}
-                  placeholder="Enter GSTIN Number (or enter 'null' if not available)"
-                />
-                <p style={{ fontSize: "12px", color: 'red' }}>
-                  *Please fill null if you don't have GST Number
-                </p>
-              </div>
-            </div>
-          </form>
-{formData.eventPrice && <div className="summary-container">
-            <div className="summary">
-              <h5 className="summary-heading">Summary</h5>
-              <hr
-                style={{ borderBottom: "1px solid rgb(204, 204, 204)", marginTop: "-5px" }}
-              />
-              <div className="summary-content">
-           
-                 <p>
-                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>
-                   Training Fee:
-                  </span>{" "}
-                 
-                  <span>  ₹  {formData.eventPrice
-                          ? (
-                              Number(
-                                formData?.eventPrice||0
-                              )
-                            ).toLocaleString("en-IN", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            }) // Indian format
-                          : "0.00"}</span>
-                </p>
-        
-                <p>
-                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>GST (18%):</span>{" "}
-                  <span>₹  {formData.eventPrice
-                          ? (
-                        Math.round(      Number(
-                          (formData?.eventPrice)*0.18||0
-                        ))
-                            ).toLocaleString("en-IN", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            }) // Indian format
-                          : "0.00"}</span>
-                </p>
-            
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between",}}>
-                <div style={{ display: "flex", flexDirection: "column",alignItems:"flex-start" }}>
-                  <span className="total">Total Amount</span>
-                  <span>(Including GST:)</span>
-                  <p>
+                      <p>
+                        <span style={{ fontWeight: "bold", fontSize: "14px" }}>
+                          GST (18%):
+                        </span>{" "}
+                        <span>
+                          ₹{" "}
+                          {formData.trainingPrice
+                            ? Math.round(
+                                Number(formData?.trainingPrice * 0.18 || 0)
+                              ).toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              }) // Indian format
+                            : "0.00"}
+                        </span>
+                      </p>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "flex-start",
+                        }}
+                      >
+                        <span className="total">Total Amount</span>
+                        <span>(Including GST:)</span>
+                        <p>
                           <span
                             style={{
                               color: "red",
@@ -796,36 +817,39 @@ console.log(data);
                             Convenience charges will be applicable
                           </span>
                         </p>
-                </div>
-                <p>₹  {formData.eventPrice
-                          ? (
-                             Math.round( Number(
-                              Number(formData.eventPrice) + Number(formData.eventPrice) * 0.18
-                            ))
+                      </div>
+                      <p>
+                        ₹{" "}
+                        {formData.trainingPrice
+                          ? Math.round(
+                              Number(
+                                Number(formData.trainingPrice) +
+                                  Number(formData.trainingPrice) * 0.18
+                              )
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
                             }) // Indian format
-                          : "0.00"}</p>
+                          : "0.00"}
+                      </p>
+                    </div>
+                  </div>
+                  <button className="pay-now-button" onClick={handleSubmit}>
+                    PAY NOW
+                  </button>
                 </div>
+              )}
             </div>
-            <button className="pay-now-button" onClick={handleSubmit}>
-              PAY NOW
-            </button>
-          </div>}
 
-         
-        </div>
-
-        <div className="form-note">
-          <p>
-            <span style={{ color: "red" }}>NOTE:</span> All the payment done on this
-            page will directly go through the HDFC payment gateway.
-          </p>
-        </div>
-
-      </div>}
-    </ErrorBoundary>
+            <div className="form-note">
+              <p>
+                <span style={{ color: "red" }}>NOTE:</span> All the payment done
+                on this page will directly go through the HDFC payment gateway.
+              </p>
+            </div>
+          </div>
+        )}
+      </ErrorBoundary>
     </>
   );
 };

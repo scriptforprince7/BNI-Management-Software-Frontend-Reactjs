@@ -160,7 +160,7 @@ const MemberApplicationForm = () => {
         </form>
       </div>
 
-      {regionData && chapterData && eoiLink && <div className="form-header">
+      {regionData && chapterData && eoiLink && <div className="form-header flex flex-col items-center">
         <img src={qrCode} alt="QR Code" style={{ width: "400px" }} />
         <p>
           {eoiLink ? (
