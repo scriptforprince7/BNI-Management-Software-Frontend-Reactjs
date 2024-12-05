@@ -36,6 +36,7 @@ const InterviewSheet = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const { chequeNum, neftNum, gstin, mobile } = interviewSheet;
@@ -73,6 +74,14 @@ const InterviewSheet = () => {
     setErrors(newErrors);
   }, [interviewSheet]);
 
+  // useEffect(() => {
+  //   // Simulate a network request or data fetching
+  //   const timer = setTimeout(() => {
+  //     setLoading(false); // Set loading to false after 2 seconds
+  //   }, 2000);
+
+  //   return () => clearTimeout(timer); // Cleanup on component unmount
+  // }, []);
   const handleForm = (e) => {
     e.preventDefault();
     console.log(interviewSheet, interviewSheet.chequeDate);

@@ -610,7 +610,7 @@ const AllPaymentsForm = () => {
 
                   {formData.trainingName && (
                     <div className="form-group">
-                      <label htmlFor="date">Event Date :</label>
+                      <label htmlFor="date">Training Date :</label>
                       <input
                         id="date"
                         name="date"
@@ -704,7 +704,7 @@ const AllPaymentsForm = () => {
 
                   {formData.trainingName && (
                     <div className="form-group">
-                      <label htmlFor="company">Event Time :</label>
+                      <label htmlFor="company">Training Time :</label>
                       <input
                         type="time"
                         id="time"
