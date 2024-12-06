@@ -4,8 +4,10 @@ import Footer from "../components/footer/footer";
 import Copyright from "../components/footer/copyright";
 import Breadcrumb from "../components/breadcum/breadcrumb";
 import BoldText from "../components/boldText";
+import baseUrl from "../utils/baseurl";
+
 const InterviewSheet = () => {
-  const link = "interview-sheet";
+  const link = "commitment-sheet";
   const [interviewSheet, setInterviewSheet] = useState({
     memberName: "",
     chapter: "",
@@ -36,55 +38,126 @@ const InterviewSheet = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [chapterData, setChapterData] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const { chequeNum, neftNum, gstin, mobile } = interviewSheet;
-    const newErrors = {};
+    const validateFields = () => {
+      const { chequeNum, neftNum, gstin, mobile, chequeDate } = interviewSheet;
+      const newErrors = {};
 
-    if (interviewSheet.chequeDate) {
-      const selectedDate = new Date(interviewSheet.chequeDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (selectedDate > today) {
-        setErrors((prev) => ({
-          ...prev,
-          chequeDate: "Cheque date cannot be in future",
-        }));
-      } else {
-        setErrors((prev) => ({ ...prev, chequeDate: "" }));
+      // Validate Cheque Date
+      if (chequeDate) {
+        const selectedDate = new Date(chequeDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (selectedDate  > today) {
+          newErrors.chequeDate = "Cheque date cannot be in the future.";
+        }
       }
-    }
-    // Validate cheque number
-    if (chequeNum && !/^\d{6}$/.test(chequeNum)) {
-      newErrors.chequeNum = "Cheque number must be exactly 6 digits.";
-    }
 
-    // Validate NEFT number
-    if (neftNum && !/^\d{16}$/.test(neftNum)) {
-      newErrors.neftNum = "NEFT number must be exactly 16 digits.";
-    }
-    if (gstin && !/^\d{15}$/.test(gstin)) {
-      newErrors.gstin = "GSTIN number must be exactly 15 digits.";
-    }
-    if (mobile && !/^\d{10}$/.test(mobile)) {
-      newErrors.mobile = "Mobile number must be exactly 10 digits.";
-    }
+      // Validate Cheque Number
+      if (chequeNum && !/^\d{6}$/.test(chequeNum)) {
+        newErrors.chequeNum = "Cheque number must be exactly 6 digits.";
+      }
 
-    setErrors(newErrors);
+      // Validate NEFT Number
+      if (neftNum && !/^\d{16}$/.test(neftNum)) {
+        newErrors.neftNum = "NEFT number must be exactly 16 digits.";
+      }
+
+      // Validate GSTIN
+      if (gstin && !/^\d{15}$/.test(gstin)) {
+        newErrors.gstin = "GSTIN must be exactly 15 digits.";
+      }
+
+      // Validate Mobile Number
+      if (mobile && !/^\d{10}$/.test(mobile)) {
+        newErrors.mobile = "Mobile number must be exactly 10 digits.";
+      }
+
+      setErrors(newErrors);
+    };
+
+    validateFields();
   }, [interviewSheet]);
 
-  // useEffect(() => {
-  //   // Simulate a network request or data fetching
-  //   const timer = setTimeout(() => {
-  //     setLoading(false); // Set loading to false after 2 seconds
-  //   }, 2000);
+  useEffect(() => {
+    const fetchChapters = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`${baseUrl}/api/chapters`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch chapters");
+        }
+        const data = await response.json();
+        console.log("chapters data", data);
+        setChapterData(data);
+        setInterviewSheet((prev) => ({ ...prev, chapter: data })); // Assuming API returns an array of chapters
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchChapters();
+  }, []);
 
-  //   return () => clearTimeout(timer); // Cleanup on component unmount
-  // }, []);
-  const handleForm = (e) => {
+  const handleForm = async (e) => {
     e.preventDefault();
-    console.log(interviewSheet, interviewSheet.chequeDate);
+
+    // Check for existing validation errors before submission
+    if (Object.keys(errors).length > 0) {
+      setModalContent("Please fix validation errors before submitting.");
+      setModalOpen(true);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await fetch("YOUR_API_ENDPOINT", {
+        method: "POST",
+        body: JSON.stringify(interviewSheet),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setModalContent("Form submitted successfully!");
+        setInterviewSheet({
+          memberName: "",
+          chapter: "",
+          chequeNum: "",
+          chequeDate: "",
+          bank: "",
+          neftNum: "",
+          name: "",
+          date: "",
+          email: "",
+          mobile: "",
+          category: "",
+          sponsor: "",
+          gstin: "",
+          companyName: "",
+          inductionDate: "",
+          address: "",
+        });
+      } else {
+        setModalContent(data.message || "An error occurred. Please try again.");
+      }
+      setModalOpen(true);
+    } catch (error) {
+      console.error(error);
+      setModalContent("An unexpected error occurred. Please try again later.");
+      setModalOpen(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const openModal = (url) => {
@@ -127,17 +200,26 @@ const InterviewSheet = () => {
                 />
                 agree to the following terms and conditions as part of my
                 membership in the
-                <input
-                  className="bg-white border-b border-black focus:outline-none leading-none w-full sm:w-auto pl-1 font-semibold"
-                  type="text"
+                <select
+                  id="chapter"
+                  className="border py-1 px-1 mx-1"
                   value={interviewSheet.chapter}
                   onChange={(e) =>
-                    setInterviewSheet({
-                      ...interviewSheet,
+                    setInterviewSheet((prev) => ({
+                      ...prev,
                       chapter: e.target.value,
-                    })
+                    }))
                   }
-                />{" "}
+                >
+                  <option value="" disabled>
+                    Select a Chapter
+                  </option>
+                  {chapterData.map((chapter, index) => (
+                    <option key={index} value={chapter.chapter_id}>
+                      {chapter.chapter_name}
+                    </option>
+                  ))}
+                </select>
                 chapter of BNI.
               </p>
             </section>
@@ -544,7 +626,15 @@ const InterviewSheet = () => {
                 Update
               </button>
               <button className=" text-white rounded-sm shadow-md my-3 px-6 py-2 bg-red-600 hover:bg-red-700">
-              <a href="#" onClick={() => openModal("https://bnipayments.nidmm.org/commitment.pdf")} className="text-white">View & Submit</a>
+                <a
+                  href="#"
+                  onClick={() =>
+                    openModal("https://bnipayments.nidmm.org/commitment.pdf")
+                  }
+                  className="text-white"
+                >
+                  View & Submit
+                </a>
               </button>
             </div>
           </form>

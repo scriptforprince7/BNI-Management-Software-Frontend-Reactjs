@@ -1,25 +1,85 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Navbar from "../components/navbar/navbar";
 import PaymentButtons from "../components/paymentButtons/paymentButtons";
 import Footer from "../components/footer/footer";
 import Copyright from "../components/footer/copyright";
 import Breadcrumb from "../components/breadcum/breadcrumb";
 import { useState } from "react";
+import baseUrl from "../utils/baseurl";
 
 const CommitmentSheet = () => {
-  const link = "commitment-sheet";
+  const link = "interview-sheet";
   const [commitmentSheet, setCommitmentSheet] = useState({
-    commitmentChapter: "",
+    commitmentChapter: [],
     memberName: "",
     date: "",
-  })
+    interviewdBy:"",
+    applicantSign:"", 
+  });
+
+  const [chapterData, setChapterData] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState("");
+  const [loading, setLoading] = useState(false); // Added loading state for better UX
+  const [error, setError] = useState(null);
 
-  const handleForm = (e)=>{
+  useEffect(() => {
+    const fetchChapters = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`${baseUrl}/api/chapters`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch chapters");
+        }
+        const data = await response.json();
+        console.log("chapters data", data);
+        setChapterData(data);
+        setCommitmentSheet((prev) => ({ ...prev, commitmentChapter: data })); // Assuming API returns an array of chapters
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchChapters();
+  }, []);
+
+  const handleForm = async (e) => {
     e.preventDefault();
     console.log(commitmentSheet)
-  }
+
+    try {
+      setLoading(true); // Start loading
+      const response = await fetch("YOUR_API_ENDPOINT", {
+        method: "POST",
+        body: JSON.stringify(commitmentSheet),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setModalContent("Form submitted successfully!");
+        setCommitmentSheet({
+          commitmentChapter: "",
+          memberName: "",
+          date: "",
+        });
+      } else {
+        setModalContent(data.message || "An error occurred. Please try again.");
+      }
+      setModalOpen(true); // Open modal with feedback
+    } catch (error) {
+      console.error(error);
+      setModalContent("An unexpected error occurred. Please try again later.");
+      setModalOpen(true); // Open modal with error feedback
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  };
   const openModal = (url) => {
     setModalContent(url);
     setModalOpen(true);
@@ -51,18 +111,26 @@ const CommitmentSheet = () => {
                 >
                   Chapter:
                 </label>
-                <input
+                <select
                   id="chapter"
-                  type="text"
+                  className="border py-1 px-1"
                   value={commitmentSheet.commitmentChapter}
                   onChange={(e) =>
-                    setCommitmentSheet({
-                      ...commitmentSheet,
+                    setCommitmentSheet((prev) => ({
+                      ...prev,
                       commitmentChapter: e.target.value,
-                    })
+                    }))
                   }
-                  className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold"
-                />
+                >
+                  <option value="" disabled>
+                    Select a Chapter
+                  </option>
+                  {chapterData.map((chapter, index) => (
+                    <option key={index} value={chapter.chapter_name}>
+                      {chapter.chapter_name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="flex flex-col">
                 <label
@@ -81,7 +149,7 @@ const CommitmentSheet = () => {
                       memberName: e.target.value,
                     })
                   }
-                  className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold"
+                  className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold mt-2"
                 />
               </div>
               <div className="flex flex-col">
@@ -101,7 +169,7 @@ const CommitmentSheet = () => {
                       date: e.target.value,
                     })
                   }
-                  className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold"
+                  className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold mt-2"
                 />
               </div>
             </div>
@@ -125,11 +193,6 @@ const CommitmentSheet = () => {
                 "Will you be able to send 20 invitation letters within the next 6 to 8 weeks to people you believe would benefit from visiting our chapter? [40 letters are mandatory for core groups.]",
                 "In reviewing your application, we want to make sure we understand what niche you will be representing in our chapter. What specific products and services do you offer in your industry? Is there an area that you specialize in?",
                 "What do you like most about what you do in regards to your profession?",
-                "All new members are required to attend a Member Success Program within the first 60 days of membership. Will you be able to attend? (The next session will be on __.)",
-                "There are other Trainings (Leadership Training, Power Team Workshop, Referral Skill Workshop, Advanced Referral Skills Workshop, and Presentation Skills Workshop) which you are required to attend in the next 03 months. These are essential for your success as a member. Will you attend?",
-                "In the next 6 to 12 months you may be asked to be in a leadership role. Your Chapter Directors will suggest a role for you according to your strengths and aptitude. Are you willing to consider?",
-                "What reservations do you have about membership in BNI?",
-                "Do you have any questions for me about BNI or our chapter?",
               ].map((question, index) => (
                 <div key={index} className="flex items-start">
                   <span className="font-bold mr-2">{index + 1}.</span>
@@ -137,6 +200,23 @@ const CommitmentSheet = () => {
                 </div>
               ))}
             </div>
+            <div className="space-y-4 my-1">
+              <span><strong className="font-bold mr-2">10.</strong>All new members are required to attend a Member Success Program within the first 60 days of membership. Will you be able to attend? (The next session will be on <input type="date" className="border-slate-600 border-b-2 focus:outline-none leading-none pl-2"/> .)</span>
+            </div>
+            <div className="space-y-4">
+              {[
+                "There are other Trainings (Leadership Training, Power Team Workshop, Referral Skill Workshop, Advanced Referral Skills Workshop, and Presentation Skills Workshop) which you are required to attend in the next 03 months. These are essential for your success as a member. Will you attend?",
+                "In the next 6 to 12 months you may be asked to be in a leadership role. Your Chapter Directors will suggest a role for you according to your strengths and aptitude. Are you willing to consider?",
+                "What reservations do you have about membership in BNI?",
+                "Do you have any questions for me about BNI or our chapter?",
+              ].map((question, index) => (
+                <div key={index} className="flex items-start">
+                  <span className="font-bold mr-2">{index + 11}.</span>
+                  <p>{question}</p>
+                </div>
+              ))}
+            </div>
+
           </section>
 
           <section className="mb-6">
@@ -152,6 +232,13 @@ const CommitmentSheet = () => {
                   id="interviewer"
                   type="text"
                   className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold"
+                  value={commitmentSheet.interviewdBy}
+                  onChange={(e) =>
+                    setCommitmentSheet({
+                      ...commitmentSheet,
+                      interviewdBy: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className="flex flex-col">
@@ -159,12 +246,19 @@ const CommitmentSheet = () => {
                   htmlFor="applicantSignature"
                   className="text-sm font-medium text-gray-700"
                 >
-                  Applicant's Signature:
+                  Applicant&apos;s Signature:
                 </label>
                 <input
                   id="applicantSignature"
                   type="text"
                   className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold"
+                  value={commitmentSheet.applicantSign}
+                  onChange={(e) =>
+                    setCommitmentSheet({
+                      ...commitmentSheet,
+                      applicantSign: e.target.value,
+                    })
+                  }
                 />
               </div>
             </div>
@@ -178,8 +272,16 @@ const CommitmentSheet = () => {
               Update
             </button>
             <button className=" text-white rounded-sm shadow-md my-3 px-6 py-2 bg-red-600 hover:bg-red-700">
-              <a href="#" onClick={() => openModal("https://bnipayments.nidmm.org/interview.pdf")} className="text-white">View & Submit</a>
-              </button>
+              <a
+                href="#"
+                onClick={() =>
+                  openModal("https://bnipayments.nidmm.org/interview.pdf")
+                }
+                className="text-white"
+              >
+                View & Submit
+              </a>
+            </button>
           </div>
         </form>
       </main>

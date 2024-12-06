@@ -3,7 +3,8 @@ import Navbar from "../components/navbar/navbar";
 import Footer from "../components/footer/footer";
 import Copyright from "../components/footer/copyright";
 import Breadcrumb from "../components/breadcum/breadcrumb";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import baseUrl from "../utils/baseurl";
 
 const InclusionexclusionSheet = () => {
   const link = "inclusionexclusion-sheet";
@@ -16,11 +17,69 @@ const InclusionexclusionSheet = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState("");
+  const [loading, setLoading] = useState(false); // Loading state for UX feedback
+  const [chapterData, setChapterData] = useState([]);
+  const [error, setError] = useState(null);
 
-  const handleForm = (e) => {
+  const handleForm = async (e) => {
     e.preventDefault();
-    console.log(inclusionexclusionSheet);
+
+    try {
+      setLoading(true); // Start loading
+      const response = await fetch("YOUR_API_ENDPOINT", {
+        method: "POST",
+        body: JSON.stringify(inclusionexclusionSheet),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setModalContent("Form submitted successfully!");
+        setInclusionexlusionSheet({
+          memberName: "",
+          chapter: "",
+          category: "",
+          date: "",
+        });
+      } else {
+        setModalContent(data.message || "An error occurred. Please try again.");
+      }
+      setModalOpen(true); // Show modal feedback
+    } catch (error) {
+      console.error(error);
+      setModalContent("An unexpected error occurred. Please try again later.");
+      setModalOpen(true); // Show error feedback
+    } finally {
+      setLoading(false); // Stop loading
+    }
   };
+
+  useEffect(() => {
+    const fetchChapters = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`${baseUrl}/api/chapters`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch chapters");
+        }
+        const data = await response.json();
+        console.log(data)
+        setChapterData(data);
+        console.log(inclusionexclusionSheet)
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchChapters();
+  }, []);
+
   const openModal = (url) => {
     setModalContent(url);
     setModalOpen(true);
@@ -57,20 +116,29 @@ const InclusionexclusionSheet = () => {
               />
               , agree to the following terms and conditions of my classification
               of my membership in the{" "}
-              <input
-                className="bg-white border-b border-black focus:outline-none leading-none w-full sm:w-auto"
-                type="text"
+              <select
+                id="chapter"
                 value={inclusionexclusionSheet.chapter}
                 onChange={(e) =>
-                  setInclusionexlusionSheet({
-                    ...inclusionexclusionSheet,
+                  setInclusionexlusionSheet((prev) => ({
+                    ...prev,
                     chapter: e.target.value,
-                  })
+                  }))
                 }
-              />{" "}
+                className="bg-white border-b border-black focus:outline-none leading-none pl-1 font-semibold mr-2 mt-2"
+              >
+                <option value="" disabled>
+                  Select a Chapter
+                </option>
+                {chapterData.map((chapter, index) => (
+                  <option key={index} value={chapter.id}>
+                    {chapter.chapter_name}
+                  </option>
+                ))}
+              </select>
               chapter of BNI NEW Delhi.
             </p>
-            <div className="flex flex-col">
+            <div className="flex">
               <label
                 htmlFor="classification"
                 className="text-sm font-medium text-gray-700"
@@ -87,7 +155,7 @@ const InclusionexclusionSheet = () => {
                     category: e.target.value,
                   })
                 }
-                className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold"
+                className="bg-white border-b border-black focus:outline-none leading-none pl-1 font-semibold ml-2"
               />
             </div>
           </section>
