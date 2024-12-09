@@ -32,7 +32,6 @@ const Visitor = () => {
     payment_note:"Visitor-payment-fee",
     eventPrice: '',
     business:'',
-    paymentType:"",
     eventName: ''
   });
   
@@ -85,9 +84,7 @@ const [errors, setErrors] = useState({});
       category: "",
       mobileNumber: "",
       company: "",
-      gstin: "",
-      paymentType: "",
-      
+      gstin: "",  
     });
 
 
@@ -134,7 +131,6 @@ const [errors, setErrors] = useState({});
 
       company: "",
       gstin: "",
-      paymentType: "",
     });
 
     setSelectedRegion(selectedRegionData);
@@ -303,7 +299,7 @@ sethasGst(!hasGst)
     if (!formData.mobileNumber)
       errors.mobileNumber = "Mobile Number is required";
     if (!formData.address) errors.address = "Address is required";
-    if (!formData.paymentType) errors.paymentType = "Payment mode is required";
+    // if (!formData.paymentType) errors.paymentType = "Payment mode is required";
     if(hasGst){
  if (!formData.company) errors.company = "Company is required";
     if (!formData.gstin) errors.gstin = "GSTIN is required";
@@ -660,25 +656,6 @@ console.log(data);
                   className={errors.date ? 'error' : ''}
                 />
                 {errors.date && <small className="error-text">{errors.date}</small>}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="paymentType">Payment Type :</label>
-                <select
-                  id="paymentType"
-                  name="paymentType"
-                  value={formData.paymentType}
-                  onChange={handleChange}
-                  className={errors.paymentType ? 'error' : ''}
-              
-                >
-                  <option value="">CREDIT / DEBIT / NET BANKING</option>
-                  <option value="credit">Credit </option>
-                  <option value="debit">Debit </option>
-               
-                  <option value="netBanking">Net Banking </option>
-                </select>
-                {errors.paymentType && <small className="error-text">{errors.paymentType}</small>}
               </div>
              <div className="form-group" style={{marginTop:"10px"}}>
                 <label htmlFor="address">Member Address :</label>

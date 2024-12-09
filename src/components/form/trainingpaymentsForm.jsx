@@ -84,7 +84,6 @@ const AllPaymentsForm = () => {
         mobileNumber: "",
         company: "",
         gstin: "",
-        paymentType: "",
       });
 
       // Find the index of the selected chapter
@@ -130,7 +129,6 @@ const AllPaymentsForm = () => {
 
       company: "",
       gstin: "",
-      paymentType: "",
     });
     setmemberData("");
     setSelectedRegion(selectedRegionData);
@@ -627,25 +625,6 @@ const AllPaymentsForm = () => {
                       )}
                     </div>
                   )}
-                  <div className="form-group">
-                    <label htmlFor="paymentType">Payment Type :</label>
-                    <select
-                      id="paymentType"
-                      name="paymentType"
-                      value={formData.paymentType}
-                      onChange={handleChange}
-                      className={errors.paymentType ? "error" : ""}
-                    >
-                      <option value="">CREDIT / DEBIT / NET BANKING</option>
-                      <option value="credit">Credit</option>
-                      <option value="debit">Debit</option>
-
-                      <option value="netBanking">Net Banking</option>
-                    </select>
-                    {errors.paymentType && (
-                      <small className="error-text">{errors.paymentType}</small>
-                    )}
-                  </div>
                 </div>
 
                 <div className="form-right">

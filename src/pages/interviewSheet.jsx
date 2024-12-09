@@ -1,87 +1,43 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import Navbar from "../components/navbar/navbar";
+import PaymentButtons from "../components/paymentButtons/paymentButtons";
 import Footer from "../components/footer/footer";
 import Copyright from "../components/footer/copyright";
 import Breadcrumb from "../components/breadcum/breadcrumb";
-import BoldText from "../components/boldText";
+import { useState } from "react";
 import baseUrl from "../utils/baseurl";
+import LoaderImg from "../components/loading/loading";
 
 const InterviewSheet = () => {
-  const link = "commitment-sheet";
+  const link = "interview-sheet";
   const [interviewSheet, setInterviewSheet] = useState({
+    commitmentChapter: "",
     memberName: "",
-    chapter: "",
-    chequeNum: "",
-    chequeDate: "",
-    bank: "",
-    neftNum: "",
-    name: "",
     date: "",
-    email: "",
-    mobile: "",
-    category: "",
-    sponsor: "",
-    gstin: "",
-    companyName: "",
-    inductionDate: "",
-    address: "",
+    interviewdBy: "",
+    applicantSign: "",
+    sessionDate: "",
+    question1: "",
+    question2: "",
+    question3: "",
+    question4: "",
+    question5: "",
+    question6: "",
+    question7: "",
+    question8: "",
+    question9: "",
+    question10: "",
+    question11: "",
+    question12: "",
+    question13: "",
+    question14: "",
   });
 
-  const [errors, setErrors] = useState({
-    chequeNum: "",
-    neftNum: "",
-    gstin: "",
-    mobile: "",
-    chequeDate: "",
-    inductionDate: "",
-  });
-
+  const [chapterData, setChapterData] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [chapterData, setChapterData] = useState([]);
+  const [loading, setLoading] = useState(false); // Added loading state for better UX
   const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const validateFields = () => {
-      const { chequeNum, neftNum, gstin, mobile, chequeDate } = interviewSheet;
-      const newErrors = {};
-
-      // Validate Cheque Date
-      if (chequeDate) {
-        const selectedDate = new Date(chequeDate);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        if (selectedDate  > today) {
-          newErrors.chequeDate = "Cheque date cannot be in the future.";
-        }
-      }
-
-      // Validate Cheque Number
-      if (chequeNum && !/^\d{6}$/.test(chequeNum)) {
-        newErrors.chequeNum = "Cheque number must be exactly 6 digits.";
-      }
-
-      // Validate NEFT Number
-      if (neftNum && !/^\d{16}$/.test(neftNum)) {
-        newErrors.neftNum = "NEFT number must be exactly 16 digits.";
-      }
-
-      // Validate GSTIN
-      if (gstin && !/^\d{15}$/.test(gstin)) {
-        newErrors.gstin = "GSTIN must be exactly 15 digits.";
-      }
-
-      // Validate Mobile Number
-      if (mobile && !/^\d{10}$/.test(mobile)) {
-        newErrors.mobile = "Mobile number must be exactly 10 digits.";
-      }
-
-      setErrors(newErrors);
-    };
-
-    validateFields();
-  }, [interviewSheet]);
 
   useEffect(() => {
     const fetchChapters = async () => {
@@ -94,7 +50,7 @@ const InterviewSheet = () => {
         const data = await response.json();
         console.log("chapters data", data);
         setChapterData(data);
-        setInterviewSheet((prev) => ({ ...prev, chapter: data })); // Assuming API returns an array of chapters
+        // setCommitmentSheet((prev) => ({ ...prev, commitmentChapter: data.chapter_name })); // Assuming API returns an array of chapters
       } catch (err) {
         console.error(err);
         setError(err.message);
@@ -107,16 +63,10 @@ const InterviewSheet = () => {
 
   const handleForm = async (e) => {
     e.preventDefault();
-
-    // Check for existing validation errors before submission
-    if (Object.keys(errors).length > 0) {
-      setModalContent("Please fix validation errors before submitting.");
-      setModalOpen(true);
-      return;
-    }
+    console.log(interviewSheet);
 
     try {
-      setLoading(true);
+      setLoading(true); // Start loading
       const response = await fetch("YOUR_API_ENDPOINT", {
         method: "POST",
         body: JSON.stringify(interviewSheet),
@@ -130,36 +80,25 @@ const InterviewSheet = () => {
       if (response.ok) {
         setModalContent("Form submitted successfully!");
         setInterviewSheet({
+          commitmentChapter: "",
           memberName: "",
-          chapter: "",
-          chequeNum: "",
-          chequeDate: "",
-          bank: "",
-          neftNum: "",
-          name: "",
           date: "",
-          email: "",
-          mobile: "",
-          category: "",
-          sponsor: "",
-          gstin: "",
-          companyName: "",
-          inductionDate: "",
-          address: "",
+          interviewdBy: "",
+          applicantSign: "",
+          sessionDate: "",
         });
       } else {
         setModalContent(data.message || "An error occurred. Please try again.");
       }
-      setModalOpen(true);
+      setModalOpen(true); // Open modal with feedback
     } catch (error) {
       console.error(error);
       setModalContent("An unexpected error occurred. Please try again later.");
-      setModalOpen(true);
+      setModalOpen(true); // Open modal with error feedback
     } finally {
-      setLoading(false);
+      setLoading(false); // Stop loading
     }
   };
-
   const openModal = (url) => {
     setModalContent(url);
     setModalOpen(true);
@@ -168,300 +107,81 @@ const InterviewSheet = () => {
   const closeModal = () => {
     setModalOpen(false);
   };
-
   return (
     <>
       <Navbar />
       <Breadcrumb link={link} />
-      <div className="lg:flex lg:justify-center">
+      {loading ? (
+        <LoaderImg />
+      ) : (
         <main className="border-none rounded-lg shadow-lg  sm:mx-10 md:mx-20 lg:mx-40 my-5 px-5 py-4">
           <div>
             <h1 className="text-center text-2xl sm:text-3xl pb-2 font-bold">
-              Making the Commitment
+              Interviewing Applicants
             </h1>
             <h3 className="text-center pb-3 text-sm sm:text-lg">
-              For Members Joining a Chapter
+              Prior to Approving an Application
             </h3>
           </div>
-          <form onSubmit={handleForm}>
-            <section className="mb-3">
-              <p>
-                I,{" "}
-                <input
-                  className="border-b border-black focus:outline-none leading-none w-full sm:w-auto pl-1 font-semibold"
-                  type="text"
-                  value={interviewSheet.memberName}
-                  onChange={(e) =>
-                    setInterviewSheet({
-                      ...interviewSheet,
-                      memberName: e.target.value,
-                    })
-                  }
-                />
-                agree to the following terms and conditions as part of my
-                membership in the
-                <select
-                  id="chapter"
-                  className="border py-1 px-1 mx-1"
-                  value={interviewSheet.chapter}
-                  onChange={(e) =>
-                    setInterviewSheet((prev) => ({
-                      ...prev,
-                      chapter: e.target.value,
-                    }))
-                  }
-                >
-                  <option value="" disabled>
-                    Select a Chapter
-                  </option>
-                  {chapterData.map((chapter, index) => (
-                    <option key={index} value={chapter.chapter_id}>
-                      {chapter.chapter_name}
+          <form onSubmit={handleForm} className="p-4">
+            <section className="mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="flex flex-col">
+                  <label
+                    htmlFor="chapter"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Chapter:
+                  </label>
+                  <select
+                    id="chapter"
+                    className="border py-1 px-1"
+                    value={interviewSheet.commitmentChapter}
+                    onChange={(e) =>
+                      setInterviewSheet((prev) => ({
+                        ...prev,
+                        commitmentChapter: e.target.value,
+                      }))
+                    }
+                  >
+                    <option value="" disabled>
+                      Select a Chapter
                     </option>
-                  ))}
-                </select>
-                chapter of BNI.
-              </p>
-            </section>
-            <section>
-              <p className="mb-2">
-                1.{" "}
-                <span>
-                  <BoldText text="Time - Arrive latest by 7:29 AM Stay till 9:30 AM at least" />
-                </span>
-                - I understand the importance of arriving early each week prior
-                to "Open Networking" so that I can help greet guests and network
-                with the members. Therefore, I will arrive early each week and I
-                will not leave early, as this is very disruptive to the meeting
-                process.
-              </p>
-              <p className="mb-2">
-                2.{" "}
-                <span>
-                  <BoldText text='Attendance -Only 3 Absence in 6 months "Rolling Period"' />
-                </span>{" "}
-                - I will attend every meeting and when I am unable to attend, I
-                will send a substitute to take my place. I also understand my
-                responsibility to fully brief my substitute on what they should
-                say and how they are to behave while acting as my substitute.
-              </p>
-              <p className="mb-2">
-                3.{" "}
-                <span>
-                  <BoldText text="Substitution" />
-                </span>{" "}
-                -If a member is unable to attend a meeting, a substitute (worthy
-                of representing the member) can be sent (not a member of any
-                chapter). This is not considered as an absence. As per the BNI
-                Guideline, a member can look at having a maximum of 3
-                substitutions in a 6 months rolling period.
-              </p>
-              <p className="mb-2">
-                4.{" "}
-                <span>
-                  <BoldText text="Participation" />
-                </span>{" "}
-                -A member of BNI is required to participate in chapter
-                activities by
-                <br />
-                <span>
-                  1. Providing <BoldText text="referrals" />{" "}
-                </span>
-                <span>
-                  2. Inviting <BoldText text="visitors" /> as per Chapter goals{" "}
-                </span>
-                <span>
-                  3. Contribute to running of the chapter (by taking on a
-                  position or helping other members holding positions){" "}
-                </span>
-              </p>
-              <p className="mb-2">
-                5.{" "}
-                <span>
-                  <BoldText text="Goal Oriented 1-2-1s" />
-                </span>{" "}
-                -I commit to conducting at least two goal oriented 1-2-1 with
-                fellow members of my chapter (after attending Member Success
-                Program) or as per the goals set by my chapter from time to
-                time.
-              </p>
-              <p className="mb-2">
-                6.{" "}
-                <span>
-                  <BoldText text="Visitors Day" />
-                </span>{" "}
-                -During Visitors day, every new member is required to send 40
-                (strictly) invitations to qualified prospects of BNI the first
-                time.
-              </p>
-              <p className="mb-2">
-                7.{" "}
-                <span>
-                  <BoldText text="Trainings" />
-                </span>{" "}
-                -BNI conducts 6-7 trainings in a year for its members. All
-                members are required to attend these trainings, and some
-                trainings like MSP must be attended within 60 days of
-                membership. Trainings are usually held on Saturdays and approx.
-                cost is around Rs. 1200/- (subject to change) payable by cash.
-              </p>
-              <p className="mb-2">
-                8.{" "}
-                <span>
-                  <BoldText text="Meeting Fees" />
-                </span>{" "}
-                -I understand that in addition to the annual membership fees
-                (Non-refundable), I will also be required to pay quarterly
-                chapter dues in cash, in advance (Non-refundable). These are due
-                at the beginning of penultimate month for the succeeding quarter
-                in order to pay for the meeting venue. My chapter may also have
-                socials and other events that will be at an additional cost.
-              </p>
-              <p className="mb-2">
-                9. I will read and abide by the{" "}
-                <span>
-                  <BoldText text="Member Policies" />
-                </span>{" "}
-                Brochure and the{" "}
-                <span>
-                  <BoldText text="BNI Code of Ethics" />
-                </span>
-                : I will provide the products and services at the prices I
-                quote. I agree to be truthful with BNI members and their
-                referrals. I will give high quality service as I expect others
-                to give me. I will take responsibility for following up promptly
-                on the referrals I receive. I will build goodwill and trust
-                among the members and their referrals. I will be positive and
-                supportive. I agree to maintain ethical standards that are equal
-                to or above that of the rest of my profession.
-              </p>
-              <p className="mb-2">
-                10.{" "}
-                <span>
-                  <BoldText text="Positivity" />
-                </span>{" "}
-                -I shall make only positive contributions to the chapter and
-                fellow members.
-              </p>
-              <p className="mb-2">
-                11. I recognize that I am getting involved with BNI and agree to
-                follow the system, and be coachable by the director/s.
-              </p>
-              <p className="mb-2">
-                12. I understand BNI or the chapter may set up processes and/or
-                policies and/or Goals in the chapter&apos;s course of operations
-                and all members would be required to follow the same.
-              </p>
-              <p className="mb-2">
-                13. A joining member should clearly identify and discuss the
-                expectations from BNI and the Chapter.
-              </p>
-            </section>
-            <section className="pt-4">
-              <BoldText text="Payment / Induction details:" />
-              <div className="mt-2 mb-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:mb-2">
-                <div className="flex flex-col">
-                  <label htmlFor="chequeNum">Cheque No:</label>
-                  <input
-                    className={`bg-white border-b ${
-                      errors.chequeNum ? "border-red-500" : "border-black"
-                    }  focus:outline-none leading-none w-full pl-1 font-semibold`}
-                    id="chequeNum"
-                    type="number"
-                    value={interviewSheet.chequeNum}
-                    onChange={(e) =>
-                      setInterviewSheet({
-                        ...interviewSheet,
-                        chequeNum: e.target.value,
-                      })
-                    }
-                  />
-                  {errors.chequeNum && (
-                    <span className="text-red-500 text-sm">
-                      {errors.chequeNum}
-                    </span>
-                  )}
+                    {chapterData.map((chapter, index) => (
+                      <option key={index} value={chapter.chapter_name}>
+                        {chapter.chapter_name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className="flex flex-col">
-                  <label htmlFor="chequeDate">Date:</label>
+                  <label
+                    htmlFor="memberName"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Member Name:
+                  </label>
                   <input
-                    className={`bg-white border-b border-black focus:outline-none pl-2 leading-none w-full font-semibold ${
-                      errors.chequeDate ? "border-red-500" : ""
-                    }`}
-                    id="chequeDate"
-                    type="date"
-                    value={interviewSheet.chequeDate}
-                    onChange={(e) =>
-                      setInterviewSheet({
-                        ...interviewSheet,
-                        chequeDate: e.target.value,
-                      })
-                    }
-                  />
-                  {errors.chequeDate && (
-                    <span className="text-red-500 text-sm">
-                      {errors.chequeDate}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-col">
-                  <label htmlFor="bank">Bank:</label>
-                  <input
-                    className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold"
-                    id="bank"
+                    id="memberName"
                     type="text"
-                    value={interviewSheet.bank}
+                    value={interviewSheet.memberName}
                     onChange={(e) =>
                       setInterviewSheet({
                         ...interviewSheet,
-                        bank: e.target.value,
+                        memberName: e.target.value,
                       })
                     }
+                    className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold mt-2"
                   />
                 </div>
                 <div className="flex flex-col">
-                  <label htmlFor="neftNum">NEFT No:</label>
+                  <label
+                    htmlFor="date"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Date:
+                  </label>
                   <input
-                    className={`bg-white border-b ${
-                      errors.neftNum ? "border-red-500" : "border-black"
-                    } focus:outline-none leading-none w-full pl-1 font-semibold`}
-                    id="neftNum"
-                    type="number"
-                    value={interviewSheet.neftNum}
-                    onChange={(e) =>
-                      setInterviewSheet({
-                        ...interviewSheet,
-                        neftNum: e.target.value,
-                      })
-                    }
-                  />
-                  {errors.neftNum && (
-                    <span className="text-red-500 text-sm">
-                      {errors.neftNum}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="mt-2 mb-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:mb-2">
-                <div className="flex flex-col">
-                  <label htmlFor="name">Name:</label>
-                  <input
-                    className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold"
-                    id="name"
-                    type="text"
-                    value={interviewSheet.name}
-                    onChange={(e) =>
-                      setInterviewSheet({
-                        ...interviewSheet,
-                        name: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label htmlFor="date">Date:</label>
-                  <input
-                    className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold"
                     id="date"
                     type="date"
                     value={interviewSheet.date}
@@ -471,157 +191,149 @@ const InterviewSheet = () => {
                         date: e.target.value,
                       })
                     }
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label htmlFor="sign">Sign:</label>
-                  <input
-                    className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold"
-                    id="sign"
-                    type="text"
-                  />
-                </div>
-              </div>
-              <div className="mt-2 mb-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:mb-2">
-                <div className="flex flex-col">
-                  <label htmlFor="email">Email:</label>
-                  <input
-                    className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold"
-                    id="email"
-                    type="email"
-                    value={interviewSheet.email}
-                    onChange={(e) =>
-                      setInterviewSheet({
-                        ...interviewSheet,
-                        email: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label htmlFor="mobile">Mobile:</label>
-                  <input
-                    className={`bg-white border-b ${
-                      errors.mobile ? "border-red-500" : "border-black"
-                    }  focus:outline-none leading-none w-full pl-1 font-semibold`}
-                    id="mobile"
-                    type="number"
-                    value={interviewSheet.mobile}
-                    onChange={(e) =>
-                      setInterviewSheet({
-                        ...interviewSheet,
-                        mobile: e.target.value,
-                      })
-                    }
-                  />
-                  {errors.mobile && (
-                    <span className="text-red-500 text-sm">
-                      {errors.mobile}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-col">
-                  <label htmlFor="category">Category:</label>
-                  <input
-                    className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold"
-                    id="category"
-                    type="text"
-                    value={interviewSheet.category}
-                    onChange={(e) =>
-                      setInterviewSheet({
-                        ...interviewSheet,
-                        category: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-              <div className="mt-2 mb-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:mb-2">
-                <div className="flex flex-col">
-                  <label htmlFor="sponsor">Sponsor:</label>
-                  <input
-                    className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold"
-                    id="sponsor"
-                    type="text"
-                    value={interviewSheet.sponsor}
-                    onChange={(e) =>
-                      setInterviewSheet({
-                        ...interviewSheet,
-                        sponsor: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label htmlFor="gstin">GSTIN:</label>
-                  <input
-                    className={`bg-white border-b ${
-                      errors.gstin ? "border-red-500" : "border-black"
-                    } focus:outline-none leading-none w-full pl-1 font-semibold`}
-                    id="gstin"
-                    type="number"
-                    value={interviewSheet.gstin}
-                    onChange={(e) =>
-                      setInterviewSheet({
-                        ...interviewSheet,
-                        gstin: e.target.value,
-                      })
-                    }
-                  />
-                  {errors.gstin && (
-                    <span className="text-red-500 text-sm">{errors.gstin}</span>
-                  )}
-                </div>
-              </div>
-              <div className="mt-2 mb-1 grid grid-cols-4 sm:grid-cols-2 lg:grid-cols-2 gap-4 lg:mb-2">
-                <div className="flex flex-cols grid-cols-4">
-                  <label className=" whitespace-nowrap mb-1" htmlFor="address">
-                    Company Name & Address(in full):
-                  </label>
-                  <input
-                    className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold"
-                    id="address"
-                    type="text"
-                    value={interviewSheet.address}
-                    onChange={(e) =>
-                      setInterviewSheet({
-                        ...interviewSheet,
-                        address: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-              <div className="mt-2 mb-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:mb-2">
-                <div className="flex flex-col">
-                  <label htmlFor="inductionDate">Induction Date:</label>
-                  <input
-                    className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold"
-                    id="inductiondate"
-                    type="date"
-                    value={interviewSheet.inductionDate}
-                    onChange={(e) =>
-                      setInterviewSheet({
-                        ...interviewSheet,
-                        inductionDate: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label htmlFor="signature">Signature of VP:</label>
-                  <input
-                    className="bg-white border-b border-black focus:outline-none pl-2 leading-none w-full"
-                    id="signature"
-                    type="text"
+                    className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold mt-2"
                   />
                 </div>
               </div>
             </section>
+
+            <section className="mb-6">
+              <p className="font-bold mb-4">
+                Below are questions to ask when interviewing an applicant. Keep
+                in mind that this is just a place to start the conversation. You
+                can add any questions you feel are pertinent or applicable to
+                your chapter's needs.
+              </p>
+              <div className="space-y-4">
+                {[
+                  "Why did you decide to apply to BNI, specifically our chapter?",
+                  "What would you say are the strengths you bring to BNI and our chapter?",
+                  "What do you expect to receive from BNI and from our chapter?",
+                  "Will the (7:59 am) start time pose any problems with your schedule? (Members are expected to be at the Venue before 7:29 am)",
+                  "As you know BNI has a clearly defined attendance policy. Can you tell me what it is?",
+                  "If you cannot attend a meeting, will you be able to have a substitute present?",
+                  "Will you be able to send 20 invitation letters within the next 6 to 8 weeks to people you believe would benefit from visiting our chapter? [40 letters are mandatory for core groups.]",
+                  "In reviewing your application, we want to make sure we understand what niche you will be representing in our chapter. What specific products and services do you offer in your industry? Is there an area that you specialize in?",
+                  "What do you like most about what you do in regards to your profession?",
+                ].map((question, index) => (
+                  <div key={index} className="flex flex-col">
+                    <div className="flex items-start mb-1">
+                      <span className="font-bold mr-2">{index + 1}.</span>
+                      <p>{question}</p>
+                    </div>
+                    <textarea
+                      id={`question${index + 1}`}
+                      rows="2"
+                      className="bg-white border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full p-2 font-semibold"
+                      value={interviewSheet[`question${index + 1}`]}
+                      onChange={(e) =>
+                        setInterviewSheet((prevState) => ({
+                          ...prevState,
+                          [`question${index + 1}`]: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+              <div className="space-y-4 my-3">
+                <span>
+                  <strong className="font-bold mr-2">10.</strong>All new members
+                  are required to attend a Member Success Program within the
+                  first 60 days of membership. Will you be able to attend? (The
+                  next session will be on{" "}
+                  <input
+                    type="date"
+                    className="border-slate-600 border-b-2 focus:outline-none leading-none pl-2"
+                    value={interviewSheet.sessionDate}
+                    onChange={(e) =>
+                      setInterviewSheet({
+                        ...interviewSheet,
+                        sessionDate: e.target.value,
+                      })
+                    }
+                  />{" "}
+                  .)
+                </span>
+              </div>
+              <div className="space-y-4">
+                {[
+                  "There are other Trainings (Leadership Training, Power Team Workshop, Referral Skill Workshop, Advanced Referral Skills Workshop, and Presentation Skills Workshop) which you are required to attend in the next 03 months. These are essential for your success as a member. Will you attend?",
+                  "In the next 6 to 12 months you may be asked to be in a leadership role. Your Chapter Directors will suggest a role for you according to your strengths and aptitude. Are you willing to consider?",
+                  "What reservations do you have about membership in BNI?",
+                  "Do you have any questions for me about BNI or our chapter?",
+                ].map((question, index) => (
+                  <div key={index} className="flex flex-col">
+                    <div className="flex items-start mb-1">
+                      <span className="font-bold mr-2">{index + 11}.</span>
+                      <p>{question}</p>
+                    </div>
+                    <textarea
+                      id={`question${index + 11}`}
+                      rows="2"
+                      className="bg-white border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full p-2 font-semibold"
+                      value={interviewSheet[`question${index + 11}`]}
+                      onChange={(e) =>
+                        setInterviewSheet((prevState) => ({
+                          ...prevState,
+                          [`question${index + 11}`]: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col">
+                  <label
+                    htmlFor="interviewer"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Interviewed By (Name/ Chapter Position):
+                  </label>
+                  <input
+                    id="interviewer"
+                    type="text"
+                    className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold"
+                    value={interviewSheet.interviewdBy}
+                    onChange={(e) =>
+                      setInterviewSheet({
+                        ...interviewSheet,
+                        interviewdBy: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <label
+                    htmlFor="applicantSignature"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Applicant&apos;s Signature:
+                  </label>
+                  <input
+                    id="applicantSignature"
+                    type="text"
+                    className="bg-white border-b border-black focus:outline-none leading-none w-full pl-1 font-semibold"
+                    value={interviewSheet.applicantSign}
+                    onChange={(e) =>
+                      setInterviewSheet({
+                        ...interviewSheet,
+                        applicantSign: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+            </section>
+
             <div className="flex justify-center items-center mt-2">
               <button
                 type="submit"
-                className=" text-white rounded-sm shadow-md my-3 px-6 py-2 bg-red-600 hover:bg-red-700 mr-5"
+                className="rounded-sm shadow-md px-6 py-2 bg-red-600 hover:bg-red-700 text-white mr-5"
               >
                 Update
               </button>
@@ -629,7 +341,7 @@ const InterviewSheet = () => {
                 <a
                   href="#"
                   onClick={() =>
-                    openModal("https://bnipayments.nidmm.org/commitment.pdf")
+                    openModal("https://bnipayments.nidmm.org/interview.pdf")
                   }
                   className="text-white"
                 >
@@ -639,7 +351,7 @@ const InterviewSheet = () => {
             </div>
           </form>
         </main>
-      </div>
+      )}
       <Footer />
       <Copyright />
       {modalOpen && (

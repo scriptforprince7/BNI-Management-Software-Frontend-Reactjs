@@ -28,7 +28,6 @@ const BNIPaymentForm = () => {
     mobileNumber: "",
     company: "",
     gstin: "",
-    paymentType: "",
     one_time_registration_fee: "",
     membership_fee: "",
     tax: "",
@@ -78,7 +77,6 @@ const BNIPaymentForm = () => {
       mobileNumber: "",
       company: "",
       gstin: "",
-      paymentType: "",
     });
 
 
@@ -133,7 +131,6 @@ const sub_total=one_time_registration_fee + membership_fee;
 
       company: "",
       gstin: "",
-      paymentType: "",
     });
 
     setSelectedRegion(selectedRegionData);
@@ -436,7 +433,7 @@ console.log(data);
     if (!formData.mobileNumber)
       errors.mobileNumber = "Mobile Number is required";
     if (!formData.company) errors.company = "Company is required";
-    if (!formData.paymentType) errors.paymentType = "Payment Type is required";
+    // if (!formData.paymentType) errors.paymentType = "Payment Type is required";
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -660,25 +657,6 @@ console.log(data);
                     )}
                     {errors.renewalYear && (
                       <small className="error-text">{errors.renewalYear}</small>
-                    )}
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="paymentType">Payment Type :</label>
-                    <select
-                      id="paymentType"
-                      name="paymentType"
-                      value={formData.paymentType}
-                      onChange={handleChange}
-                      className={errors.paymentType ? "error" : ""}
-                    >
-                      <option value="">Choose Payment Type</option>
-                      <option value="credit">Credit</option>
-                      <option value="debit">Debit</option>
-                      <option value="netBanking">Net Banking</option>
-                    </select>
-                    {errors.paymentType && (
-                      <small className="error-text">{errors.paymentType}</small>
                     )}
                   </div>
                 </div>

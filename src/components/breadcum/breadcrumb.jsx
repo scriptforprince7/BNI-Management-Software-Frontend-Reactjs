@@ -20,7 +20,7 @@ const Breadcrumb = ({ link }) => {
       </p>
 
       {/* Dynamic Link */}
-        <p className='font-medium text-lg cursor-pointer text-blue-700'>{linkTitle}</p>
+        <p className='font-medium text-lg text-blue-700'>{linkTitle}</p>
     </div>
   );
 };

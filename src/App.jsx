@@ -25,8 +25,8 @@ function App() {
         {/* Define routes */}
         <Route path="/" element={<Homepage />} />
         <Route path="/member-application" element={<Memberapplication />} />
-        <Route path="/interview-sheet" element={<CommitmentSheet/>} />
-        <Route path="/commitment-sheet" element={<InterviewSheet />} />
+        <Route path="/interview-sheet" element={<InterviewSheet/>} />
+        <Route path="/commitment-sheet" element={<CommitmentSheet />} />
         <Route path="/inclusionexclusion-sheet" element={<InclusionexclusionSheet/>}/>
         <Route path="/eoi-form" element={<EoiForm />} />
         <Route path="/meeting-payment/:universal_link_id/:ulid/:payment_gateway" element={<MeetingPayments />} />

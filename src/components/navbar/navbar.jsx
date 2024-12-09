@@ -116,8 +116,8 @@ const Navbar = () => {
               Member Application Form
             </Link>
             <Link to="/interview-sheet">Interview Sheet</Link>
-            {/* <a href="#" onClick={() => openModal("/Interview Sheet-Template.pdf")}>Interview Sheet</a> */}
             <Link to="/commitment-sheet">Commitment Sheet</Link>
+            {/* <a href="#" onClick={() => openModal("/Interview Sheet-Template.pdf")}>Interview Sheet</a> */}
             <Link to="/inclusionexclusion-sheet">
               Inclusion and Exclusion Sheet
             </Link>

@@ -88,8 +88,6 @@ const [errors, setErrors] = useState({});
       mobileNumber: "",
       company: "",
       gstin: "",
-      paymentType: "",
-      
     });
 
 
@@ -136,7 +134,6 @@ const [errors, setErrors] = useState({});
 
       company: "",
       gstin: "",
-      paymentType: "",
     });
 
     setSelectedRegion(selectedRegionData);
@@ -589,24 +586,6 @@ console.log(data);
         {errors.date && <small className="error-text">{errors.date}</small>}
       </div>
     )}
-              <div className="form-group">
-                <label htmlFor="eventPrice">Payment Type :</label>
-                <select
-                  id="eventPrice"
-                  name="eventPrice"
-                  value={formData.eventPrice}
-                  onChange={handleChange}
-                  className={errors.eventPrice ? 'error' : ''}
-              
-                >
-                  <option value="">CREDIT / DEBIT / NET BANKING</option>
-                  <option value="credit">Credit (1.25%)</option>
-                  <option value="debit">Debit (1.25%)</option>
-               
-                  <option value="netBanking">Net Banking (1.25%)</option>
-                </select>
-                {errors.eventPrice && <small className="error-text">{errors.eventPrice}</small>}
-              </div>
             </div>
 
             <div className="form-right">
