@@ -224,6 +224,7 @@ const InterviewSheet = () => {
                     <textarea
                       id={`question${index + 1}`}
                       rows="2"
+                      placeholder="Enter text here..."
                       className="bg-white border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full p-2 font-semibold"
                       value={interviewSheet[`question${index + 1}`]}
                       onChange={(e) =>
@@ -271,6 +272,7 @@ const InterviewSheet = () => {
                     <textarea
                       id={`question${index + 11}`}
                       rows="2"
+                      placeholder="Enter text here..."
                       className="bg-white border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full p-2 font-semibold"
                       value={interviewSheet[`question${index + 11}`]}
                       onChange={(e) =>

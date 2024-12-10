@@ -8,7 +8,7 @@ import baseUrl from "../utils/baseurl";
 import LoaderImg from "../components/loading/loading";
 
 const InclusionexclusionSheet = () => {
-  const link = "inclusionexclusion-sheet";
+  const link = "inclusion exclusion-sheet";
   const [inclusionexclusionSheet, setInclusionexlusionSheet] = useState({
     memberName: "",
     chapter: "",
@@ -204,7 +204,7 @@ const InclusionexclusionSheet = () => {
                   chapter.
                   <span className="font-semibold ml-5">
                   <input
-                    className="ml-2 scale-110"
+                    className="mx-2 scale-110"
                     type="checkbox"
                     checked={inclusionexclusionSheet.confirmation1}
                     onChange={(e) =>
@@ -213,7 +213,7 @@ const InclusionexclusionSheet = () => {
                         confirmation1: e.target.checked,
                       })
                     }
-                  />
+                  />I Confirm
                   </span>
                   
                 </p>
@@ -226,7 +226,7 @@ const InclusionexclusionSheet = () => {
                 </p>
                 <span className="font-semibold ml-5">
                   <input
-                    className="ml-2 scale-110"
+                    className="mx-2 scale-110"
                     type="checkbox"
                     checked={inclusionexclusionSheet.confirmation2}
                     onChange={(e) =>
@@ -235,19 +235,18 @@ const InclusionexclusionSheet = () => {
                         confirmation2: e.target.checked,
                       })
                     }
-                  />
+                  />I Confirm
                   </span>
               </div>
               <div className="flex items-start">
                 <span className="font-bold mr-2">3.</span>
-                <p>
+                <p className="flex">
                   I confirm that I will not represent any other vertical of my
                   business or my family member&apos;s business in the chapter or
                   in 1-2-1&apos;s or in any BNI premises.
-                </p>
-                <span className="font-semibold ml-5">
+                  <span className="font-semibold ml-5">
                   <input
-                    className="ml-2 scale-110"
+                    className="mx-2 scale-110"
                     type="checkbox"
                     checked={inclusionexclusionSheet.confirmation3}
                     onChange={(e) =>
@@ -256,8 +255,10 @@ const InclusionexclusionSheet = () => {
                         confirmation3: e.target.checked,
                       })
                     }
-                  />
+                  />I Confirm
                   </span>
+                </p>
+                
               </div>
               <div className="flex items-start">
                 <span className="font-bold mr-2">4.</span>
@@ -268,7 +269,7 @@ const InclusionexclusionSheet = () => {
                 </p>
                 <span className="font-semibold ml-5">
                   <input
-                    className="ml-2 scale-110"
+                    className="mx-2 scale-110"
                     type="checkbox"
                     checked={inclusionexclusionSheet.confirmation4}
                     onChange={(e) =>
@@ -277,7 +278,7 @@ const InclusionexclusionSheet = () => {
                         confirmation4: e.target.checked,
                       })
                     }
-                  />
+                  />I Confirm
                   </span>
               </div>
               <div className="flex flex-col">
@@ -290,6 +291,7 @@ const InclusionexclusionSheet = () => {
                 <textarea
                   id="expertise"
                   rows="2"
+                  placeholder="Enter text here..."
                   className="bg-white border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full p-2 font-semibold"
                   value={inclusionexclusionSheet.areaOfExpertise}
                   onChange={(e) =>
@@ -311,6 +313,7 @@ const InclusionexclusionSheet = () => {
                   id="excludes"
                   rows="2"
                   className="bg-white border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full p-2 font-semibold"
+                  placeholder="Enter text here..."
                   value={inclusionexclusionSheet.classificationExcludes}
                   onChange={(e) =>
                     setInclusionexlusionSheet({

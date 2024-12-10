@@ -252,19 +252,42 @@ const CommitmentSheet = () => {
                   network with the members. Therefore, I will arrive early each
                   week and I will not leave early, as this is very disruptive to
                   the meeting process.
+                  <div className="flex justify-end">
                   <span>
                     <input
-                      className="ml-2 scale-110 mr-2" // Scale the checkbox to 1.5x its original size
-                      type="checkbox"
-                      checked={commitmentSheet.agree1}
-                      onChange={(e) =>
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      name="commitment1"
+                      checked={commitmentSheet.agree1 === true}
+                      onChange={() =>
                         setCommitmentSheet({
                           ...commitmentSheet,
-                          agree1: e.target.checked,
+                          agree1: true,
                         })
                       }
-                    /> <strong className="font-semibold">I Agree</strong>
+                    />
+                    <label htmlFor="agree" className="font-semibold">
+                      I Understand & Agree
+                    </label>
                   </span>
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      name="commitment1"
+                      checked={commitmentSheet.agree1 === false}
+                      onChange={() =>
+                        setCommitmentSheet({
+                          ...commitmentSheet,
+                          agree1: false,
+                        })
+                      }
+                    />
+                    <label htmlFor="disagree" className="font-semibold">
+                      I Disagree
+                    </label>
+                  </span>
+                  </div>
                 </p>
                 <p className="mb-2">
                   <strong className="font-semibold">2.</strong>{" "}
@@ -276,19 +299,44 @@ const CommitmentSheet = () => {
                   my responsibility to fully brief my substitute on what they
                   should say and how they are to behave while acting as my
                   substitute.
+                  <div className="flex justify-end"> 
                   <span>
                     <input
-                      className="ml-2 scale-110 mr-2" // Scale the checkbox to 1.5x its original size
-                      type="checkbox"
-                      checked={commitmentSheet.agree2}
-                      onChange={(e) =>
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment2"
+                      checked={commitmentSheet.agree2 === true}
+                      onChange={() =>
                         setCommitmentSheet({
                           ...commitmentSheet,
-                          agree2: e.target.checked,
+                          agree2: true,
                         })
                       }
-                    /> <strong className="font-semibold">I Agree</strong>
+                    />
+                    <label htmlFor="agree" className="font-semibold">
+                      I Understand & Agree
+                    </label>
                   </span>
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment2"
+                      checked={commitmentSheet.agree2 === false}
+                      onChange={() =>
+                        setCommitmentSheet({
+                          ...commitmentSheet,
+                          agree2: false,
+                        })
+                      }
+                    />
+                    <label htmlFor="disagree" className="font-semibold">
+                      I Disagree
+                    </label>
+                  </span>
+                  </div>
                 </p>
                 <p className="mb-2">
                   <strong className="font-semibold">3.</strong>{" "}
@@ -300,19 +348,44 @@ const CommitmentSheet = () => {
                   of any chapter). This is not considered as an absence. As per
                   the BNI Guideline, a member can look at having a maximum of 3
                   substitutions in a 6 months rolling period.
+                  <div className="flex justify-end">
                   <span>
                     <input
-                      className="ml-2 scale-110 mr-2" // Scale the checkbox to 1.5x its original size
-                      type="checkbox"
-                      checked={commitmentSheet.agree3}
-                      onChange={(e) =>
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment3"
+                      checked={commitmentSheet.agree3 === true}
+                      onChange={() =>
                         setCommitmentSheet({
                           ...commitmentSheet,
-                          agree3: e.target.checked,
+                          agree3: true,
                         })
                       }
-                    /> <strong className="font-semibold">I Agree</strong>
+                    />
+                    <label htmlFor="agree" className="font-semibold">
+                      I Understand & Agree
+                    </label>
                   </span>
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment3"
+                      checked={commitmentSheet.agree3 === false}
+                      onChange={() =>
+                        setCommitmentSheet({
+                          ...commitmentSheet,
+                          agree3: false,
+                        })
+                      }
+                    />
+                    <label htmlFor="disagree" className="font-semibold">
+                      I Disagree
+                    </label>
+                  </span>
+                  </div>
                 </p>
                 <p className="mb-2">
                   <strong className="font-semibold">4.</strong>{" "}
@@ -333,19 +406,44 @@ const CommitmentSheet = () => {
                     3. Contribute to running of the chapter (by taking on a
                     position or helping other members holding positions){" "}
                   </span>
+                  <div className="flex justify-end">
                   <span>
                     <input
-                      className="ml-2 scale-110 mr-2" // Scale the checkbox to 1.5x its original size
-                      type="checkbox"
-                      checked={commitmentSheet.agree4}
-                      onChange={(e) =>
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment4"
+                      checked={commitmentSheet.agree4 === true}
+                      onChange={() =>
                         setCommitmentSheet({
                           ...commitmentSheet,
-                          agree4: e.target.checked,
+                          agree4: true,
                         })
                       }
-                    /> <strong className="font-semibold">I Agree</strong>
+                    />
+                    <label htmlFor="agree" className="font-semibold">
+                      I Understand & Agree
+                    </label>
                   </span>
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment4"
+                      checked={commitmentSheet.agree4 === false}
+                      onChange={() =>
+                        setCommitmentSheet({
+                          ...commitmentSheet,
+                          agree4: false,
+                        })
+                      }
+                    />
+                    <label htmlFor="disagree" className="font-semibold">
+                      I Disagree
+                    </label>
+                  </span>
+                  </div>
                 </p>
                 <p className="mb-2">
                   <strong className="font-semibold">5.</strong>{" "}
@@ -356,19 +454,44 @@ const CommitmentSheet = () => {
                   fellow members of my chapter (after attending Member Success
                   Program) or as per the goals set by my chapter from time to
                   time.
+                  <div className="flex justify-end">
                   <span>
                     <input
-                      className="ml-2 scale-110 mr-2" // Scale the checkbox to 1.5x its original size
-                      type="checkbox"
-                      checked={commitmentSheet.agree5}
-                      onChange={(e) =>
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment5"
+                      checked={commitmentSheet.agree5 === true}
+                      onChange={() =>
                         setCommitmentSheet({
                           ...commitmentSheet,
-                          agree5: e.target.checked,
+                          agree5: true,
                         })
                       }
-                    /> <strong className="font-semibold">I Agree</strong>
+                    />
+                    <label htmlFor="agree" className="font-semibold">
+                      I Understand & Agree
+                    </label>
                   </span>
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment5"
+                      checked={commitmentSheet.agree5 === false}
+                      onChange={() =>
+                        setCommitmentSheet({
+                          ...commitmentSheet,
+                          agree5: false,
+                        })
+                      }
+                    />
+                    <label htmlFor="disagree" className="font-semibold">
+                      I Disagree
+                    </label>
+                  </span>
+                  </div>
                 </p>
                 <p className="mb-2">
                   <strong className="font-semibold">6.</strong>{" "}
@@ -378,19 +501,44 @@ const CommitmentSheet = () => {
                   -During Visitors day, every new member is required to send 40
                   (strictly) invitations to qualified prospects of BNI the first
                   time.
+                  <div className="flex justify-end">
                   <span>
                     <input
-                      className="ml-2 scale-110 mr-2" // Scale the checkbox to 1.5x its original size
-                      type="checkbox"
-                      checked={commitmentSheet.agree6}
-                      onChange={(e) =>
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment6"
+                      checked={commitmentSheet.agree6 === true}
+                      onChange={() =>
                         setCommitmentSheet({
                           ...commitmentSheet,
-                          agree6: e.target.checked,
+                          agree6: true,
                         })
                       }
-                    /> <strong className="font-semibold">I Agree</strong>
+                    />
+                    <label htmlFor="agree" className="font-semibold">
+                      I Understand & Agree
+                    </label>
                   </span>
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment6"
+                      checked={commitmentSheet.agree6 === false}
+                      onChange={() =>
+                        setCommitmentSheet({
+                          ...commitmentSheet,
+                          agree6: false,
+                        })
+                      }
+                    />
+                    <label htmlFor="disagree" className="font-semibold">
+                      I Disagree
+                    </label>
+                  </span>
+                  </div>
                 </p>
                 <p className="mb-2">
                   <strong className="font-semibold">7.</strong>{" "}
@@ -403,19 +551,44 @@ const CommitmentSheet = () => {
                   membership. Trainings are usually held on Saturdays and
                   approx. cost is around Rs. 1200/- (subject to change) payable
                   by cash.
+                  <div className="flex justify-end">
                   <span>
                     <input
-                      className="ml-2 scale-110 mr-2" // Scale the checkbox to 1.5x its original size
-                      type="checkbox"
-                      checked={commitmentSheet.agree7}
-                      onChange={(e) =>
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment7"
+                      checked={commitmentSheet.agree7 === true}
+                      onChange={() =>
                         setCommitmentSheet({
                           ...commitmentSheet,
-                          agree7: e.target.checked,
+                          agree7: true,
                         })
                       }
-                    /> <strong className="font-semibold">I Agree</strong>
+                    />
+                    <label htmlFor="agree" className="font-semibold">
+                      I Understand & Agree
+                    </label>
                   </span>
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment7"
+                      checked={commitmentSheet.agree7 === false}
+                      onChange={() =>
+                        setCommitmentSheet({
+                          ...commitmentSheet,
+                          agree7: false,
+                        })
+                      }
+                    />
+                    <label htmlFor="disagree" className="font-semibold">
+                      I Disagree
+                    </label>
+                  </span>
+                  </div>
                 </p>
                 <p className="mb-2">
                   <strong className="font-semibold">8.</strong>{" "}
@@ -429,19 +602,44 @@ const CommitmentSheet = () => {
                   quarter in order to pay for the meeting venue. My chapter may
                   also have socials and other events that will be at an
                   additional cost.
+                  <div className="flex justify-end">
                   <span>
                     <input
-                      className="ml-2 scale-110 mr-2" // Scale the checkbox to 1.5x its original size
-                      type="checkbox"
-                      checked={commitmentSheet.agree8}
-                      onChange={(e) =>
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment8"
+                      checked={commitmentSheet.agree8 === true}
+                      onChange={() =>
                         setCommitmentSheet({
                           ...commitmentSheet,
-                          agree8: e.target.checked,
+                          agree8: true,
                         })
                       }
-                    /> <strong className="font-semibold">I Agree</strong>
+                    />
+                    <label htmlFor="agree" className="font-semibold">
+                      I Understand & Agree
+                    </label>
                   </span>
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment8"
+                      checked={commitmentSheet.agree8 === false}
+                      onChange={() =>
+                        setCommitmentSheet({
+                          ...commitmentSheet,
+                          agree8: false,
+                        })
+                      }
+                    />
+                    <label htmlFor="disagree" className="font-semibold">
+                      I Disagree
+                    </label>
+                  </span>
+                  </div>
                 </p>
                 <p className="mb-2">
                   <strong className="font-semibold">9.</strong> I will read and
@@ -461,19 +659,44 @@ const CommitmentSheet = () => {
                   trust among the members and their referrals. I will be
                   positive and supportive. I agree to maintain ethical standards
                   that are equal to or above that of the rest of my profession.
+                  <div className="flex justify-end">
                   <span>
                     <input
-                      className="ml-2 scale-110 mr-2" // Scale the checkbox to 1.5x its original size
-                      type="checkbox"
-                      checked={commitmentSheet.agree9}
-                      onChange={(e) =>
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment9"
+                      checked={commitmentSheet.agree9 === true}
+                      onChange={() =>
                         setCommitmentSheet({
                           ...commitmentSheet,
-                          agree9: e.target.checked,
+                          agree9: true,
                         })
                       }
-                    /> <strong className="font-semibold">I Agree</strong>
+                    />
+                    <label htmlFor="agree" className="font-semibold">
+                      I Understand & Agree
+                    </label>
                   </span>
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment9"
+                      checked={commitmentSheet.agree9 === false}
+                      onChange={() =>
+                        setCommitmentSheet({
+                          ...commitmentSheet,
+                          agree9: false,
+                        })
+                      }
+                    />
+                    <label htmlFor="disagree" className="font-semibold">
+                      I Disagree
+                    </label>
+                  </span>
+                  </div>
                 </p>
                 <p className="mb-2">
                   <strong className="font-semibold">10.</strong>{" "}
@@ -482,74 +705,174 @@ const CommitmentSheet = () => {
                   </span>{" "}
                   -I shall make only positive contributions to the chapter and
                   fellow members.
+                  <div className="flex justify-end">
                   <span>
                     <input
-                      className="ml-2 scale-110 mr-2" // Scale the checkbox to 1.5x its original size
-                      type="checkbox"
-                      checked={commitmentSheet.agree10}
-                      onChange={(e) =>
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment10"
+                      checked={commitmentSheet.agree10 === true}
+                      onChange={() =>
                         setCommitmentSheet({
                           ...commitmentSheet,
-                          agree10: e.target.checked,
+                          agree10: true,
                         })
                       }
-                    /> <strong className="font-semibold">I Agree</strong>
+                    />
+                    <label htmlFor="agree" className="font-semibold">
+                      I Understand & Agree
+                    </label>
                   </span>
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment10"
+                      checked={commitmentSheet.agree10 === false}
+                      onChange={() =>
+                        setCommitmentSheet({
+                          ...commitmentSheet,
+                          agree10: false,
+                        })
+                      }
+                    />
+                    <label htmlFor="disagree" className="font-semibold">
+                      I Disagree
+                    </label>
+                  </span>
+                  </div>
                 </p>
                 <p className="mb-2">
                   <strong className="font-semibold">11.</strong> I recognize
                   that I am getting involved with BNI and agree to follow the
                   system, and be coachable by the director/s.
+                  <div className="flex justify-end">
                   <span>
                     <input
-                      className="ml-2 scale-110 mr-2" // Scale the checkbox to 1.5x its original size
-                      type="checkbox"
-                      checked={commitmentSheet.agree11}
-                      onChange={(e) =>
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment11"
+                      checked={commitmentSheet.agree11 === true}
+                      onChange={() =>
                         setCommitmentSheet({
                           ...commitmentSheet,
-                          agree11: e.target.checked,
+                          agree11: true,
                         })
                       }
-                    /> <strong className="font-semibold">I Agree</strong>
+                    />
+                    <label htmlFor="agree" className="font-semibold">
+                      I Understand & Agree
+                    </label>
                   </span>
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment11"
+                      checked={commitmentSheet.agree11 === false}
+                      onChange={() =>
+                        setCommitmentSheet({
+                          ...commitmentSheet,
+                          agree11: false,
+                        })
+                      }
+                    />
+                    <label htmlFor="disagree" className="font-semibold">
+                      I Disagree
+                    </label>
+                  </span>
+                  </div>
                 </p>
                 <p className="mb-2">
                   <strong className="font-semibold">12.</strong> I understand
                   BNI or the chapter may set up processes and/or policies and/or
                   Goals in the chapter&apos;s course of operations and all
                   members would be required to follow the same.
+                  <div className="flex justify-end">
                   <span>
                     <input
-                      className="ml-2 scale-110 mr-2" // Scale the checkbox to 1.5x its original size
-                      type="checkbox"
-                      checked={commitmentSheet.agree12}
-                      onChange={(e) =>
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment12"
+                      checked={commitmentSheet.agree12 === true}
+                      onChange={() =>
                         setCommitmentSheet({
                           ...commitmentSheet,
-                          agree12: e.target.checked,
+                          agree12: true,
                         })
                       }
-                    /> <strong className="font-semibold">I Agree</strong>
+                    />
+                    <label htmlFor="agree" className="font-semibold">
+                      I Understand & Agree
+                    </label>
                   </span>
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment12"
+                      checked={commitmentSheet.agree12 === false}
+                      onChange={() =>
+                        setCommitmentSheet({
+                          ...commitmentSheet,
+                          agree12: false,
+                        })
+                      }
+                    />
+                    <label htmlFor="disagree" className="font-semibold">
+                      I Disagree
+                    </label>
+                  </span>
+                  </div>
                 </p>
                 <p className="mb-2">
                   <strong className="font-semibold">13.</strong> A joining
                   member should clearly identify and discuss the expectations
                   from BNI and the Chapter.
+                  <div className="flex justify-end">
                   <span>
                     <input
-                      className="ml-2 scale-110 mr-2" // Scale the checkbox to 1.5x its original size
-                      type="checkbox"
-                      checked={commitmentSheet.agree13}
-                      onChange={(e) =>
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment13"
+                      checked={commitmentSheet.agree13 === true}
+                      onChange={() =>
                         setCommitmentSheet({
                           ...commitmentSheet,
-                          agree13: e.target.checked,
+                          agree13: true,
                         })
                       }
-                    /> <strong className="font-semibold">I Agree</strong>
+                    />
+                    <label htmlFor="agree" className="font-semibold">
+                      I Understand & Agree
+                    </label>
                   </span>
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      
+                      name="commitment13"
+                      checked={commitmentSheet.agree13 === false}
+                      onChange={() =>
+                        setCommitmentSheet({
+                          ...commitmentSheet,
+                          agree13: false,
+                        })
+                      }
+                    />
+                    <label htmlFor="disagree" className="font-semibold">
+                      I Disagree
+                    </label>
+                  </span>
+                  </div>
                 </p>
               </section>
               <section className="pt-4">
@@ -578,7 +901,7 @@ const CommitmentSheet = () => {
                     )}
                   </div>
                   <div className="flex flex-col">
-                    <label htmlFor="chequeDate">Date:</label>
+                    <label htmlFor="chequeDate">Payment Date:</label>
                     <input
                       className={`bg-white border-b border-black focus:outline-none pl-2 leading-none w-full font-semibold ${
                         errors.chequeDate ? "border-red-500" : ""

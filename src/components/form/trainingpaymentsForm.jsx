@@ -36,6 +36,7 @@ const AllPaymentsForm = () => {
     sub_total: "",
     total_amount: "",
     tax: "",
+    service_id:"",    
   });
 
   const navigate = useNavigate();
@@ -126,7 +127,6 @@ const AllPaymentsForm = () => {
       renewalYear: "1Year",
       category: "",
       mobileNumber: "",
-
       company: "",
       gstin: "",
     });
@@ -253,7 +253,9 @@ const AllPaymentsForm = () => {
         tax: trainingTax,
         sub_total: subtotal,
         total_amount: subtotal + trainingTax,
+        service_id:selectedTraining.training_id,
       });
+      console.log(formData)
     }
   };
   
@@ -282,10 +284,10 @@ const AllPaymentsForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    console.log(formData)
     if (validate()) {
       // Create form data
-      console.log(formData);
+      //console.log(formData);
 
       const data = {
         order_amount: formData.total_amount.toString(),
