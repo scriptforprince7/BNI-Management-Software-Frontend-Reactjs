@@ -34,13 +34,14 @@ const AllPaymentsForm = () => {
     location: "",
     date: "",
     time: "",
+    selcted_training_name:"",
     trainingPrice: "",
     trainingName: "",
     trainingId: "",
     sub_total: "",
     total_amount: "",
     tax: "",
-    service_id:"",    
+  
   });
 
   const navigate = useNavigate();
@@ -142,7 +143,7 @@ const AllPaymentsForm = () => {
     setFormData({
       ...formData,
       region: updatedRegion, // Ensure formData includes selected region
-  
+  region_id: selectedRegionData?.region_id,
       memberName: "",
       email: "",
       renewalYear: "1Year",
@@ -265,7 +266,8 @@ const AllPaymentsForm = () => {
       // Update formData with the selected training details
       setFormData({
         ...formData,
-        trainingName: selectedTraining?.training_name,
+        trainingName: selectedTraining?.training_id,
+        selectedTraining: selectedTraining.training_name,
         trainingId: selectedTraining.training_id, // Set training name
         location: selectedTraining.training_venue,
         date: formattedDate,
