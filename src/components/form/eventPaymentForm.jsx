@@ -20,7 +20,7 @@ const EventPaymentForm = () => {
     region_id:'',
     memberName: '',
     email: '',
-    payment_note:'all-training-ans-meeting-payment',
+    payment_note:'event-payment',
     quarter: 'Jan-March',
     renewalYear: '1Year',
     category: '',
@@ -31,6 +31,11 @@ const EventPaymentForm = () => {
     location: "",
     date: "",
     time: "",
+    event_id: "",
+    event_name:"",
+    member_id: "",
+    member_chapter_id: "",
+member_region_id: "",
     eventPrice: '',
     eventName: '',
     sub_total:'',
@@ -74,6 +79,12 @@ const [errors, setErrors] = useState({});
     const selectedChapterData = allChapterData?.find(
       (chapter) => chapter?.chapter_name === selectedChapter
     );
+    if(formData.region==="new-delhi"){
+      setFormData({
+        ...formData,
+        region_id: selectedChapter?.region_id,
+      })
+    }
      setParticularChapterData(selectedChapterData);
     // Update formData with the selected chapter
    setFormData({
@@ -120,7 +131,6 @@ setLoading(false)
 
     // Update formData with the selected region name
     const updatedRegion = selectedRegionData?.region_name || e.target.value;
-    console.log(updatedRegion);
     setFormData({
       ...formData,
       region: updatedRegion, // Ensure formData includes selected region
@@ -213,7 +223,7 @@ setLoading(false)
               .toLowerCase()
               .startsWith(value.toLowerCase()) ||
               item.member_first_name
-                .toLowerCase()
+                 .toLowerCase()
                 .includes(value.toLowerCase()))
           );
         });
@@ -222,7 +232,7 @@ setLoading(false)
       // Update the member data state with the filtered members
       setmemberData(filteredMembers);
       setMemberLoading(false);
-
+ 
       // Debugging: log the filtered result
       console.log("Filtered Members:", filteredMembers);
     } catch (error) {
@@ -230,31 +240,35 @@ setLoading(false)
       console.error("Something went wrong:", error);
     }
   };
+  // console.log(events)
+  console.log(selctedEvent)
   const eventChangeHandler = (e) => {
     const eventId = e.target.value; // Get the event_id from the selected option
-    const selectedEvent = events[eventId] // Find the event based on event_id
-    const eventPrice = Number(selectedEvent.event_price);
-    if (selectedEvent) {
+    console.log(eventId)
+    const particularEvent = events[eventId] // Find the event based on event_id
+  setSelctedEvent(particularEvent)
+    const eventPrice = Number(selctedEvent.event_price);
+    if (selctedEvent) {
       // Convert event_date to a Date object
-      const eventDate = new Date(selectedEvent.event_date);
+      const eventDate = new Date(selctedEvent.event_date);
   
       // Format the date as yyyy-MM-dd (required for input type="date")
       const formattedDate = eventDate.toISOString().split('T')[0]; // This will give you "yyyy-MM-dd"
       const subtotal = Number(eventPrice.toFixed(2)); // This will still return a string
       const eventTax = Number((eventPrice * 0.18).toFixed(2))
       // Update form data based on selected event
+      
       setFormData({
         ...formData,
-        eventName: selectedEvent.event_name,  // Set eventName to selected event's name
-        location: selectedEvent.event_venue,  // Update location
+        event_id: selctedEvent.event_id,
+        eventName: selctedEvent.event_name,  // Set eventName to selected event's name
+        location: selctedEvent.event_venue,  // Update location
         date: formattedDate,            // Set the formatted date in "yyyy-MM-dd" format
-        time: selectedEvent.event_time || "16:00", // Update time if available, otherwise set a default value
-        eventPrice: selectedEvent.event_price ,// Update event price
+        time: selctedEvent.event_time || "16:00", // Update time if available, otherwise set a default value
+        eventPrice: selctedEvent.event_price  ,// Update event price
         tax:eventTax,
         sub_total:subtotal,
         total_amount:eventTax+subtotal,
-
-
       });
   
     }
@@ -289,7 +303,7 @@ setLoading(false)
 
     if (validate()) {
       // Create form data
-      console.log(formData)
+      
     
       const data = {
         order_amount: formData.total_amount.toString(),
@@ -298,16 +312,16 @@ setLoading(false)
         customer_details: {
           ...formData,
           ulid_id:`${ulid}`,
-          universallink_name:"new-member-payment",
+          universallink_name:"event-payment",
           customer_id:`User${formData.member_id}`,
-          payment_note: "new-member-payment",
+          payment_note: formData.payment_note,
           Customer_name: formData.memberName,
           customer_email: formData.email,
           customer_phone: formData.mobileNumber,
-          chapter_id: particularChapterData?.chapter_id,
+          chapter_id: formData.chapter_id || particularChapterData?.chapter_id,
           universal_link_id:`${universal_link_id}`,
           payment_gateway_id:`${payment_gateway}`,
-      region_id: particularChapterData?.region_id,
+      region_id: formData.region_id || particularRegionData?.region_id,
         },
 
         order_meta: {
@@ -318,7 +332,7 @@ setLoading(false)
       };
 
 console.log(data);
-
+return
       try {
 
 

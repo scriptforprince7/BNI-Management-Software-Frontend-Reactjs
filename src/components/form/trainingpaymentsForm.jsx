@@ -19,8 +19,11 @@ const AllPaymentsForm = () => {
     chapter_id: "",
     region_id: "",
     memberName: "",
+    member_id: "",
+    member_chapter_id: "",
+    member_region_id: "",
     email: "",
-    payment_note: "all-training-ans-meeting-payment",
+    payment_note: "All Training Payments",
     quarter: "Jan-March",
     renewalYear: "1Year",
     category: "",
@@ -33,6 +36,7 @@ const AllPaymentsForm = () => {
     time: "",
     trainingPrice: "",
     trainingName: "",
+    trainingId: "",
     sub_total: "",
     total_amount: "",
     tax: "",
@@ -74,11 +78,20 @@ const AllPaymentsForm = () => {
       const selectedChapterData = allChapterData?.find(
         (chapter) => chapter?.chapter_name === selectedChapter
       );
+      console.log("selected chapter data", selectedChapterData);
       setParticularChapterData(selectedChapterData);
+      if(formData.region==="new-delhi"){
+        setFormData({
+          ...formData,
+          region_id: selectedChapter?.region_id,
+         
+        });
+      }
       // Update formData with the selected chapter
       setFormData({
         ...formData,
         chapter: selectedChapter,
+        chapter_id: selectedChapterData?.chapter_id,
         memberName: "",
         email: "",
         category: "",
@@ -115,13 +128,21 @@ const AllPaymentsForm = () => {
   const handleRegionChange = async (e) => {
     const selectedIndex = e.target.value;
     const selectedRegionData = regionData[selectedIndex];
-
     // Update formData with the selected region name
     const updatedRegion = selectedRegionData?.region_name || e.target.value;
-    console.log(updatedRegion);
+    console.log(updatedRegion)
+    if(updatedRegion){
+      setFormData({
+        ...formData,
+        region_id: selectedRegionData?.region_id,
+       
+      });
+    }
+
     setFormData({
       ...formData,
       region: updatedRegion, // Ensure formData includes selected region
+  
       memberName: "",
       email: "",
       renewalYear: "1Year",
@@ -244,8 +265,8 @@ const AllPaymentsForm = () => {
       // Update formData with the selected training details
       setFormData({
         ...formData,
-        trainingName: selectedTraining.training_id
-        , // Set training name
+        trainingName: selectedTraining?.training_name,
+        trainingId: selectedTraining.training_id, // Set training name
         location: selectedTraining.training_venue,
         date: formattedDate,
         time: selectedTraining.training_time || "16:00", // Default time
@@ -253,7 +274,7 @@ const AllPaymentsForm = () => {
         tax: trainingTax,
         sub_total: subtotal,
         total_amount: subtotal + trainingTax,
-        service_id:selectedTraining.training_id,
+      
       });
       console.log(formData)
     }
@@ -274,8 +295,9 @@ const AllPaymentsForm = () => {
     formData.company = particularMember.member_company_name;
     formData.gstin = particularMember.member_gst_number;
     formData.renewalYear = "1Year";
-    formData.chapter_id = particularMember.chapter_id;
-    formData.region_id = particularMember.region_id;
+    formData.member_id = particularMember.member_id;
+    formData.member_chapter_id = particularMember.chapter_id;
+    formData.member_region_id = particularMember.region_id;
   };
 
   const handleSelectedChapterData = async (index) => {
@@ -284,7 +306,7 @@ const AllPaymentsForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData)
+    // console.log(formData)
     if (validate()) {
       // Create form data
       //console.log(formData);
@@ -298,14 +320,14 @@ const AllPaymentsForm = () => {
           ulid_id: `${ulid}`,
           universallink_name: "training-payment",
           customer_id: `User${formData.member_id}`,
-          payment_note: "training-payment",
+          payment_note: formData.payment_note,
           Customer_name: formData.memberName,
           customer_email: formData.email,
           customer_phone: formData.mobileNumber,
-          chapter_id: particularChapterData?.chapter_id,
+          chapter_id: formData.chapter_id || particularChapterData?.chapter_id,
           universal_link_id: `${universal_link_id}`,
           payment_gateway_id: `${payment_gateway}`,
-          region_id: particularChapterData?.region_id,
+          region_id: formData.region_id || particularChapterData?.region_id,
         },
 
         order_meta: {
@@ -315,7 +337,8 @@ const AllPaymentsForm = () => {
         },
       };
 
-      //console.log(data);
+      console.log(data);
+
 
       try {
         setPaymentLoading(true);
