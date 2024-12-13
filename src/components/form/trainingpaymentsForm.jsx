@@ -351,7 +351,7 @@ const AllPaymentsForm = () => {
 
         const res = await axios.post(
           // `${baseUrl}/api/generate-cashfree-session`,
-          `${baseUrl}/api/generate-cashfree-session`,
+          `http://localhost:5000/api/generate-cashfree-session`,
           data // Make sure 'data' is the payload you want to send
         );
         //console.log(res.data);
@@ -359,7 +359,7 @@ const AllPaymentsForm = () => {
         let checkoutOptions = {
           paymentSessionId: res.data.payment_session_id,
           redirectTarget: "_self", //optional ( _self, _blank, or _top)
-          // returnUrl: `https://bnipayments.nidmm.org/payment-status/${res.data.order_id}`,
+          // returnUrl: `http://localhost:5173/payment-status/${res.data.order_id}`,
           returnUrl: `${redirectUrl}/api/getCashfreeOrderDataAndVerifyPayment/${res.data.order_id}`,
         };
 
