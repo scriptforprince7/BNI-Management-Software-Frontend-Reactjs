@@ -350,8 +350,8 @@ const AllPaymentsForm = () => {
         });
 
         const res = await axios.post(
-          // `${baseUrl}/api/generate-cashfree-session`,
-          `http://localhost:5000/api/generate-cashfree-session`,
+          `${baseUrl}/api/generate-cashfree-session`,
+          // `http://localhost:5000/api/generate-cashfree-session`,
           data // Make sure 'data' is the payload you want to send
         );
         //console.log(res.data);
