@@ -155,6 +155,7 @@ const [errors, setErrors] = useState({});
         const filteredChapters = res.data.filter(
           (item) => item.region_id === selectedRegionData?.region_id
         );
+        console.log("chapterData",res.data)
         setChapterData(filteredChapters);
         setallChapterData(res.data);
       }
@@ -187,7 +188,7 @@ const [errors, setErrors] = useState({});
       // If the selected region is "new-delhi", show all members
       if (formData.region.toLowerCase() === "new-delhi") {
         // Set to all members
-        // console.log(memberRes.data)
+
         filteredMembers = memberRes.data.filter((item) => {
        
           return (
@@ -235,19 +236,20 @@ const [errors, setErrors] = useState({});
   const memberDataHandler = async (index) => {
     setSelectedMember(true);
     const particularMember = memberData[index];
-
-    formData.memberName =
-      particularMember.member_first_name +
-      " " +
-      particularMember.member_last_name;
-    formData.email = particularMember.member_email_address;
-    (formData.mobileNumber = particularMember.member_phone_number),
-     
-      formData.member_id = particularMember.member_id,
-      formData.category = particularMember.member_category;
-    formData.company = particularMember.member_company_name;
-    formData.gstin = particularMember.member_gst_number;
-    formData.renewalYear = "1Year";
+// console.log(particularMember);
+const {data}=await axios.get(`${baseUrl}/api/getMemberId/${particularMember.member_id}`);
+console.log(data)
+setFormData((prevFormData) => ({
+  ...prevFormData,
+  memberName: data?.member_first_name + " " + data?.member_last_name,
+  email: data?.member_email_address,
+  mobileNumber: data?.member_phone_number,
+  member_id: data?.member_id,
+  category: data?.member_category,
+  company: data?.member_company_name,
+  gstin: data?.member_gst_number,
+  renewalYear: "1Year", // Set renewal year
+}));
   };
 
   const handleSelectedChapterData = async (index) => {

@@ -17,6 +17,7 @@ import PaymentStatusPage from './pages/paymentStatusPage';
 import ErrorPage from './pages/error-page';
 import InclusionexclusionSheet from './pages/inclusionexclusionSheet';
 import EventPayments from './pages/eventPayemnts';
+import Receipt from './components/receipt/receipt';
 
 function App() {
   return (
@@ -36,7 +37,7 @@ function App() {
         <Route path="/payment-status/:order_id" element={<PaymentStatusPage/>}/>
         <Route path="/training-payments/:universal_link_id/:ulid/:payment_gateway" element={<TrainingPayments />} />
         <Route path="/event-payments/:universal_link_id/:ulid/:payment_gateway" element={<EventPayments />} />
-
+        <Route path="/receipt" element={<Receipt />} />
         <Route path="/error-page" element={<ErrorPage />} />
       </Routes>
     </Router>

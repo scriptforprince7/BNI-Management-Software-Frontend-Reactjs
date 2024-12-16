@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./navbar.css";
 import logo from "../../assets/images/logo/logo.jpeg";
 import { FaBars, FaTimes, FaChevronDown, FaChevronUp } from "react-icons/fa"; // Import icons
-import { Link } from "react-router-dom"; // Import Link from react-router-dom
-import commetmentSheet from "../../../src/assets/Commitment Sheet- Template.pdf";
+import { Link, useNavigate } from "react-router-dom"; // Import Link and useNavigate
 import baseUrl from "../../utils/baseurl";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
@@ -17,12 +16,13 @@ const Navbar = () => {
   const [loading, setLoading] = useState(false);
   const [navdata, setNavdata] = useState([]);
 
+  const navigate = useNavigate(); // Initialize navigate function
+
   useEffect(() => {
     const fetchNavdata = async () => {
       try {
         setLoading(true);
         const res = await axios.get(`${baseUrl}/api/universalLinks`);
-        //console.log(res);
         setNavdata(res.data); // Set the navdata state with the fetched data
         setLoading(false);
       } catch (error) {
@@ -34,14 +34,6 @@ const Navbar = () => {
 
     fetchNavdata();
   }, []);
-
-  const titles = navdata.map((link) => link.universal_link_name); // Extract titles
-  const links = navdata.map(
-    (link) =>
-      `${link.link_slug}/${link.id}/${link.ulid}/${link.payment_gateway}`
-  );
-
-  //console.log(navdata);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -64,11 +56,17 @@ const Navbar = () => {
     setModalOpen(false);
   };
 
+  // Handle navigation for each payment link using useNavigate
+  const handleNavigation = (link) => {
+    const url = `${link.link_slug}/${link.id}/${link.ulid}/${link.payment_gateway}`;
+    navigate(`/${url}`); // Programmatically navigate to the constructed URL
+    setIsMenuOpen(false); // Close the menu after navigation
+  };
+
   return (
     <div className="navbar">
       <div className="logo">
         <Link to="/">
-          {" "}
           <img src={logo} alt="logo img" className="logoImg" />
         </Link>
       </div>
@@ -77,8 +75,6 @@ const Navbar = () => {
         <Link to="/member-application">Member Application Form</Link>
         <Link to="/interview-sheet">Interview Sheet</Link>
         <Link to="/commitment-sheet">Commitment Sheet</Link>
-        {/* <a href="#" onClick={() => openModal("https://bnipayments.nidmm.org/commitment.pdf")}>Interview Sheet</a>  */}
-        {/* <a href="#" onClick={() => openModal("https://bnipayments.nidmm.org/interview.pdf")}>Commitment Sheet</a> */}
         <Link to="/inclusionexclusion-sheet">
           Inclusion and Exclusion Sheet
         </Link>
@@ -117,7 +113,6 @@ const Navbar = () => {
             </Link>
             <Link to="/interview-sheet">Interview Sheet</Link>
             <Link to="/commitment-sheet">Commitment Sheet</Link>
-            {/* <a href="#" onClick={() => openModal("/Interview Sheet-Template.pdf")}>Interview Sheet</a> */}
             <Link to="/inclusionexclusion-sheet">
               Inclusion and Exclusion Sheet
             </Link>
@@ -135,41 +130,18 @@ const Navbar = () => {
             {isPaymentDropdownOpen ? <FaChevronUp /> : <FaChevronDown />}
           </button>
           <div
-            className={`dropdown-content ${
-              isPaymentDropdownOpen ? "open" : ""
-            }`}
+            className={`dropdown-content ${isPaymentDropdownOpen ? "open" : ""}`}
           >
             {navdata.map((link) => {
               return (
-                <Link
+                <a
                   key={link.id}
-                  to={`${link.link_slug}/${link.id}/${link.ulid}/${link.payment_gateway}`}
+                  onClick={() => handleNavigation(link)} // Use handleNavigation to navigate programmatically
                 >
                   {link.universal_link_name}
-                </Link>
+                </a>
               );
             })}
-            {/* {navdata.map((link)=>{
-                            return(
-                                <Link to={`${link.link_slug}/${link.id}/${link.ulid}/${link.payment_gateway}`>{link.universal_link_name}</Link>
-                            )
-                        })} */}
-            {/* <Link to="/new-member-payment" onClick={toggleMenu}>
-              New Member Payment
-            </Link>
-            <Link to="/renewal-payment" onClick={toggleMenu}>
-              Renewal Payment
-            </Link> */}
-            {/* <Link to="/renewal-payment-with-late-fee" onClick={toggleMenu}>Renewal Payment With Late Fee</Link> */}
-            {/* <Link to="/all-training-payments" onClick={toggleMenu}>
-              Training & Meeting Payments
-            </Link>
-            <Link to="/meeting-payment" onClick={toggleMenu}>
-              Meeting Payment
-            </Link>
-            <Link to="/visitors-payments" onClick={toggleMenu}>
-              Visitor Payments
-            </Link> */}
           </div>
         </div>
       </div>
