@@ -18,6 +18,9 @@ import ErrorPage from './pages/error-page';
 import InclusionexclusionSheet from './pages/inclusionexclusionSheet';
 import EventPayments from './pages/eventPayemnts';
 import Receipt from './components/receipt/receipt';
+import SuccessPage from './pages/paymentSuccessPage';
+import FailurePage from './pages/paymentFailure';
+import CancelPage from './pages/cancelPaymentPage';
 
 function App() {
   return (
@@ -39,6 +42,9 @@ function App() {
         <Route path="/event-payments/:universal_link_id/:ulid/:payment_gateway" element={<EventPayments />} />
         <Route path="/receipt" element={<Receipt />} />
         <Route path="/error-page" element={<ErrorPage />} />
+        <Route path="/success" element={<SuccessPage />} />
+        <Route path="/failed" element={<FailurePage />} />
+        <Route path="/cancel" element={<CancelPage />} />
       </Routes>
     </Router>
   );

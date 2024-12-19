@@ -21,7 +21,7 @@ const MeetingPaymentsForm = () => {
     chapter_id: "",
     region_id: "",
     payment_note: "",
-    quarter: 'Jan-March',
+    kitty_bill_type: '',
     renewalYear: '1Year',
     category: '',
     mobileNumber: '',
@@ -31,6 +31,8 @@ const MeetingPaymentsForm = () => {
     location: "",
     date: "",
     time: "",
+    kitty_description: "",
+    kitty_total_weeks:"",
     eventPrice: '',
     chapter_kitty_fees:'',
     tax: "",
@@ -59,6 +61,8 @@ const [errors, setErrors] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [events,setEvents]=useState();
   const [selctedEvent,setSelctedEvent]=useState();
+  const [kittyData, setKittyData] = useState({});
+ 
 
   const { ulid,universal_link_id,payment_gateway} = useParams()
 
@@ -71,51 +75,78 @@ const [errors, setErrors] = useState({});
     });
   };
 
-  const handleChapterChange = async(e) => {
-    const selectedChapter = e.target.value;
-
-    setselectedChapter(e.target.value);
-    const selectedChapterData = allChapterData?.find(
-      (chapter) => chapter?.chapter_name === selectedChapter
-    );
-     setParticularChapterData(selectedChapterData);
-    // Update formData with the selected chapter
-   setFormData({
-      ...formData,
-      memberName: "",
-      email: "",
-      category: "",
-      mobileNumber: "",
-      company: "",
-      gstin: "",
-    });
-
-
-    // Find the index of the selected chapter
-    const selectedIndex = allChapterData?.findIndex(
-      (chapter) => chapter.chapter_name === selectedChapter
-    );
-
-    setselectedChapter(allChapterData[selectedIndex]);
-
-    setParticularChapterData(allChapterData[selectedIndex]);
-
-   
-    const kitty_fee = particularChapterData.chapter_kitty_fees;
-    const tax = (kitty_fee * 0.18).toFixed(2);
-    const total_amount = (parseFloat(tax) + parseFloat(kitty_fee)).toFixed(2);
+  const handleChapterChange = async (e) => {
+    try {
+      setLoading(true);
+      const selectedChapter = e.target.value;
+      setselectedChapter(selectedChapter);
+  
+      // Find the selected chapter data
+      const selectedChapterData = allChapterData?.find(
+        (chapter) => chapter?.chapter_name === selectedChapter
+      );
+  
+      if (!selectedChapterData) {
+        throw new Error("Selected chapter data not found");
+      }
+  
+      setParticularChapterData(selectedChapterData);
+      const { chapter_id, chapter_kitty_fees } = selectedChapterData;
+  
+      // Fetch kitty data for the selected chapter
+      const kittyResponse = await axios.get(`${baseUrl}/api/getKittyPayments`);
+      const filteredKittyData = kittyResponse.data.filter(
+        (item) => item.chapter_id === chapter_id
+      );
+  
+      setKittyData(filteredKittyData);
+  
+      // Safely extract `kitty_` after `kittyData` is updated
+      const billType = filteredKittyData[0]?.bill_type || "Select Bill Type";
+  
+      // Calculate financial details
+      const tax = (chapter_kitty_fees * 0.18).toFixed(2);
+      const total_amount = (parseFloat(tax) + parseFloat(chapter_kitty_fees)).toFixed(2);
+  const total_weeks=  filteredKittyData[0]?.total_weeks;
+  const description=  filteredKittyData[0]?.description;
+      // Update formData with the selected chapter and calculated values
       setFormData((prevFormData) => ({
         ...prevFormData,
         chapter: selectedChapter,
-        total_amount:total_amount,
-        sub_total:kitty_fee,
-        tax:tax,
-        
+        memberName: "",
+        email: "",
+        kitty_bill_type: billType, // Use the extracted billType
+        category: "",
+        mobileNumber: "",
+        company: "",
+        gstin: "",
+        kitty_description:description,
+        kitty_total_weeks:total_weeks,
+        sub_total: chapter_kitty_fees,
+        tax,
+        total_amount,
       }));
-    
-    
+  
+      // Find the index of the selected chapter
+      const selectedIndex = allChapterData?.findIndex(
+        (chapter) => chapter.chapter_name === selectedChapter
+      );
+  
+      if (selectedIndex !== -1) {
+        setselectedChapter(allChapterData[selectedIndex]);
+        setParticularChapterData(allChapterData[selectedIndex]);
+      }
+  
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.error("Error in handleChapterChange:", error);
+      toast.error("Something went wrong, please try again.");
+    }
   };
+  
 
+  console.log(kittyData);
   const handleRegionChange = async (e) => {
     const selectedIndex = e.target.value;
     const selectedRegionData = regionData[selectedIndex];
@@ -283,6 +314,7 @@ setFormData((prevFormData) => ({
     fetchRegions();
   }, [formData.region]);
 
+  
   const validate = () => {
     const errors = {};
     if (!formData.region) errors.region = "BNI Region is required";
@@ -290,11 +322,11 @@ setFormData((prevFormData) => ({
     if (!formData.memberName) errors.memberName = "Member Name is required";
     if (!formData.email) errors.email = "Email is required";
     if (!formData.renewalYear) errors.renewalYear = "Renewal Year is required";
-    // if (!formData.category) errors.category = "Category is required";
+    if (!formData.kitty_bill_type) errors.kitty_bill_type = "Bill type is required";
     if (!formData.mobileNumber)
       errors.mobileNumber = "Mobile Number is required";
-    // if (!formData.address) errors.address = "Address is required";
-    // if (!formData.company) errors.company = "Company is required";
+    if (!formData.kitty_total_weeks) errors.kitty_total_weeks = "Kitty total weeks is required";
+    if (!formData.kitty_description) errors.kitty_description = "Kitty description is required";
     // if (!formData.eventPrice) errors.eventPrice = "Payment Type is required";
     setErrors(errors);
     return Object.keys(errors).length === 0;
@@ -315,7 +347,7 @@ setFormData((prevFormData) => ({
 
       }));
     
-      console.log(particularChapterData)
+      // console.log(particularChapterData)
     if (validate()) {
       // Create form data
       console.log(formData)
@@ -551,41 +583,44 @@ console.log(data);
                 {errors.mobileNumber && <small className="error-text">{errors.mobileNumber}</small>}
               </div>
 
-<div className="form-group">
-<label htmlFor="quarter">Select Quarter </label>
-<select
-  id="quarter"
-  name="quarter"
-  value={formData.quarter}
-  onChange={handleChange}
-  className={errors.quarter ? 'error' : ''}
->
-  <option value="">Select Quarter </option>
-  <option value="Jan-March">Jan-March(2024)</option>
-  <option value="Apr-June">Apr-June(2024)</option>
-  <option value="July-Sep">July-Sep(2024)</option>
-  <option value="Oct-Dec">Oct-Dec(2024)</option>
-</select>
-{errors.quarter && <small className="error-text">{errors.quarter}</small>}
+              <div className="form-group">
+  <label htmlFor="kitty_bill_type">Bill Type</label>
+  <select
+    id="kitty_bill_type"
+    name="kitty_bill_type"
+    value={formData?.kitty_bill_type || ''} // Default to an empty string if undefined
+    onChange={handleChange}
+    className={errors.kitty_bill_type ? 'error' : ''}
+    disabled
+  >
+    {/* Dynamically render options based on available data */}
+  
+        <option value={kittyData[0]?.bill_type} selected>
+          {kittyData[0]?.bill_type.charAt(0).toUpperCase() + kittyData[0]?.bill_type.slice(1)}
+        </option>
+    
+  </select>
+  {errors.kitty_bill_type && <small className="error-text">{errors.kitty_bill_type}</small>}
 </div>
+
  
 
 
-    {formData.eventName && (
+    {kittyData && (
       <div className="form-group">
-        <label htmlFor="date">Event Date :</label>
+        <label htmlFor="kitty_total_weeks">Total Weeks :</label>
         <input
-          id="date"
-          name="date"
-          value={formData.date}  // Bind the date input to formData.date
-          type="date"  // Corrected to "date"
+          id="kitty_total_weeks"
+          name="kitty_total_weeks"
+          value={formData.kitty_total_weeks}  // Bind the kitty_total_weeks input to formData.kitty_total_weeks
+          type="kitty_total_weeks"  // Corrected to "kitty_total_weeks"
           onChange={handleChange} // If you have a specific handler for changes
-          placeholder='Event date fetch automatically on selecting event'
-          className={errors.date ? 'error' : ''}
+          placeholder='Kitty Total Weeks '
+          className={errors.kitty_total_weeks ? 'error' : ''}
           readOnly // You can keep this readOnly if you don't want users to edit it
         />
         
-        {errors.date && <small className="error-text">{errors.date}</small>}
+        {errors.kitty_total_weeks && <small className="error-text">{errors.kitty_total_weeks}</small>}
       </div>
     )}
             </div>
@@ -639,9 +674,24 @@ console.log(data);
                   *Please fill null if you don't have GST Number
                 </p>
               </div>
+
+              <div className="form-group">
+                <label htmlFor="kitty_description">Description</label>
+                <input
+                  type="text"
+                  id="kitty_description"
+                  name="kitty_description"
+                  value={formData.kitty_description}
+                  onChange={handleChange}
+                  placeholder=" kitty description is required"
+                />
+               
+              </div>
+
+
             </div>
           </form>
-{particularChapterData?.chapter_kitty_fees && <div className="summary-container">
+  {kittyData[0]?.total_bill_amount && <div className="summary-container">
             <div className="summary">
               <h5 className="summary-heading">Summary</h5>
               <hr
@@ -654,10 +704,10 @@ console.log(data);
                    Meeting Fee:
                   </span>{" "}
                  
-                  <span>  ₹  {particularChapterData.chapter_kitty_fees
+                  <span>  ₹  {kittyData[0]?.total_bill_amount
                           ? (
                               Number(
-                                particularChapterData?.chapter_kitty_fees||0
+                                kittyData[0]?.total_bill_amount||0
                               )
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
@@ -668,10 +718,10 @@ console.log(data);
         
                 <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>GST (18%):</span>{" "}
-                  <span>₹  {particularChapterData.chapter_kitty_fees
+                  <span>₹  {kittyData[0]?.total_bill_amount
                           ? (
                              Math.round( Number(
-                              (particularChapterData?.chapter_kitty_fees)*0.18||0
+                              (kittyData[0]?.total_bill_amount)*0.18||0
                             ))
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
@@ -706,10 +756,10 @@ console.log(data);
                           </span>
                         </p>
                 </div>
-                <p>₹  {particularChapterData.chapter_kitty_fees
+                <p>₹  {kittyData[0]?.total_bill_amount
                           ? (
                               Number(
-                                Number(particularChapterData.chapter_kitty_fees) + Number(particularChapterData.chapter_kitty_fees) * 0.18
+                                Number(kittyData[0]?.total_bill_amount) + Number(kittyData[0]?.total_bill_amount) * 0.18
                               )
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
