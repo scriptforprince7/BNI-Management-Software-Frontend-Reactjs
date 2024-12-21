@@ -34,11 +34,12 @@ const MeetingPaymentsForm = () => {
     kitty_description: "",
     kitty_total_weeks:"",
     eventPrice: '',
-    chapter_kitty_fees:'',
+    member_kitty_fee:'',
     tax: "",
     latefee: "",
+    member_pending_meeting_fee: "",
     sub_total:"",
-    total_amount: "",
+    total_amount: 0,
     eventName: ''
   });
   
@@ -91,7 +92,7 @@ const [errors, setErrors] = useState({});
       }
   
       setParticularChapterData(selectedChapterData);
-      const { chapter_id, chapter_kitty_fees } = selectedChapterData;
+      const { chapter_id, member_kitty_fee } = selectedChapterData;
   
       // Fetch kitty data for the selected chapter
       const kittyResponse = await axios.get(`${baseUrl}/api/getKittyPayments`);
@@ -105,8 +106,8 @@ const [errors, setErrors] = useState({});
       const billType = filteredKittyData[0]?.bill_type || "Select Bill Type";
   
       // Calculate financial details
-      const tax = (chapter_kitty_fees * 0.18).toFixed(2);
-      const total_amount = (parseFloat(tax) + parseFloat(chapter_kitty_fees)).toFixed(2);
+      const tax = (formData.member_kitty_fee * 0.18).toFixed(2);
+      const total_amount = (parseFloat(tax) + parseFloat(formData.member_kitty_fee)+parseFloat(formData.member_pending_meeting_fee)).toFixed(2);
   const total_weeks=  filteredKittyData[0]?.total_weeks;
   const description=  filteredKittyData[0]?.description;
       // Update formData with the selected chapter and calculated values
@@ -122,7 +123,7 @@ const [errors, setErrors] = useState({});
         gstin: "",
         kitty_description:description,
         kitty_total_weeks:total_weeks,
-        sub_total: chapter_kitty_fees,
+        sub_total: member_kitty_fee,
         tax,
         total_amount,
       }));
@@ -270,12 +271,15 @@ const [errors, setErrors] = useState({});
 // console.log(particularMember);
 const {data}=await axios.get(`${baseUrl}/api/getMemberId/${particularMember.member_id}`);
 console.log(data)
+
 setFormData((prevFormData) => ({
   ...prevFormData,
   memberName: data?.member_first_name + " " + data?.member_last_name,
   email: data?.member_email_address,
+  member_pending_meeting_fee: Number(data?.meeting_opening_balance || 0),
   mobileNumber: data?.member_phone_number,
-  member_id: data?.member_id,
+  member_id: data?.member_id,  
+  member_kitty_fee:Number(data?.meeting_payable_amount || 0), 
   category: data?.member_category,
   company: data?.member_company_name,
   gstin: data?.member_gst_number,
@@ -283,9 +287,9 @@ setFormData((prevFormData) => ({
 }));
   };
 
-  const handleSelectedChapterData = async (index) => {
-    setParticularChapterData(chapterData[index]);
-  };
+  // const handleSelectedChapterData = async (index) => {
+  //   setParticularChapterData(chapterData[index]);
+  // };
 
 
   useEffect(() => {
@@ -333,25 +337,28 @@ setFormData((prevFormData) => ({
   };
  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(particularChapterData)
-      // Log values for debugging
-      const kitty_fee = particularChapterData.chapter_kitty_fees;
-      const tax = (kitty_fee * 0.18).toFixed(2);
-      const total_amount = (parseFloat(tax) + parseFloat(kitty_fee)).toFixed(2);
-      setFormData((prevFormData) => ({
+  
+     
+        const kitty_fee = formData.member_kitty_fee;
+        const tax = Number((kitty_fee * 0.18).toFixed(2));
+        const total = Number(parseFloat(tax) + parseFloat(kitty_fee)+parseFloat(formData.member_pending_meeting_fee)).toFixed(2);
+        
+      
+      await setFormData((prevFormData) => ({
         ...prevFormData,
-   total_amount:total_amount,
+   total_amount:total,
    sub_total:kitty_fee,
    tax:tax,
   
 
       }));
     
+
       // console.log(particularChapterData)
     if (validate()) {
       // Create form data
-      console.log(formData)
-    
+      console.log("formData",formData)
+
       const data = {
         order_amount: formData.total_amount.toString(),
         order_note: formData.payment_note.toString(),
@@ -378,8 +385,10 @@ setFormData((prevFormData) => ({
         },
       };
 
-console.log(data);
-
+if(!data.order_amount||data.order_amount<=0){
+  toast.error("Something went wrong try again");
+  return
+}
       try {
 
 
@@ -691,7 +700,7 @@ console.log(data);
 
             </div>
           </form>
-  {kittyData[0]?.total_bill_amount && <div className="summary-container">
+  {formData.member_kitty_fee && <div className="summary-container">
             <div className="summary">
               <h5 className="summary-heading">Summary</h5>
               <hr
@@ -704,10 +713,10 @@ console.log(data);
                    Meeting Fee:
                   </span>{" "}
                  
-                  <span>  ₹  {kittyData[0]?.total_bill_amount
+                  <span>  ₹  {formData.member_kitty_fee
                           ? (
                               Number(
-                                kittyData[0]?.total_bill_amount||0
+                                formData.member_kitty_fee||0
                               )
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
@@ -718,10 +727,23 @@ console.log(data);
         
                 <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>GST (18%):</span>{" "}
-                  <span>₹  {kittyData[0]?.total_bill_amount
+                  <span>₹  {formData.member_kitty_fee
                           ? (
                              Math.round( Number(
-                              (kittyData[0]?.total_bill_amount)*0.18||0
+                              (formData.member_kitty_fee)*0.18||0
+                            ))
+                            ).toLocaleString("en-IN", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }) // Indian format
+                          : "0.00"}</span>
+                </p>
+                <p>
+                  <span style={{ fontWeight: "bold", fontSize: "14px" }}>Pending  Meeting Fee:</span>{" "}
+                  <span>₹  {formData.member_pending_meeting_fee
+                          ? (
+                             Math.round( Number(
+                              (formData.member_pending_meeting_fee)||0
                             ))
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
@@ -759,7 +781,7 @@ console.log(data);
                 <p>₹  {kittyData[0]?.total_bill_amount
                           ? (
                               Number(
-                                Number(kittyData[0]?.total_bill_amount) + Number(kittyData[0]?.total_bill_amount) * 0.18
+                                Number(kittyData[0]?.total_bill_amount)+Number(formData.member_pending_meeting_fee||0) + Number(kittyData[0]?.total_bill_amount) * 0.18
                               )
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,

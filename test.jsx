@@ -3,20 +3,25 @@ import './form.css';
 import border from "../../assets/images/form icons/border.png"
 import axios from 'axios';
 import ErrorBoundary from '../error/ErrorBoundary';
-import baseUrl from '../../utils/baseurl';
 import LoaderImg from '../loading/loading';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import paymentHandler from '../../utils/paymentHandler';
-import { useNavigate } from 'react-router-dom';
-
+import { load } from '@cashfreepayments/cashfree-js';
+import { useNavigate, useParams } from 'react-router-dom';
+import redirectUrl from '../../utils/redirectUrl';
+import baseUrl from '../../utils/baseurl';
 const MeetingPaymentsForm = () => {
   const [formData, setFormData] = useState({
     region: "new-delhi",
     chapter: '',
     memberName: '',
     email: '',
-    quarter: 'Jan-March',
+    member_id: "",
+    chapter_id: "",
+    region_id: "",
+    payment_note: "",
+    kitty_bill_type: '',
     renewalYear: '1Year',
     category: '',
     mobileNumber: '',
@@ -26,8 +31,15 @@ const MeetingPaymentsForm = () => {
     location: "",
     date: "",
     time: "",
+    kitty_description: "",
+    kitty_total_weeks:"",
     eventPrice: '',
-    eventName: ''
+    chapter_kitty_fees:'',
+    tax: "",
+    latefee: "",
+    sub_total:"",
+    total_amount: "",
+    eventName: '',
   });
   
   
@@ -44,9 +56,16 @@ const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [selectedMember, setSelectedMember] = useState(false);
   const [memberloading, setMemberLoading] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+
   const [showModal, setShowModal] = useState(false);
   const [events,setEvents]=useState();
   const [selctedEvent,setSelctedEvent]=useState();
+  const [kittyData, setKittyData] = useState({});
+ 
+
+  const { ulid,universal_link_id,payment_gateway} = useParams()
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -56,61 +75,85 @@ const [errors, setErrors] = useState({});
     });
   };
 
-  const handleChapterChange =async (e) => {
- try {
-  setLoading(true)
-  const selectedChapter = e.target.value;
-  setselectedChapter(e.target.value);
-
-
-  // Update formData with the selected chapter
-  setFormData({
-    ...formData,
-    chapter: selectedChapter,
-    memberName: "",
-    email: "",
-    quarter:"",
-    renewalYear: "1Year",
-    category: "",
-    mobileNumber: "",
-    address: "",
-    company: "",
-    gstin: "",
-    eventPrice: "",
-  });
-
-  const selectedChapterData = allChapterData?.find(
-    (chapter) => chapter?.chapter_name === selectedChapter
-  );
- 
-  setParticularChapterData(allChapterData[selectedChapter]);
-
-  // Find the index of the selected chapter
-  const selectedIndex = allChapterData?.findIndex(
-    (chapter) => chapter.chapter_name === selectedChapter
-  );
-  setselectedChapter(allChapterData[selectedIndex]);
-  // Call the function to handle the selected chapter data
-  if (selectedIndex !== -1) {
-    handleSelectedChapterData(selectedIndex);
-  }
-  const events= await axios.get(`${baseUrl}/api/allEvents`);
-setEvents(events.data)
-console.log(events)
-setLoading(false)
- } catch (error) {
-  setLoading(false)
-  toast.error("Something went wrong try again")
- }
-
+  const handleChapterChange = async (e) => {
+    try {
+      setLoading(true);
+      const selectedChapter = e.target.value;
+      setselectedChapter(selectedChapter);
+  
+      // Find the selected chapter data
+      const selectedChapterData = allChapterData?.find(
+        (chapter) => chapter?.chapter_name === selectedChapter
+      );
+  
+      if (!selectedChapterData) {
+        throw new Error("Selected chapter data not found");
+      }
+  
+      setParticularChapterData(selectedChapterData);
+      const { chapter_id, chapter_kitty_fees } = selectedChapterData;
+  
+      // Fetch kitty data for the selected chapter
+      const kittyResponse = await axios.get(`${baseUrl}/api/getKittyPayments`);
+      const filteredKittyData = kittyResponse.data.filter(
+        (item) => item.chapter_id === chapter_id
+      );
+  
+      setKittyData(filteredKittyData);
+  
+      // Safely extract `kitty_` after `kittyData` is updated
+      const billType = filteredKittyData[0]?.bill_type || "Select Bill Type";
+  
+      // Calculate financial details
+      const tax = (chapter_kitty_fees * 0.18).toFixed(2);
+      const total_amount = (parseFloat(tax) + parseFloat(chapter_kitty_fees)).toFixed(2);
+  const total_weeks=  filteredKittyData[0]?.total_weeks;
+  const description=  filteredKittyData[0]?.description;
+      // Update formData with the selected chapter and calculated values
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        chapter: selectedChapter,
+        memberName: "",
+        email: "",
+        kitty_bill_type: billType, // Use the extracted billType
+        category: "",
+        mobileNumber: "",
+        company: "",
+        gstin: "",
+        kitty_description:description,
+        kitty_total_weeks:total_weeks,
+        sub_total: chapter_kitty_fees,
+        tax,
+        total_amount,
+      }));
+  
+      // Find the index of the selected chapter
+      const selectedIndex = allChapterData?.findIndex(
+        (chapter) => chapter.chapter_name === selectedChapter
+      );
+  
+      if (selectedIndex !== -1) {
+        setselectedChapter(allChapterData[selectedIndex]);
+        setParticularChapterData(allChapterData[selectedIndex]);
+      }
+  
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.error("Error in handleChapterChange:", error);
+      toast.error("Something went wrong, please try again.");
+    }
   };
+  
 
+  console.log(kittyData);
   const handleRegionChange = async (e) => {
     const selectedIndex = e.target.value;
     const selectedRegionData = regionData[selectedIndex];
 
     // Update formData with the selected region name
     const updatedRegion = selectedRegionData?.region_name || e.target.value;
+    console.log(updatedRegion);
     setFormData({
       ...formData,
       region: updatedRegion, // Ensure formData includes selected region
@@ -119,23 +162,23 @@ setLoading(false)
       renewalYear: "1Year",
       category: "",
       mobileNumber: "",
-      address: "",
+
       company: "",
-      quarter:"",
       gstin: "",
-      eventPrice: "",
     });
-    setmemberData("")
+
     setSelectedRegion(selectedRegionData);
     setParticularRegionData(selectedRegionData);
 
+    setselectedChapter("");
+    formData.chapter = "";
     try {
       setLoading(true);
 
       // If "New Delhi" is selected, fetch all chapters
       if (updatedRegion.toLowerCase() === "new-delhi") {
         const res = await axios.get(`${baseUrl}/api/chapters`);
-        setChapterData(res.data); // Display all chapters
+        // setChapterData(res.data); // Display all chapters
         setallChapterData(res.data);
       } else {
         // Filter chapters based on selected region's region_id
@@ -143,6 +186,7 @@ setLoading(false)
         const filteredChapters = res.data.filter(
           (item) => item.region_id === selectedRegionData?.region_id
         );
+        console.log("chapterData",res.data)
         setChapterData(filteredChapters);
         setallChapterData(res.data);
       }
@@ -175,7 +219,7 @@ setLoading(false)
       // If the selected region is "new-delhi", show all members
       if (formData.region.toLowerCase() === "new-delhi") {
         // Set to all members
-        // console.log(memberRes.data)
+
         filteredMembers = memberRes.data.filter((item) => {
        
           return (
@@ -223,25 +267,26 @@ setLoading(false)
   const memberDataHandler = async (index) => {
     setSelectedMember(true);
     const particularMember = memberData[index];
-
-    formData.memberName =
-      particularMember.member_first_name +
-      " " +
-      particularMember.member_last_name;
-    formData.email = particularMember.member_email_address;
-    (formData.mobileNumber = particularMember.member_phone_number),
-      (formData.category = particularMember.member_category);
-    formData.company = particularMember.member_company_name;
-    formData.gstin = particularMember.member_gst_number;
-    formData.renewalYear = "1Year";
+// console.log(particularMember);
+const {data}=await axios.get(`${baseUrl}/api/getMemberId/${particularMember.member_id}`);
+console.log(data)
+setFormData((prevFormData) => ({
+  ...prevFormData,
+  memberName: data?.member_first_name + " " + data?.member_last_name,
+  email: data?.member_email_address,
+  mobileNumber: data?.member_phone_number,
+  member_id: data?.member_id,
+  category: data?.member_category,
+  company: data?.member_company_name,
+  gstin: data?.member_gst_number,
+  renewalYear: "1Year", // Set renewal year
+}));
   };
 
   const handleSelectedChapterData = async (index) => {
     setParticularChapterData(chapterData[index]);
   };
 
-  
-  
 
   useEffect(() => {
     const fetchRegions = async () => {
@@ -249,11 +294,12 @@ setLoading(false)
         setLoading(true);
         const res = await axios.get(`${baseUrl}/api/regions`);
         setRegionData(res.data);
+
         // If "New Delhi" is the default region, fetch all chapters
         if (formData.region === "new-delhi") {
           const chapterRes = await axios.get(`${baseUrl}/api/chapters`);
           setChapterData(chapterRes.data);
-          setSelectedRegion("new-delhi")
+          setParticularChapterData(chapterRes.data[0])
           setallChapterData(chapterRes.data);
         }
 
@@ -266,8 +312,9 @@ setLoading(false)
     };
 
     fetchRegions();
-  }, [formData.region,]);
+  }, [formData.region]);
 
+  
   const validate = () => {
     const errors = {};
     if (!formData.region) errors.region = "BNI Region is required";
@@ -275,22 +322,124 @@ setLoading(false)
     if (!formData.memberName) errors.memberName = "Member Name is required";
     if (!formData.email) errors.email = "Email is required";
     if (!formData.renewalYear) errors.renewalYear = "Renewal Year is required";
-    if (!formData.category) errors.category = "Category is required";
+    if (!formData.kitty_bill_type) errors.kitty_bill_type = "Bill type is required";
     if (!formData.mobileNumber)
       errors.mobileNumber = "Mobile Number is required";
-    if (!formData.address) errors.address = "Address is required";
-    if (!formData.company) errors.company = "Company is required";
-    if (!formData.eventPrice) errors.eventPrice = "Payment Type is required";
+    if (!formData.kitty_total_weeks) errors.kitty_total_weeks = "Kitty total weeks is required";
+    if (!formData.kitty_description) errors.kitty_description = "Kitty description is required";
+    // if (!formData.eventPrice) errors.eventPrice = "Payment Type is required";
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
-
-  const handleSubmit = (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(particularChapterData)
+      // Log values for debugging
+      const kitty_fee = particularChapterData?.chapter_kitty_fees;
+      const tax = (kitty_fee * 0.18).toFixed(2);
+      const total_amount = (parseFloat(tax) + parseFloat(kitty_fee)).toFixed(2);
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+   total_amount:total_amount,
+   sub_total:kitty_fee,
+   tax:tax,
+  
+
+      }));
+    
+      // console.log(particularChapterData)
     if (validate()) {
-      alert("Form submitted successfully!");
+      // Create form data
+      console.log(formData)
+    
+      const data = {
+        order_amount: formData.total_amount.toString(),
+        order_note: formData.payment_note.toString(),
+        order_currency: "INR",
+        customer_details: {
+          ...formData,
+          ulid_id:`${ulid}`,
+          universallink_name:"meeting-payments",
+          customer_id:`User${formData.member_id}`,
+          payment_note: "meeting-payments",
+          Customer_name: formData.memberName,
+          customer_email: formData.email,
+          customer_phone: formData.mobileNumber,
+          chapter_id: particularChapterData?.chapter_id,
+          universal_link_id:`${universal_link_id}`,
+          payment_gateway_id:`${payment_gateway}`,
+      region_id: particularChapterData?.region_id,
+        },
+
+        order_meta: {
+          payment_note:formData.payment_note,
+          notify_url:
+            "https://webhook.site/790283fa-f414-4260-af91-89f17e984ce2",
+        },
+      };
+
+console.log(data);
+
+      try {
+
+
+        setPaymentLoading(true);
+
+        const cashfree = await load({
+          mode: "sandbox" // or "production"
+        });
+       
+        const res = await axios.post(
+          `${baseUrl}/api/generate-cashfree-session`, 
+          data, // Make sure 'data' is the payload you want to send
+          
+        );
+        console.log(res.data);
+      
+
+        let checkoutOptions = {
+          paymentSessionId: res.data.payment_session_id,
+          redirectTarget: "_self", //optional ( _self, _blank, or _top)
+          // returnUrl: `https://bnipayments.nidmm.org/payment-status/${res.data.order_id}`,
+          returnUrl: `${redirectUrl}/api/getCashfreeOrderDataAndVerifyPayment/${res.data.order_id}`,
+        };
+
+        await cashfree.checkout(checkoutOptions).then((result) => {
+          if (result.error) {
+
+            console.log(
+              "User has closed the popup or there is some payment error, Check for Payment Status"
+            );
+            console.log(result.error);
+            setPaymentLoading(false);
+            alert(result.error.error);
+          }
+          if (result.redirect) {
+
+            console.log("Payment will be redirected");
+            setPaymentLoading(false);
+          }
+          if (result.paymentDetails) {
+
+            console.log("Payment has been completed, Check for Payment Status");
+            console.log(result.paymentDetails.paymentMessage);
+            setPaymentLoading(false);
+          }
+        });
+        // Handle the response data
+      } catch (error) {
+        setPaymentLoading(false);
+        console.error(
+          "Error:",
+          error.response ? error.response.data : error.message
+        );
+        alert(error.message);
+      }
+    } else {
+      alert("Please fill all the required feilds");
     }
   };
+
 
   return (
 <>
@@ -298,8 +447,8 @@ setLoading(false)
     <ErrorBoundary>
         
      {loading? <LoaderImg/>: <div className="form-container">
-        <div className="form-header">
-          <h1> All TRAINING PAYMENTS</h1>
+        <div className="flex flex-col items-center justify-center text-center mb-4">
+          <h1 className='text-4xl'>MEETING PAYMENTS</h1>
           <img src={border} alt="" style={{ width: "250px" }} />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent:'space-between',alignItems:'center', }}>
@@ -348,7 +497,7 @@ setLoading(false)
   >
     <option value="">Select Chapter</option>
     {chapterData && chapterData.map((chapter, index) => (
-      <option value={index} key={index}>
+      <option value={chapter.chapter_name} key={index}>
         {chapter.chapter_name}
       </option>
     ))}
@@ -434,77 +583,46 @@ setLoading(false)
                 {errors.mobileNumber && <small className="error-text">{errors.mobileNumber}</small>}
               </div>
 
-<div className="form-group">
-<label htmlFor="quarter">Select Quarter </label>
-<select
-  id="quarter"
-  name="quarter"
-  value={formData.quarter}
-  onChange={handleChange}
-  className={errors.quarter ? 'error' : ''}
->
-  <option value="">Select Quarter </option>
-  <option value="Jan-March">Jan-March(2024)</option>
-  <option value="Apr-June">Apr-June(2024)</option>
-  <option value="July-Sep">July-Sep(2024)</option>
-  <option value="Oct-Dec">Oct-Dec(2024)</option>
-</select>
-{errors.quarter && <small className="error-text">{errors.quarter}</small>}
-</div>
               <div className="form-group">
-<label htmlFor="quarter">Select Quarter </label>
-<select
-  id="quarter"
-  name="quarter"
-  value={formData.quarter}
-  onChange={handleChange}
-  className={errors.quarter ? 'error' : ''}
->
-  <option value="">Select Quarter </option>
-  <option value="Jan-March">Jan-March(2024)</option>
-  <option value="Apr-June">Apr-June(2024)</option>
-  <option value="July-Sep">July-Sep(2024)</option>
-  <option value="Oct-Dec">Oct-Dec(2024)</option>
-</select>
-{errors.quarter && <small className="error-text">{errors.quarter}</small>}
+  <label htmlFor="kitty_bill_type">Bill Type</label>
+  <select
+    id="kitty_bill_type"
+    name="kitty_bill_type"
+    value={formData?.kitty_bill_type || ''} // Default to an empty string if undefined
+    onChange={handleChange}
+    className={errors.kitty_bill_type ? 'error' : ''}
+    disabled
+  >
+    {/* Dynamically render options based on available data */}
+  
+        <option value={kittyData[0]?.bill_type} selected>
+          {kittyData[0]?.bill_type.charAt(0).toUpperCase() + kittyData[0]?.bill_type.slice(1)}
+        </option>
+    
+  </select>
+  {errors.kitty_bill_type && <small className="error-text">{errors.kitty_bill_type}</small>}
 </div>
 
+ 
 
-    {formData.eventName && (
+
+    {kittyData && (
       <div className="form-group">
-        <label htmlFor="date">Event Date :</label>
+        <label htmlFor="kitty_total_weeks">Total Weeks :</label>
         <input
-          id="date"
-          name="date"
-          value={formData.date}  // Bind the date input to formData.date
-          type="date"  // Corrected to "date"
+          id="kitty_total_weeks"
+          name="kitty_total_weeks"
+          value={formData.kitty_total_weeks}  // Bind the kitty_total_weeks input to formData.kitty_total_weeks
+          type="kitty_total_weeks"  // Corrected to "kitty_total_weeks"
           onChange={handleChange} // If you have a specific handler for changes
-          placeholder='Event date fetch automatically on selecting event'
-          className={errors.date ? 'error' : ''}
+          placeholder='Kitty Total Weeks '
+          className={errors.kitty_total_weeks ? 'error' : ''}
           readOnly // You can keep this readOnly if you don't want users to edit it
         />
         
-        {errors.date && <small className="error-text">{errors.date}</small>}
+        {errors.kitty_total_weeks && <small className="error-text">{errors.kitty_total_weeks}</small>}
       </div>
     )}
-              <div className="form-group">
-                <label htmlFor="eventPrice">Payment Type :</label>
-                <select
-                  id="eventPrice"
-                  name="eventPrice"
-                  value={formData.eventPrice}
-                  onChange={handleChange}
-                  className={errors.eventPrice ? 'error' : ''}
-              
-                >
-                  <option value="">CREDIT / DEBIT / NET BANKING</option>
-                  <option value="credit">Credit (1.25%)</option>
-                  <option value="debit">Debit (1.25%)</option>
-               
-                  <option value="netBanking">Net Banking (1.25%)</option>
-                </select>
-                {errors.eventPrice && <small className="error-text">{errors.eventPrice}</small>}
-              </div>
             </div>
 
             <div className="form-right">
@@ -556,9 +674,24 @@ setLoading(false)
                   *Please fill null if you don't have GST Number
                 </p>
               </div>
+
+              <div className="form-group">
+                <label htmlFor="kitty_description">Description</label>
+                <input
+                  type="text"
+                  id="kitty_description"
+                  name="kitty_description"
+                  value={formData.kitty_description}
+                  onChange={handleChange}
+                  placeholder=" kitty description is required"
+                />
+               
+              </div>
+
+
             </div>
           </form>
-{formData.eventPrice && <div className="summary-container">
+  {kittyData[0]?.total_bill_amount && <div className="summary-container">
             <div className="summary">
               <h5 className="summary-heading">Summary</h5>
               <hr
@@ -568,13 +701,13 @@ setLoading(false)
            
                  <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>
-                   Event/Training Fee:
+                   Meeting Fee:
                   </span>{" "}
                  
-                  <span>  ₹  {formData.eventPrice
+                  <span>  ₹  {kittyData[0]?.total_bill_amount
                           ? (
                               Number(
-                                formData?.eventPrice||0
+                                kittyData[0]?.total_bill_amount||0
                               )
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
@@ -585,11 +718,11 @@ setLoading(false)
         
                 <p>
                   <span style={{ fontWeight: "bold", fontSize: "14px" }}>GST (18%):</span>{" "}
-                  <span>₹  {formData.eventPrice
+                  <span>₹  {kittyData[0]?.total_bill_amount
                           ? (
-                              Number(
-                                (formData?.eventPrice)*0.18||0
-                              )
+                             Math.round( Number(
+                              (kittyData[0]?.total_bill_amount)*0.18||0
+                            ))
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
@@ -623,10 +756,10 @@ setLoading(false)
                           </span>
                         </p>
                 </div>
-                <p>₹  {formData.eventPrice
+                <p>₹  {kittyData[0]?.total_bill_amount
                           ? (
                               Number(
-                                Number(formData.eventPrice) + Number(formData.eventPrice) * 0.18
+                                Number(kittyData[0]?.total_bill_amount) + Number(kittyData[0]?.total_bill_amount) * 0.18
                               )
                             ).toLocaleString("en-IN", {
                               minimumFractionDigits: 2,
