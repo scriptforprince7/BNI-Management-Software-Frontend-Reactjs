@@ -27,7 +27,13 @@ const Footer = () => {
             <a href="#">All Training Payments</a>
             <a href="#">Meeting Payment</a>
           </p>
+          <p className='footer-terms'>
+            <a className='footer-terms-links' href='https://drive.google.com/file/d/1KF7hCZI1opGfhMqMR7u8pKg_xyXDdkbj/view?usp=sharing' target='_blank'>Terms and Services</a>| 
+            <a className='footer-terms-links' href='https://drive.google.com/file/d/1S-_REBAkNcn2ASmm44Fr1OJJans9UI0q/view?usp=sharing' target='_blank'>Privacy Policy</a>| 
+            <a className='footer-terms-links' href='https://drive.google.com/file/d/1bzVgN38TN4YvQ_XHWtHuLW8UrOWBNz_n/view?usp=sharing' target='_blank'>Data Retention Policy</a>
+          </p>
           <p className="footer-company-name">BNI NEW Delhi © 2015</p>
+          
         </div>
 
         <div className="footer-center" >

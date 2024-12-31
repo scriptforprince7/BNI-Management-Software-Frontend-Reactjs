@@ -187,6 +187,19 @@ color: White;
 font-size: 10px;
 	
 }
+.footer-terms{
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+.footer-terms-links{
+	color: #000000;
+	margin-left: 3px;
+	margin-right: 3px;
+	font-weight:400;
+}
+.footer-terms-links:hover{
+	color:#d12031;
+}
 
 
 /* If you don't want the footer to be responsive, remove these media queries */

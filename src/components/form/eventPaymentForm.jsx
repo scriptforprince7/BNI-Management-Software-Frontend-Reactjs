@@ -247,7 +247,7 @@ setLoading(false)
     console.log(eventId)
     const particularEvent = events[eventId] // Find the event based on event_id
   setSelctedEvent(particularEvent)
-    const eventPrice = Number(selctedEvent.event_price);
+    const eventPrice = Number(selctedEvent?.event_price);
     if (selctedEvent) {
       // Convert event_date to a Date object
       const eventDate = new Date(selctedEvent.event_date);
@@ -331,8 +331,6 @@ setLoading(false)
         },
       };
 
-console.log(data);
-return
       try {
 
 

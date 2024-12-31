@@ -202,20 +202,42 @@ const InclusionexclusionSheet = () => {
                     }
                   />{" "}
                   chapter.
-                  <span className="font-semibold ml-5">
-                  <input
-                    className="mx-2 scale-110"
-                    type="checkbox"
-                    checked={inclusionexclusionSheet.confirmation1}
-                    onChange={(e) =>
-                      setInclusionexlusionSheet({
-                        ...inclusionexclusionSheet,
-                        confirmation1: e.target.checked,
-                      })
-                    }
-                  />I Confirm
+                  <div className="flex justify-end">
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      name="confirmation1"
+                      checked={inclusionexclusionSheet.confirmation1 === true}
+                      onChange={() =>
+                        setInclusionexlusionSheet({
+                          ...inclusionexclusionSheet,
+                          confirmation1: true,
+                        })
+                      }
+                    />
+                    <label htmlFor="agree" className="font-semibold">
+                      I Confirm
+                    </label>
                   </span>
-                  
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      name="confirmation1"
+                      checked={inclusionexclusionSheet.confirmation1 === false}
+                      onChange={() =>
+                        setInclusionexlusionSheet({
+                          ...inclusionexclusionSheet,
+                          confirmation1: false,
+                        })
+                      }
+                    />
+                    <label htmlFor="disagree" className="font-semibold">
+                      I Decline
+                    </label>
+                  </span>
+                  </div>
                 </p>
               </div>
               <div className="flex items-start">
@@ -224,42 +246,87 @@ const InclusionexclusionSheet = () => {
                   I confirm that the BNI Classification I have chosen is my
                   primary business.
                 </p>
-                <span className="font-semibold ml-5">
-                  <input
-                    className="mx-2 scale-110"
-                    type="checkbox"
-                    checked={inclusionexclusionSheet.confirmation2}
-                    onChange={(e) =>
-                      setInclusionexlusionSheet({
-                        ...inclusionexclusionSheet,
-                        confirmation2: e.target.checked,
-                      })
-                    }
-                  />I Confirm
-                  </span>
               </div>
+              <div className="flex justify-end">
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      name="confirmation2"
+                      checked={inclusionexclusionSheet.confirmation2 === true}
+                      onChange={() =>
+                        setInclusionexlusionSheet({
+                          ...inclusionexclusionSheet,
+                          confirmation2: true,
+                        })
+                      }
+                    />
+                    <label htmlFor="agree" className="font-semibold">
+                      I Confirm
+                    </label>
+                  </span>
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      name="confirmation2"
+                      checked={inclusionexclusionSheet.confirmation2 === false}
+                      onChange={() =>
+                        setInclusionexlusionSheet({
+                          ...inclusionexclusionSheet,
+                          confirmation2: false,
+                        })
+                      }
+                    />
+                    <label htmlFor="disagree" className="font-semibold">
+                      I Decline
+                    </label>
+                  </span>
+                  </div>
               <div className="flex items-start">
                 <span className="font-bold mr-2">3.</span>
                 <p className="flex">
                   I confirm that I will not represent any other vertical of my
                   business or my family member&apos;s business in the chapter or
                   in 1-2-1&apos;s or in any BNI premises.
-                  <span className="font-semibold ml-5">
-                  <input
-                    className="mx-2 scale-110"
-                    type="checkbox"
-                    checked={inclusionexclusionSheet.confirmation3}
-                    onChange={(e) =>
-                      setInclusionexlusionSheet({
-                        ...inclusionexclusionSheet,
-                        confirmation3: e.target.checked,
-                      })
-                    }
-                  />I Confirm
-                  </span>
                 </p>
-                
               </div>
+              <div className="flex justify-end">
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      name="confirmation3"
+                      checked={inclusionexclusionSheet.confirmation3 === true}
+                      onChange={() =>
+                        setInclusionexlusionSheet({
+                          ...inclusionexclusionSheet,
+                          confirmation3: true,
+                        })
+                      }
+                    />
+                    <label htmlFor="agree" className="font-semibold">
+                      I Confirm
+                    </label>
+                  </span>
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      name="confirmation3"
+                      checked={inclusionexclusionSheet.confirmation3 === false}
+                      onChange={() =>
+                        setInclusionexlusionSheet({
+                          ...inclusionexclusionSheet,
+                          confirmation3: false,
+                        })
+                      }
+                    />
+                    <label htmlFor="disagree" className="font-semibold">
+                      I Decline
+                    </label>
+                  </span>
+                  </div>
               <div className="flex items-start">
                 <span className="font-bold mr-2">4.</span>
                 <p>
@@ -267,20 +334,43 @@ const InclusionexclusionSheet = () => {
                   classification and will do business with BNI members
                   truthfully representing only my BNI classification.
                 </p>
-                <span className="font-semibold ml-5">
-                  <input
-                    className="mx-2 scale-110"
-                    type="checkbox"
-                    checked={inclusionexclusionSheet.confirmation4}
-                    onChange={(e) =>
-                      setInclusionexlusionSheet({
-                        ...inclusionexclusionSheet,
-                        confirmation4: e.target.checked,
-                      })
-                    }
-                  />I Confirm
-                  </span>
               </div>
+              <div className="flex justify-end">
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      name="confirmation4"
+                      checked={inclusionexclusionSheet.confirmation4 === true}
+                      onChange={() =>
+                        setInclusionexlusionSheet({
+                          ...inclusionexclusionSheet,
+                          confirmation4: true,
+                        })
+                      }
+                    />
+                    <label htmlFor="agree" className="font-semibold">
+                      I Confirm
+                    </label>
+                  </span>
+                  <span>
+                    <input
+                      className="ml-2 scale-110 mr-2"
+                      type="radio"
+                      name="confirmation4"
+                      checked={inclusionexclusionSheet.confirmation4 === false}
+                      onChange={() =>
+                        setInclusionexlusionSheet({
+                          ...inclusionexclusionSheet,
+                          confirmation4: false,
+                        })
+                      }
+                    />
+                    <label htmlFor="disagree" className="font-semibold">
+                      I Decline 
+                    </label>
+                  </span>
+                  </div>
               <div className="flex flex-col">
                 <label
                   htmlFor="expertise"
